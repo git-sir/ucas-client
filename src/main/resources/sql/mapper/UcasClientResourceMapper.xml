@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ucsmy.ucas.manage.dao.UcasClientResourceMapper">
+
+    <resultMap id="resource" type="com.ucsmy.ucas.manage.ext.UcasClientResourcePojo">
+        <result column="RES_UUID" property="resUuid" jdbcType="VARCHAR" />
+        <result column="RES_GROUP_UUID" property="resGroupUuid" jdbcType="VARCHAR" />
+        <result column="RES_URI" property="resUri" jdbcType="VARCHAR" />
+        <result column="DESC_RIBE" property="descRibe" jdbcType="VARCHAR" />
+        <result column="IS_PRIVACY" property="isPrivacy" jdbcType="CHAR" />
+        <result column="IS_DEFAULT" property="isDefault" jdbcType="CHAR" />
+        <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+        <result column="MODIFY_DATE" property="modifyDate" jdbcType="TIMESTAMP" />
+        <result column="STATUS" property="status" jdbcType="CHAR" />
+        <result column="GROUP_NAME" property="groupName" jdbcType="VARCHAR" />
+        <result column="CLIENT_NAME" property="clientName" jdbcType="VARCHAR" />
+        <result column="CLIENT_ID" property="clientId" jdbcType="VARCHAR" />
+    </resultMap>
+
+	<select id="queryResource" resultMap="resource">
+        select a.*,b.GROUP_NAME,c.CLIENT_NAME,c.CLIENT_ID from ucas_client_resource a 
+        left join ucas_resource_group b on a.RES_GROUP_UUID=b.RES_GROUP_UUID 
+        left join ucas_client_info c on b.CLIENT_ID=c.CLIENT_ID
+        <where>
+        	c.STATUS = #{clientStatus}        	
+        	<if test="!(status == null || status == '')">
+                and a.STATUS = #{status}
+            </if>
+            <if test="!(resUuid == null || resUuid == '')">
+                and a.RES_UUID = #{resUuid}
+            </if>
+            <if test="!(resGroupUuid == null || resGroupUuid == '')">
+                and a.RES_GROUP_UUID = #{resGroupUuid}
+            </if>
+            <if test="!(clientId == null || clientId == '')">
+                and c.CLIENT_ID = #{clientId}
+            </if>            
+        </where>
+        order by
+        a.MODIFY_DATE desc,
+        a.CREATE_DATE desc
+    </select>
+
+    <select id="getResourceList" resultType="com.ucsmy.ucas.manage.entity.UcasClientResource" parameterType="map">
+        SELECT *
+        FROM ucas_client_resource
+        <where>
+            <if test="!(resGroupUuid == null || resGroupUuid == '')">
+                AND RES_GROUP_UUID=#{resGroupUuid}
+            </if>
+            <if test="!(status == null || status == '')">
+                AND `STATUS`=#{status}
+            </if>
+        </where>
+    </select>
+
+    <insert id="addResource"  parameterType="com.ucsmy.ucas.manage.entity.UcasClientResource">
+        insert into
+        ucas_client_resource(RES_UUID, RES_GROUP_UUID, RES_URI, DESC_RIBE, IS_PRIVACY, IS_DEFAULT, CREATE_DATE, MODIFY_DATE, STATUS)
+        values(
+        #{resUuid},
+        #{resGroupUuid},
+        #{resUri},
+        #{descRibe},
+        #{isPrivacy},
+        #{isDefault},
+        #{createDate},
+        #{modifyDate},
+        #{status}
+        )
+    </insert>
+
+    <update id="editResource" parameterType="com.ucsmy.ucas.manage.entity.UcasClientResource">
+        update
+        ucas_client_resource
+        set
+        RES_GROUP_UUID = #{resGroupUuid},
+        RES_URI = #{resUri},
+        DESC_RIBE = #{descRibe},
+        IS_PRIVACY = #{isPrivacy},
+        IS_DEFAULT = #{isDefault},
+        CREATE_DATE = #{createDate},
+        MODIFY_DATE = #{modifyDate},
+        STATUS = #{status}
+        where
+        RES_UUID = #{resUuid}
+    </update>
+
+    <delete id="deleteResource" parameterType="string">
+        delete from
+        ucas_client_resource
+        where
+        RES_UUID = #{resUuid}
+    </delete>
+    
+    <select id="isResUriExist" resultType="int">
+        select count(1) from ucas_client_resource where STATUS = #{status} and RES_GROUP_UUID in 
+		(select RES_GROUP_UUID from ucas_resource_group where CLIENT_ID in 
+		(select CLIENT_ID from ucas_resource_group where RES_GROUP_UUID=#{resGroupUuid})) 
+		and RES_URI=#{resUri}
+    </select>
+
+</mapper>

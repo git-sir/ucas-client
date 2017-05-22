@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ucsmy.ucas.manage.dao.UcasClientInfoMapper">
+
+    <sql id="queryCondition">
+        SELECT
+        a.client_id as clientId,
+        a.clig_uuid as cligUuid,
+        a.client_secret as clientSecret,
+        a.client_name as clientName,
+        a.desc_ribe as `descRibe`,
+        a.grant_type as grantType,
+        a.client_url as clientUrl,
+        a.status as status,
+        a.create_date as createDate,
+        a.modify_date as modifyDate,
+        b.clig_uuid as "ucasClientGroup.cliguuid",
+        b.group_name as "ucasClientGroup.groupname",
+        b.desc_ribe as "ucasClientGroup.describe",
+        b.is_sso as "ucasClientGroup.issso"
+        FROM ucas_client_info a left join ucas_client_group b on a.clig_uuid = b.clig_uuid
+    </sql>
+
+    <select id="queryUcasClientInfo" resultType="com.ucsmy.ucas.manage.entity.UcasClientInfo" parameterType="map">
+        <include refid="queryCondition"/>
+        <where>
+            <if test="!(name == null || name == '')">
+                and client_name LIKE CONCAT('%',#{name}, '%')
+            </if>
+            <if test="!(clientId == null || clientId == '')">
+                and client_id LIKE CONCAT('%',#{clientId}, '%')
+            </if>
+            <if test="!(status == null || status == '')">
+                and status = #{status}
+            </if>
+            <if test="!(clientGroupName == null || clientGroupName == '')">
+                and b.group_name LIKE CONCAT('%',#{clientGroupName}, '%')
+            </if>
+            <if test="!(grantType == null || grantType == '')">
+                <choose>
+                    <!-- 查询authorization_code的记录时只查以authorization_code开头的，避免把proxy_authorization_code的记录也查出来 -->
+                    <when test="grantType == 'authorization_code'">
+                        and grant_type LIKE CONCAT(#{grantType}, '%')
+                    </when>
+                    <otherwise>
+                        and grant_type LIKE CONCAT('%',#{grantType}, '%')
+                    </otherwise>
+                </choose>
+            </if>
+        </where>
+        order by MODIFY_DATE DESC
+    </select>
+
+    <select id="countClientInfoByCligUuid" resultType="Integer" parameterType="map">
+        SELECT COUNT(*)
+        FROM ucas_client_info
+        WHERE clig_uuid=#{cligUuid}
+        AND `status`=#{status}
+    </select>
+
+    <select id="queryClientInfoByCligUuid" resultType="com.ucsmy.ucas.manage.entity.UcasClientInfo" parameterType="map">
+        <include refid="queryCondition"/>
+        <where>
+            a.clig_uuid=#{cligUuid}
+            <if test="!(clientName == null || clientName == '')">
+                AND a.client_name LIKE concat('%', #{clientName}, '%')
+            </if>
+            <if test="!(grantType == null || grantType == '')">
+                AND a.grant_type LIKE concat('%', #{grantType}, '%')
+            </if>
+            AND a.`status`=#{status}
+        </where>
+        order by MODIFY_DATE DESC
+    </select>
+    
+    <select id="checkClientNameExist" resultType="int" parameterType="String">
+        select 1 from ucas_client_info where client_name=#{clientName} and status=#{status} limit 1
+    </select>
+
+    <select id="getClientInfoByClientId" resultType="com.ucsmy.ucas.manage.entity.UcasClientInfo" parameterType="map">
+        <include refid="queryCondition"/>
+        <where>
+            a.client_id=#{clientId}
+            <if test="!(status == null || status == '')">
+                and a.`status`=#{status}
+            </if>
+        </where>
+    </select>
+
+    <!-- 保存,保存全部字段 -->
+    <insert id="addClientInfo" parameterType="com.ucsmy.ucas.manage.entity.UcasClientInfo">
+        INSERT INTO ucas_client_info (
+        `client_id`
+        , `clig_uuid`
+        , `client_secret`
+        , `client_name`
+        , `desc_ribe`
+        , `grant_type`
+        , `client_url`
+        , `status`
+        , `create_date`
+        , `modify_date`
+        )
+        VALUES (
+        #{clientId}
+        , #{cligUuid}
+        , #{clientSecret}
+        , #{clientName}
+        , #{descRibe}
+        , #{grantType}
+        , #{clientUrl}
+        , #{status}
+        , #{createDate}
+        , #{modifyDate}
+        )
+    </insert>
+
+    <update id="updateClientInfo" parameterType="com.ucsmy.ucas.manage.entity.UcasClientInfo">
+        UPDATE ucas_client_info
+        <set>
+            client_id=#{clientId},
+            clig_uuid=#{cligUuid},
+            client_name=#{clientName},
+            desc_ribe=#{descRibe},
+            grant_type=#{grantType},
+            client_url=#{clientUrl},
+            modify_date=#{modifyDate},
+            <if test="!(clientSecret == null || clientSecret == '')">
+                client_secret=#{clientSecret},
+            </if>
+            <if test="!(createDate == null)">
+                create_date=#{createDate},
+            </if>
+            <if test="!(status == null || status == '')">
+                status=#{status},
+            </if>
+        </set>
+        WHERE client_id=#{clientId}
+    </update>
+
+    <delete id="deleteClientInfo" parameterType="String">
+        DELETE FROM ucas_client_info
+        WHERE client_id=#{clientId};
+    </delete>
+
+    <select id="queryByClientId" resultType="com.ucsmy.ucas.manage.entity.UcasClientInfo" parameterType="String">
+        <include refid="queryCondition"/>
+        WHERE client_id=#{clientId}
+    </select>
+</mapper>

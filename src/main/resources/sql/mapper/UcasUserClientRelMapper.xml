@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ucsmy.ucas.manage.dao.UcasUserClientRelMapper">
+
+    <resultMap id="userClientRel" type="com.ucsmy.ucas.manage.ext.UserRelClientInfoPojo">
+        <result column="OPEN_ID" property="openId" jdbcType="VARCHAR" />
+        <result column="ACC_UUID" property="accUuid" jdbcType="VARCHAR" />
+        <result column="CLIENT_ID" property="clientId" jdbcType="VARCHAR" />
+        <result column="CLIENT_NAME" property="clientName" jdbcType="VARCHAR" />
+        <result column="DESC_RIBE" property="descRibe" jdbcType="VARCHAR" />
+    </resultMap>
+    
+    <select id="queryUserRelClientInfo" resultMap="userClientRel" parameterType="Map">
+        SELECT
+        OPEN_ID,
+        ACC_UUID,
+        a.CLIENT_ID AS CLIENT_ID,
+        CLIENT_NAME,
+        DESC_RIBE
+        FROM ucas_user_client_rel a
+        LEFT JOIN ucas_client_info b ON a.CLIENT_ID=b.CLIENT_ID
+        <where>
+            <if test="!(clientName == null || clientName == '')">
+                CLIENT_NAME LIKE concat('%', #{clientName}, '%')
+            </if>
+            <if test="!(openId == null || openId == '')">
+                AND OPEN_ID=#{openId}
+            </if>
+            AND ACC_UUID=#{accUuid}
+            AND `STATUS`=#{status}
+        </where>
+        ORDER BY MODIFY_DATE DESC
+    </select>
+
+    <delete id="deleteUserRelClient" parameterType="String">
+        DELETE FROM ucas_user_client_rel
+        WHERE OPEN_ID=#{openId}
+    </delete>
+</mapper>

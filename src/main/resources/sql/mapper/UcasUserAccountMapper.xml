@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ucsmy.ucas.manage.dao.UcasUserAccountMapper">
+
+    <resultMap id="userRelManage" type="com.ucsmy.ucas.manage.ext.UserRelManageListPojo">
+        <result column="ACC_UUID" property="accUuid" jdbcType="VARCHAR" />
+        <result column="UCAS_ACCOUNT" property="ucasAccount" jdbcType="VARCHAR" />
+        <result column="ACCG_UUID" property="accgUuid" jdbcType="VARCHAR" />
+        <result column="STATUS" property="status" jdbcType="VARCHAR" />
+        <result column="SEX" property="sex" jdbcType="VARCHAR" />
+        <result column="REAL_NAME" property="realName" jdbcType="VARCHAR" />
+        <result column="MOBILE_PHONE" property="mobilePhone" jdbcType="VARCHAR" />
+        <result column="EMAIL_ACCOUNT" property="emailAccount" jdbcType="VARCHAR" />
+        <result column="MOBILE_ACCOUNT" property="mobileAccount" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <select id="queryUserAccountForRelManage" resultMap="userRelManage" parameterType="map">
+        SELECT
+        a.ACC_UUID AS ACC_UUID,
+        UCAS_ACCOUNT,
+        ACCG_UUID,
+        STATUS,
+        SEX,
+        REAL_NAME,
+        MOBILE_PHONE
+        FROM ucas_user_account a
+        LEFT JOIN ucas_user_info b
+        ON a.ACC_UUID = b.ACC_UUID
+        <where>
+            <if test="!(ucasAccount == null | ucasAccount == '')">
+                AND UCAS_ACCOUNT LIKE concat('%', #{ucasAccount}, '%')
+            </if>
+            <if test="!(accgUuid == null || accgUuid =='')">
+                AND a.ACC_UUID =#{accgUuid}
+            </if>
+            AND STATUS != #{status}
+        </where>
+        ORDER BY a.MODIFY_DATE DESC
+    </select>
+
+    <select id="queryAccountInfoByAccgUuid" resultMap="userRelManage" parameterType="String">
+        SELECT
+          a.ACC_UUID,a.UCAS_ACCOUNT,a.ACCG_UUID,
+        a.STATUS,u.REAL_NAME,u.MOBILE_PHONE,
+        a.EMAIL_ACCOUNT,
+        a.MOBILE_ACCOUNT
+        FROM ucas_user_account  a
+        ,ucas_user_info   u
+        <where>
+            a.accg_uuid =#{accgUuid}
+
+            <if test="!(ucasAccount == null || ucasAccount =='')">
+                AND a.UCAS_ACCOUNT =#{ucasAccount}
+            </if>
+            <if test="!(emailAccount == null || emailAccount =='')">
+                AND a.EMAIL_ACCOUNT LIKE concat('%', #{emailAccount}, '%')
+            </if>
+            <if test="!(mobileAccount == null || mobileAccount =='')">
+                AND a.MOBILE_ACCOUNT LIKE concat('%', #{mobileAccount}, '%')
+            </if>
+            <if test="!(realName == null || realName == '')">
+                AND u.REAL_NAME LIKE concat('%', #{realName}, '%')
+            </if>
+            AND
+            a.ACC_UUID = u.ACC_UUID
+            AND a.STATUS =#{status}
+        </where>
+        ORDER BY a.MODIFY_DATE DESC
+    </select>
+
+
+</mapper>

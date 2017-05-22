@@ -1,0 +1,45 @@
+#添加用户
+user.add: oauth/resource/user/add_user
+#冻结用户
+user.free: oauth/resource/user/freeze_user
+#解冻用户
+user.unfree: oauth/resource/user/refreeze_user
+#删除用户
+user.del: oauth/resource/user/del_user
+#修改密码
+user.updatePassword: oauth/resource/user/mod_password
+#修改邮箱帐号
+user.updateModeEmail: oauth/resource/user/mod_email
+#修改手机帐号
+user.updateModeMobile: oauth/resource/user/mod_mobile
+#获取帐号详情
+user.user: oauth/resource/user/get_user
+#更改用户基本信息
+user.updateInfo: oauth/resource/user/update_info
+user.updateInfo: oauth/resource/user/update_info
+#获取token
+user.token: oauth/accessToken?client_id=00000000000000000000000000000001&client_secret=000000000000000001&grant_type=client_credentials&scope=client_usermanage,client_usermanage_status
+#登录方式选择
+loginType.localType: true
+#第三方登录url
+loginType.mainIndex: index
+loginType.oauth2Url: oauth/authorize?response_type=code&scope=client_userinfo&state=123&client_id=
+loginType.localLoginUrl: login
+loginType.clientId: 00000000000000000000000000000001
+loginType.clientSecret: 000000000000000001
+loginType.getTokenUrl: oauth/accessToken
+loginType.logout: oauth/logout?response_type=code&scope=client_userinfo&state=123&client_id=
+# log信息是否输出到数据库
+log.database: false
+#最大空闲数
+redis.maxIdle: 100
+#最大连接数
+redis.maxActive: 300
+#最大建立连接等待时间
+redis.maxWait: 1000
+#客户端超时时间单位是毫秒
+redis.timeout: 100000
+redis.maxTotal: 1000
+redis.minIdle: 8
+#明是否在从池中取出连接前进行检验,如果检验失败,则从池中去除连接并尝试取出另一个
+redis.testOnBorrow: true

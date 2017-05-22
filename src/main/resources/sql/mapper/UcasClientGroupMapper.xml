@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ucsmy.ucas.manage.dao.UcasClientGroupMapper">
+
+    <resultMap id="clientGroup" type="com.ucsmy.ucas.manage.entity.UcasClientGroup">
+        <result column="CLIG_UUID" property="cligUuid" jdbcType="VARCHAR" />
+        <result column="GROUP_NAME" property="groupName" jdbcType="VARCHAR" />
+        <result column="DESC_RIBE" property="descRibe" jdbcType="VARCHAR" />
+        <result column="IS_SSO" property="isSso" jdbcType="CHAR" />
+    </resultMap>
+
+    <select id="queryClientGroup" resultMap="clientGroup" parameterType="Map">
+        SELECT
+        a.CLIG_UUID,
+        a.GROUP_NAME,
+        a.DESC_RIBE,
+        a.IS_SSO
+        FROM
+        ucas_client_group a
+        LEFT JOIN ucas_acccli_group_rel rel
+        ON a.CLIG_UUID=rel.CLIG_UUID
+        LEFT JOIN ucas_account_group b
+        ON rel.ACCG_UUID=b.ACCG_UUID
+        <where>
+            <if test="!(groupName == null || groupName == '')">
+                AND a.GROUP_NAME like concat('%', #{groupName}, '%')
+            </if>
+            <if test="!(isSso == null || isSso == '')">
+                AND IS_SSO=#{isSso}
+            </if>
+            <if test="!(accountGroupName == null || accountGroupName == '')">
+                AND b.GROUP_NAME LIKE concat('%', #{accountGroupName}, '%')
+            </if>
+        </where>
+        GROUP BY a.CLIG_UUID
+    </select>
+
+    <select id="getClientGroupByCondition" resultMap="clientGroup" parameterType="Map">
+        SELECT *
+        FROM ucas_client_group
+        <where>
+            1=1
+            <if test="!(groupName == null || groupName == '')">
+                AND GROUP_NAME=#{groupName}
+            </if>
+            <if test="!(cligUuid == null ||cligUuid == '')">
+                AND CLIG_UUID!=#{cligUuid}
+            </if>
+        </where>
+    </select>
+
+    <select id="getClientGroupById" resultMap="clientGroup" parameterType="String">
+        SELECT *
+        FROM ucas_client_group
+        WHERE CLIG_UUID=#{cligUuid}
+    </select>
+
+    <select id="getAllClientGroup" resultMap="clientGroup">
+        SELECT *
+        FROM ucas_client_group
+        WHERE 1=1
+    </select>
+
+    <insert id="addClientGroup" parameterType="com.ucsmy.ucas.manage.entity.UcasClientGroup">
+        INSERT INTO ucas_client_group(
+        CLIG_UUID,
+        GROUP_NAME,
+        DESC_RIBE,
+        IS_SSO)
+        VALUES (
+        #{cligUuid},
+        #{groupName},
+        #{descRibe},
+        #{isSso});
+    </insert>
+
+    <update id="updateClientGroup" parameterType="com.ucsmy.ucas.manage.entity.UcasClientGroup">
+        UPDATE ucas_client_group SET
+        GROUP_NAME=#{groupName},
+        DESC_RIBE=#{descRibe},
+        IS_SSO=#{isSso}
+        WHERE CLIG_UUID=#{cligUuid};
+    </update>
+
+    <delete id="deleteClientGroup" parameterType="String">
+        DELETE FROM ucas_client_group
+        WHERE CLIG_UUID=#{cligUuid};
+    </delete>
+
+    <select id="queryClientGroupInfoByCligUuid"  parameterType="map" resultMap="clientGroup" >
+        select
+        *
+        from
+        ucas_client_group
+        where
+        CLIG_UUID in
+        <foreach collection="list" item="item" index="index" separator="," open = "(" close=")">
+            #{item,jdbcType=VARCHAR}
+        </foreach>
+        <if test="!(groupName == null || groupName == '')">
+            AND GROUP_NAME like concat('%', #{groupName}, '%')
+        </if>
+    </select>
+
+
+</mapper>

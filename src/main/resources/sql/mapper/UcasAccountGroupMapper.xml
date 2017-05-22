@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ucsmy.ucas.manage.dao.UcasAccountGroupMapper">
+
+    <resultMap id="accountGroup" type="com.ucsmy.ucas.manage.entity.UcasAccountGroup">
+        <result column="accg_uuid" property="accgUuid" jdbcType="VARCHAR" />
+        <result column="group_name" property="groupName" jdbcType="VARCHAR" />
+        <result column="desc_ribe" property="descRibe" jdbcType="VARCHAR" />
+
+    </resultMap>
+
+    <select id="query" resultMap="accountGroup">
+        select a.ACCG_UUID,
+        a.GROUP_NAME,
+        a.DESC_RIBE
+        from ucas_account_group a
+        LEFT JOIN ucas_acccli_group_rel rel
+        ON a.ACCG_UUID=rel.ACCG_UUID
+        LEFT JOIN ucas_client_group clientGroup
+        ON rel.CLIG_UUID=clientGroup.CLIG_UUID
+        <where>
+            <if test="!(groupName == null || groupName == '')">
+                and a.group_name like concat('%', #{groupName}, '%')
+            </if>
+            <if test="!(clientGroupName == null || clientGroupName == '')">
+                AND clientGroup.GROUP_NAME LIKE concat('%', #{clientGroupName}, '%')
+            </if>
+        </where>
+        GROUP BY a.accg_uuid
+    </select>
+
+    <insert id="addAccountGroup"  parameterType="com.ucsmy.ucas.manage.entity.UcasAccountGroup">
+        insert into
+        ucas_account_group(accg_uuid, group_name, desc_ribe)
+        values(
+        #{accgUuid},
+        #{groupName},
+        #{descRibe}
+        )
+    </insert>
+
+    <update id="editAccountGroup" parameterType="com.ucsmy.ucas.manage.entity.UcasAccountGroup">
+        update
+        ucas_account_group
+        set
+        desc_ribe = #{descRibe},
+        group_name = #{groupName}
+        where
+        accg_uuid = #{accgUuid}
+    </update>
+
+    <delete id="deleteAccountGroup" parameterType="string">
+        delete from
+        ucas_account_group
+        where
+        accg_uuid = #{accgUuid}
+    </delete>
+
+    <select id="getConfig" resultMap="accountGroup" parameterType="string">
+        select
+        *
+        from
+        ucas_account_group
+        where
+        accg_uuid = #{accgUuid}
+    </select>
+
+    <select id="queryByName" resultMap="accountGroup" parameterType="string">
+        select
+        *
+        from
+        ucas_account_group
+        where
+        group_name = #{groupName}
+        order by
+        accg_uuid
+    </select>
+
+    <select id="isKeyExist" resultType="java.lang.Integer" parameterType="string" >
+        select
+        count(1)
+        from
+        ucas_account_group
+        where
+        accg_uuid != #{accgUuid}
+        and group_name = #{groupName}
+    </select>
+
+    <select id="getAllAccountGroup" resultMap="accountGroup">
+        SELECT * FROM
+        ucas_account_group
+
+    </select>
+
+    <select id="getBindID" resultType="String" parameterType="string" >
+        select
+        CLIG_UUID
+        from
+        ucas_acccli_group_rel
+        where
+        accg_uuid = #{accgUuid}
+    </select>
+
+    <select id="getUnBindID" resultType="String" parameterType="string" >
+        select
+        CLIG_UUID
+        from
+        ucas_client_group
+
+    </select>
+    <delete id="deleteClientGroupRel" parameterType="map" >
+        delete from
+        ucas_acccli_group_rel
+        where
+        ACCG_UUID=#{accgUuid}
+        AND
+        CLIG_UUID in
+        <foreach collection="clientClentIdList" item="item" index="index" separator="," open = "(" close=")">
+            #{item,jdbcType=VARCHAR}
+        </foreach>
+    </delete>
+    <insert id="addClientGroupRel" parameterType="com.ucsmy.ucas.manage.entity.UcasAcccliGroupRel">
+        insert into ucas_acccli_group_rel (
+        UUID,
+        ACCG_UUID,
+        CLIG_UUID)
+        values
+         (#{uuid},
+         #{accgUuid},
+         #{cligUuid})
+    </insert>
+
+    <update id="updateAccountInfoByaccountId" parameterType="com.ucsmy.ucas.manage.entity.UcasUserAccount">
+        UPDATE ucas_user_account SET
+        accg_uuid=#{accgUuid}
+        WHERE ACC_UUID=#{accountId}
+    </update>
+
+    <select id="queryClientRelCount" resultType="java.lang.Integer" parameterType="string" >
+        select
+        count(*)
+        from
+        ucas_acccli_group_rel
+        where
+        accg_uuid = #{accgUuid}
+
+    </select>
+
+
+    <select id="queryAccountCount" resultType="java.lang.Integer" parameterType="string" >
+        select
+        count(*)
+        from
+        ucas_user_account
+        where
+        ACCG_UUID = #{accgUuid}
+    </select>
+
+    <select id="queryAccountGroupByCligUuid" resultMap="accountGroup" parameterType="map">
+        SELECT
+        a.ACCG_UUID AS ACCG_UUID,
+        a.GROUP_NAME AS GROUP_NAME,
+        a.DESC_RIBE AS DESC_RIBE
+        FROM ucas_account_group a
+        LEFT JOIN ucas_acccli_group_rel b
+        ON b.ACCG_UUID=a.ACCG_UUID
+        <where>
+            1=1
+            <if test="!(cligUuid == null || cligUuid == '')">
+                AND b.CLIG_UUID=#{cligUuid}
+            </if>
+            <if test="!(groupName == null || groupName == '')">
+                AND a.GROUP_NAME like concat('%', #{groupName}, '%')
+            </if>
+        </where>
+        GROUP BY a.ACCG_UUID
+    </select>
+</mapper>

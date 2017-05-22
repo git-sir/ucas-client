@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ucsmy.ucas.manage.dao.ManageUserProfileMapper">
+
+	<sql id="queryCondition">
+		SELECT 
+			a.user_id as userId,
+			a.name as name,
+			a.introduce as introduce,
+			a.telephone as telephone,
+			a.mobilephone as mobilephone,
+			a.create_date as createDate,
+			a.update_date as updateDate,
+			a.email as email,
+			a.birthday as birthday,
+			a.gender as gender,
+			a.starff_id as starffId,
+			a.position as position,
+			a.type as type,
+			b.user_id as "userAccount.userId",
+			b.create_time as "userAccount.createTime",
+			b.password as "userAccount.password",
+			b.salt as "userAccount.salt",
+			b.status as "userAccount.status",
+			b.account as "userAccount.account",
+			b.email as "userAccount.email",
+			b.mobilephone as "userAccount.mobilephone",
+			d.role_id as "role.roleId",
+			d.name as "role.name",
+			d.description as "role.description",
+			f.org_id as "org.id",
+			f.name as "org.name",
+			f.description as "org.description",
+			f.priority as "org.priority",
+			f.parent_id as "org.parentId",
+			f.root_id as "org.rootId"
+		FROM manage_user_profile a join manage_user_account b on a.user_id = b.user_id
+				left join manage_user_role c on a.user_id = c.user_id
+				left join manage_role d on c.role_id = d.role_id
+				left join manage_user_organization e on a.user_id = e.user_id
+				left join manage_organization f on e.org_id = f.org_id
+	</sql>
+
+	<select id="queryUserProfile" resultType="com.ucsmy.ucas.manage.entity.ManageUserProfile" parameterType="String">
+		<include refid="queryCondition"/>
+		<where>
+			<if test="!(name == null || name == '')">
+				and a.name LIKE CONCAT('%',#{name}, '%')
+			</if>
+		</where>
+		order by a.create_date
+	</select>
+
+	<select id="queryUserProfileByUserId" resultType="com.ucsmy.ucas.manage.ext.UserProfilePojo" parameterType="String">
+		<include refid="queryCondition"/>
+		WHERE a.user_id = #{userId}
+	</select>
+	
+	<select id="queryUserProfileByLoginName" resultType="com.ucsmy.ucas.manage.entity.ManageUserProfile" parameterType="String">
+		<include refid="queryCondition"/>
+		WHERE b.account = #{loginName} OR b.email = #{loginName} OR b.mobilephone = #{loginName}
+	</select>
+	
+	<select id="chenckUserProfileByMobilephone" resultType="int" parameterType="String">
+		SELECT COUNT(*) FROM manage_user_profile a
+		WHERE a.mobilephone = #{mobilephone}
+	</select>
+	
+	<select id="chenckUserProfileByEmail" resultType="int" parameterType="String">
+		SELECT COUNT(*) FROM manage_user_profile a
+		WHERE a.email = #{email}
+	</select>
+	
+	<insert id="saveUserProfile" parameterType="com.ucsmy.ucas.manage.entity.ManageUserProfile">
+		insert into manage_user_profile(
+			user_id,
+			name,
+			introduce,
+			telephone,
+			mobilephone,
+			create_date,
+			update_date,
+			email,
+			birthday,
+			gender,
+			starff_id,
+			position,
+			type
+		)
+		values(
+			#{userId},
+			#{name},
+			#{introduce},
+			#{telephone},
+			#{mobilephone},
+			#{createDate},
+			#{updateDate},
+			#{email},
+			#{birthday},
+			#{gender},
+			#{starffId},
+			#{position},
+			#{type}
+		)
+	</insert>
+
+	<update id="updateUserProfile" parameterType="com.ucsmy.ucas.manage.entity.ManageUserProfile">
+		UPDATE manage_user_profile
+		SET name = #{name},
+			introduce = #{introduce},
+			telephone = #{telephone},
+			mobilephone = #{mobilephone},
+			update_date = #{updateDate},
+			email = #{email},
+			birthday = #{birthday},
+			gender = #{gender},
+			starff_id = #{starffId},
+			position = #{position}
+		WHERE user_id = #{userId}
+	</update>
+
+	<delete id="deleteUserProfile" parameterType="String">
+		DELETE FROM manage_user_profile WHERE user_id = #{userId}
+	</delete>
+</mapper>

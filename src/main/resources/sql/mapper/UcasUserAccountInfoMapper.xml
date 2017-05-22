@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ucsmy.ucas.manage.dao.UcasUserInfoMapper">
+
+    <resultMap id="userInfo" type="com.ucsmy.ucas.manage.ext.UserAccountInfo">
+        <result column="ACC_UUID" property="accUuid" jdbcType="VARCHAR" />
+        <result column="ACCG_UUID" property="accgUuid" jdbcType="VARCHAR" />
+        <result column="UCAS_ACCOUNT" property="ucasAccount" jdbcType="VARCHAR" />
+        <result column="MOBILE_ACCOUNT" property="mobileAccount" jdbcType="VARCHAR" />
+        <result column="EMAIL_ACCOUNT" property="emailAccount" jdbcType="VARCHAR" />
+        <result column="STATUS" property="status" jdbcType="VARCHAR" />
+        <result column="REAL_NAME" property="realName" jdbcType="VARCHAR" />
+        <result column="SEX" property="sex" jdbcType="VARCHAR" />
+        <result column="HEAD_IMG_URL" property="headImgUrl" jdbcType="VARCHAR" />
+        <result column="ORG_NAME" property="orgName" jdbcType="VARCHAR" />
+        <result column="MOBILE_PHONE" property="mobilePhone" jdbcType="VARCHAR" />
+        <result column="EMAIL" property="email" jdbcType="VARCHAR" />
+        <result column="MODIFY_DATE" property="modifyDate" jdbcType="VARCHAR" />
+        <result column="GROUP_NAME" property="groupName" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <select id="getUserInfoByName" resultMap="userInfo" parameterType="map">
+        SELECT a.ACC_UUID,a.ACCG_UUID,a.UCAS_ACCOUNT,
+                a.MOBILE_ACCOUNT,a.EMAIL_ACCOUNT,a.STATUS,
+                i.REAL_NAME,i.SEX,i.HEAD_IMG_URL,i.ORG_NAME,
+                i.MOBILE_PHONE,i.EMAIL,
+                g.GROUP_NAME,
+        DATE_FORMAT(a.MODIFY_DATE,'%Y-%m-%d %H:%i:%s') MODIFY_DATE
+        FROM ucas_user_info i,ucas_user_account a,ucas_account_group g
+        WHERE
+          i.ACC_UUID=a.ACC_UUID
+          AND a.ACCG_UUID=g.ACCG_UUID
+            <if test="!(userAccountInfo.realName == null || userAccountInfo.realName == '')">
+             AND   i.REAL_NAME LIKE concat('%', #{userAccountInfo.realName}, '%')
+            </if>
+            <if test="!(userAccountInfo.ucasAccount == null || userAccountInfo.ucasAccount == '')">
+                AND   a.UCAS_ACCOUNT LIKE concat('%', #{userAccountInfo.ucasAccount}, '%')
+            </if>
+            <if test="!(userAccountInfo.emailAccount == null || userAccountInfo.emailAccount == '')">
+                AND   a.EMAIL_ACCOUNT LIKE concat('%', #{userAccountInfo.emailAccount}, '%')
+            </if>
+            <if test="!(userAccountInfo.mobileAccount == null || userAccountInfo.mobileAccount == '')">
+                AND   a.MOBILE_ACCOUNT LIKE concat('%', #{userAccountInfo.mobileAccount}, '%')
+            </if>
+            <if test="!(userAccountInfo.status == null || userAccountInfo.status == '')">
+                AND   a.STATUS =#{userAccountInfo.status}
+            </if>
+            <if test="!(userAccountInfo.accgUuid == null || userAccountInfo.accgUuid == '')">
+                AND   a.ACCG_UUID  =#{userAccountInfo.accgUuid}
+            </if>
+            AND a.STATUS != #{status}
+        GROUP BY a.MODIFY_DATE DESC
+    </select>
+</mapper>

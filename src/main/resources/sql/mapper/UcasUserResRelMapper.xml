@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ucsmy.ucas.manage.dao.UcasUserResRelMapper">
+    <resultMap id="userResRel" type="com.ucsmy.ucas.manage.ext.UserRelResourcePojo">
+        <result column="UUID" property="uuid" jdbcType="VARCHAR" />
+        <result column="RES_UUID" property="resUuid" jdbcType="VARCHAR" />
+        <result column="OPEN_ID" property="openId" jdbcType="VARCHAR" />
+        <result column="RES_URI" property="resUri" jdbcType="VARCHAR" />
+        <result column="DESC_RIBE" property="descRibe" jdbcType="VARCHAR" />
+        <result column="STATUS" property="status" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <select id="queryUserRelResource" resultMap="userResRel" parameterType="Map">
+        SELECT
+        UUID,
+        a.RES_UUID AS RES_UUID,
+        RES_URI,
+        DESC_RIBE,
+        `STATUS`
+        FROM ucas_user_res_rel a
+        LEFT JOIN ucas_client_resource b
+        ON a.RES_UUID=b.RES_UUID
+        WHERE OPEN_ID=#{openId}
+        ORDER BY b.MODIFY_DATE DESC
+    </select>
+    
+    <select id="getUserRelResourceByResUuid" resultType="int" parameterType="String">
+        SELECT COUNT(*)
+        FROM ucas_user_res_rel
+        WHERE RES_UUID=#{resUuid}
+    </select>
+
+    <delete id="deleteUserRelResource" parameterType="String">
+        DELETE FROM ucas_user_res_rel
+        WHERE OPEN_ID=#{openId}
+    </delete>
+</mapper>

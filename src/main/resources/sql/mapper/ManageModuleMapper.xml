@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ucsmy.ucas.manage.dao.ManageModuleMapper">
+
+    <resultMap id="moduleTree" type="com.ucsmy.ucas.manage.ext.ModuleTreePojo">
+        <result column="module_id" property="id" jdbcType="VARCHAR" />
+        <result column="parent_id" property="parentId" jdbcType="VARCHAR" />
+        <result column="name" property="name" jdbcType="VARCHAR" />
+        <result column="description" property="description" jdbcType="VARCHAR" />
+        <result column="priority" property="priority" jdbcType="INTEGER" />
+        <result column="url" property="url" jdbcType="VARCHAR" />
+        <result column="image" property="image" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <resultMap id="mainModule" type="com.ucsmy.ucas.manage.ext.MainModulePojo">
+        <result column="module_id" property="id" jdbcType="VARCHAR" />
+        <result column="parent_id" property="parentId" jdbcType="VARCHAR" />
+        <result column="name" property="name" jdbcType="VARCHAR" />
+        <result column="url" property="url" jdbcType="VARCHAR" />
+        <result column="image" property="image" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <select id="queryMainModuleByUserId" resultMap="mainModule" parameterType="String">
+        select distinct
+        rm.module_id,
+        rm.parent_id,
+        rm.url,
+        rm.`name`
+        from
+        manage_module rm
+        join manage_role_module rrm on rm.module_id = rrm.module_id
+        join manage_user_role rur on rur.role_id = rrm.role_id
+        where
+        rur.user_id = #{userId}
+        order by
+        rm.priority,
+        rm.name
+    </select>
+
+    <select id="queryMainAllModule" resultMap="mainModule">
+        select
+        module_id,
+        parent_id,
+        url,
+        `name`,
+        image
+        from
+        manage_module
+        order by
+        priority,
+        `name`
+    </select>
+
+    <select id="getModuleList" resultMap="moduleTree" parameterType="map">
+        select *
+        from manage_module
+        <where>
+            <if test = "!(name == null || name == '')">
+                AND name = #{name}
+            </if>
+            <if test="!(parentId == null || parentId == '')">
+                AND parent_id = #{parentId}
+            </if>
+        </where>
+        order by priority
+    </select>
+
+    <select id="getModuleDetail" resultMap="moduleTree" parameterType="String">
+        select *
+        from manage_module
+        where module_id=#{id}
+        limit 1
+    </select>
+
+    <insert id="addModule" parameterType="com.ucsmy.ucas.manage.entity.ManageModule">
+        insert into manage_module(module_id,
+        description,
+        priority,
+        url,
+        parent_id,
+        name,
+        image
+        )
+        values(#{moduleId},
+        #{description},
+        #{priority},
+        #{url},
+        #{parentId},
+        #{name},
+        #{image}
+        );
+    </insert>
+
+    <update id="updateModule" parameterType="com.ucsmy.ucas.manage.entity.ManageModule">
+        update manage_module set description=#{description},
+        priority=#{priority},
+        url=#{url},
+        name=#{name},
+        image=#{image}
+        where module_id=#{moduleId}
+    </update>
+
+    <select id="getChildrenNum" parameterType="String" resultType="int">
+        select count(1) from manage_module where parent_id=#{id}
+    </select>
+
+    <delete id="deleteModule" parameterType="String">
+        delete from manage_module where module_id=#{id}
+    </delete>
+
+
+</mapper>

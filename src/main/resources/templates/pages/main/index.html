@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<title>统一认证平台</title>
+	<base th:href='${ctx}'/>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta http-equiv="pragma" content="no-cache" />
+	<meta http-equiv="Cache-Control" content="no-cache, must-revalidate" />
+	<meta name="Keywords" content="keyword1,keyword2,keyword3" />
+	<meta name="Description" content="网页信息的描述" />
+	<meta name="_csrf" th:content="${_csrf.token}"/>
+	<meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+
+	<link rel="icon" type="image/x-icon" th:href="@{/images/favicon.ico}"/>
+	<link rel="stylesheet" th:href="@{/css/ucs.css}" />
+	<link rel="stylesheet" th:href="@{/css/index.css}" />
+	<style type="text/css">
+		.custom-tooltip div{
+			word-wrap:break-word;
+			word-break:break-all;
+			white-space:nowrap;
+			overflow:hidden;
+			text-overflow:ellipsis;
+			width: 200px;
+		}
+	</style>
+	<script th:inline="javascript" type="text/javascript">
+        console.log("ctx:" + [[${ctx}]]);
+		var UcsmyIndex = UcsmyIndex || {};
+        var myRoles = [[${user_roles}]];
+        var myModules = [[${user_modules}]];
+        var myUser = {
+            "userName": [[${userProfile.userAccount.account}]],
+			"userId": [[${userProfile.userAccount.userId}]],
+            "email": [[${userProfile.email}]],
+            "mobilephone": [[${userProfile.mobilephone}]],
+            "name": [[${userProfile.name}]],
+            "roleName": [[${userProfile.role == null ? "null" : userProfile.role.name}]],
+            "loginTime": [[${#dates.format(loginUser.loginTime,'yyyy-MM-dd HH:mm:ss')}]],
+            "orgName": [[${userProfile.org == null ? "null" : userProfile.org.name}]]
+        }
+	</script>
+</head>
+<body>
+<div id="main"></div>
+
+<script type="text/javascript" th:src="@{/libs/jquery.min.js}"></script>
+<script type="text/javascript" th:src="@{/Javascript/comm.js}"></script>
+
+<script type="text/javascript" th:src="@{/libs/es5-shim.min.js}" ></script>
+<script type="text/javascript" th:src="@{/libs/es5-sham.min.js}" ></script>
+<script type="text/javascript" th:src="@{/libs/react.min.js}" ></script>
+<script type="text/javascript" th:src="@{/libs/react-dom.min.js}" ></script>
+<script type="text/javascript" th:src="@{/libs/u-eventhub.js}"></script>
+<script type="text/javascript" th:src="@{/libs/u-ajax.min.js}"></script>
+<script type="text/javascript" th:src="@{/libs/ucsmy-ui.js}"></script>
+<script type="text/javascript" th:src="@{/libs/public.js}"></script>
+<script type="text/javascript" th:src="@{/pages/main/index.js}"></script>
+<script type="text/javascript" th:src="@{/libs/public.js}"></script>
+</body>
+</html>

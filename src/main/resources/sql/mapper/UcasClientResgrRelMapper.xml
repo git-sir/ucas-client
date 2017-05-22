@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ucsmy.ucas.manage.dao.UcasClientResgrRelMapper">
+
+    <resultMap id="resgrRel" type="com.ucsmy.ucas.manage.ext.UcasClientResgrRelPojo">
+        <result column="UUID" property="uuid" jdbcType="VARCHAR" />
+        <result column="CLIENT_ID" property="clientId" jdbcType="VARCHAR" />
+        <result column="RES_GROUP_UUID" property="resGroupUuid" jdbcType="VARCHAR" />
+        <result column="CLIENT_NAME" property="clientName" jdbcType="VARCHAR" />
+        <result column="GROUP_NAME" property="groupName" jdbcType="VARCHAR" />
+        <result column="DESC_RIBE" property="descRibe" jdbcType="VARCHAR" />
+        <result column="MAX_TIMES" property="maxTimes" jdbcType="VARCHAR" />
+        <result column="EXPIRY_DATE" property="expiryTime" jdbcType="VARCHAR" />
+    </resultMap>
+
+
+    <resultMap id="resgrRelvos" type="com.ucsmy.ucas.manage.ext.UcasClientResgrRelPojo">
+        <result column="UUID" property="uuid" jdbcType="VARCHAR" />
+        <result column="CLIENT_ID" property="clientId" jdbcType="VARCHAR" />
+        <result column="RES_GROUP_UUID" property="resGroupUuid" jdbcType="VARCHAR" />
+        <result column="CLIENT_NAME" property="clientName" jdbcType="VARCHAR" />
+        <result column="GROUP_NAME" property="groupName" jdbcType="VARCHAR" />
+        <result column="DESC_RIBE" property="descRibe" jdbcType="VARCHAR" />
+        <result column="MAX_TIMES" property="maxTimes" jdbcType="VARCHAR" />
+        <result column="EXPIRY_DATE" property="expiryTime" jdbcType="VARCHAR" />
+
+        <result column="GROUP_NAME" property="ucasClientInfo.ucasClientGroup.groupName" jdbcType="VARCHAR"/>
+        <result column="CLIENT_NAME" property="ucasClientInfo.clientName" jdbcType="VARCHAR"/>
+        <result column="bClientId" property="ucasClientInfo.clientId" jdbcType="VARCHAR"/>
+        <result column="CLIENT_SECRET" property="ucasClientInfo.clientSecret" jdbcType="VARCHAR"/>
+        <result column="Info_DESC_RIBE" property="ucasClientInfo.descRibe" jdbcType="VARCHAR"/>
+        <result column="GRANT_TYPE" property="ucasClientInfo.grantType" jdbcType="VARCHAR"/>
+        <result column="CLIENT_URL" property="ucasClientInfo.clientUrl" jdbcType="VARCHAR"/>
+        <result column="clientStatus" property="ucasClientInfo.status" jdbcType="VARCHAR"/>
+
+    </resultMap>
+
+    <resultMap id="resourceGroupExt" type="com.ucsmy.ucas.manage.ext.UcasResourceGroupPojo">
+        <result column="RES_GROUP_UUID" property="resGroupUuid" jdbcType="VARCHAR" />
+        <result column="CLIENT_ID" property="clientId" jdbcType="VARCHAR" />
+        <result column="GROUP_NAME" property="groupName" jdbcType="VARCHAR" />
+        <result column="DESC_RIBE" property="descRibe" jdbcType="VARCHAR" />
+        <result column="CLIENT_NAME" property="clientName" jdbcType="VARCHAR" />
+    </resultMap>
+
+	<select id="queryResgrRel" resultMap="resgrRel">
+        select a.*,b.GROUP_NAME,b.DESC_RIBE,c.CLIENT_NAME from ucas_client_resgr_rel a 
+		left join ucas_resource_group b on a.RES_GROUP_UUID=b.RES_GROUP_UUID 
+		left join ucas_client_info c on b.CLIENT_ID=c.CLIENT_ID 
+        <where>
+        	and c.STATUS = #{status}
+            <if test="!(uuid == null || uuid == '')">
+                and a.UUID = #{uuid}
+            </if>
+            <if test="!(clientId == null || clientId == '')">
+                and a.CLIENT_ID = #{clientId}
+            </if>
+            <if test="!(resGroupUuid == null || resGroupUuid == '')">
+                and a.RES_GROUP_UUID = #{resGroupUuid}
+            </if>
+            <if test="!(searchClientId == null || searchClientId == '')">
+                and b.CLIENT_ID = #{searchClientId}
+            </if>
+        </where>
+        order by CLIENT_NAME,GROUP_NAME
+    </select>
+    
+    <select id="queryUnbindResgrRel" resultMap="resourceGroupExt">
+    	SELECT a.CLIENT_ID AS CLIENT_ID,
+        RES_GROUP_UUID,
+        GROUP_NAME,
+        a.DESC_RIBE,
+        CLIENT_NAME
+        FROM ucas_resource_group a
+        LEFT JOIN ucas_client_info b ON a.CLIENT_ID=b.CLIENT_ID
+        where a.CLIENT_ID != #{filteringClientId} and a.RES_GROUP_UUID not in 
+        (select res_group_uuid from ucas_client_resgr_rel where CLIENT_ID = #{filteringClientId}) 
+        <if test="!(status == null || status == '')">
+            and b.STATUS = #{status}
+        </if>
+        <if test="!(resGroupUuid == null || resGroupUuid == '')">
+            and a.RES_GROUP_UUID = #{resGroupUuid}
+        </if>
+        <if test="!(clientId == null || clientId == '')">
+            and a.CLIENT_ID = #{clientId}
+        </if>
+        order by CLIENT_NAME,GROUP_NAME
+    </select>    
+
+    <insert id="addResgrRel"  parameterType="com.ucsmy.ucas.manage.entity.UcasClientResgrRel">
+        insert into
+        ucas_client_resgr_rel(UUID, CLIENT_ID, RES_GROUP_UUID,MAX_TIMES,EXPIRY_DATE,MODIFY_DATE,CREATE_DATE)
+        values(
+        #{uuid},
+        #{clientId},
+        #{resGroupUuid},
+        #{maxTimes},
+        #{expiryTime},
+        now(),
+        now()
+        )
+    </insert>
+
+    <update id="editResgrRel" parameterType="com.ucsmy.ucas.manage.entity.UcasClientResgrRel">
+        update
+        ucas_client_resgr_rel
+        set
+        CLIENT_ID = #{clientId},
+        RES_GROUP_UUID = #{resGroupUuid}
+        where
+        UUID = #{uuid}
+    </update>
+
+    <delete id="deleteResgrRel" parameterType="string">
+        delete from
+        ucas_client_resgr_rel
+        where
+        UUID = #{uuid}
+    </delete>
+    
+    <select id="isResgrRelExist" resultType="int" parameterType="string">
+        select count(1) from ucas_client_resgr_rel
+        <where>
+            <if test="!(uuid == null || uuid == '')">
+                and UUID = #{uuid}
+            </if>
+            <if test="!(clientId == null || clientId == '')">
+                and CLIENT_ID = #{clientId}
+            </if>
+            <if test="!(resGroupUuid == null || resGroupUuid == '')">
+                and RES_GROUP_UUID = #{resGroupUuid}
+            </if>
+        </where>
+    </select>
+
+    <select id="queryResgrRels" parameterType="string" resultMap="resgrRelvos">
+
+        select a.*,c.CLIENT_NAME,
+            c.CLIENT_ID AS bClientId,
+        CLIENT_SECRET,
+        c.DESC_RIBE AS Info_DESC_RIBE,
+        GRANT_TYPE,
+        CLIENT_URL,
+        c.STATUS AS clientStatus,
+               p.GROUP_NAME,
+               g.DESC_RIBE
+         from ucas_client_resgr_rel a ,
+               ucas_client_info c,
+        ucas_client_group p,
+        ucas_resource_group g
+        <where>
+            c.CLIENT_ID=a.CLIENT_ID
+            AND p.CLIG_UUID=c.CLIG_UUID
+            AND a.RES_GROUP_UUID=g.RES_GROUP_UUID
+            <if test="!(clientId == null || clientId == '')">
+                and a.CLIENT_ID = #{clientId}
+            </if>
+
+            <if test="!(clientName == null || clientName == '')">
+                and c.CLIENT_NAME LIKE concat('%', #{clientName}, '%')
+            </if>
+        </where>
+        order by a.MODIFY_DATE DESC
+    </select>
+
+    <update id="updateTicket" parameterType="string">
+        UPDATE ucas_client_resgr_rel
+        SET
+        <if test="!(maxTimes == null || maxTimes == '')">
+            MAX_TIMES=#{maxTimes},
+        </if>
+        <if test="!(expiryTime == null || expiryTime == '')">
+            EXPIRY_DATE=#{expiryTime},
+        </if>
+            MODIFY_DATE=NOW()
+        WHERE UUID=#{uuid}
+    </update>
+
+</mapper>

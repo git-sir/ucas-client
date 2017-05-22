@@ -1,0 +1,38 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8" />
+	<meta content="width=device-width,initial-scale=1, maximum-scale=1.0, user-scalable=no" name="viewport" />
+	<title>绑定帐号</title>
+	<link rel="stylesheet" type="text/css" th:href="@{/css/bind.css}"/>
+</head>
+<body>
+<div class="header">
+	<div class="con">
+		<div class="logo"></div>
+		<div class="header-titl">绑定帐号</div>
+	</div>
+</div>
+<div class="login-container clearfloat" id="left-part">
+	<form class="form-horizontal" th:action="@{/login/bind}" method="post">
+		<div class="left-part">
+			<h2 class="login-titl">账号密码登录</h2>
+			<div class="error block" id="error" th:if="${login_error != null}">
+				<i class="iconfont icon-error"></i><span th:text="${login_error}"></span>
+			</div>
+			<input type="text" name="username" id="username" placeholder="用户名" />
+			<input type="password" name="password" id="password" placeholder="密码" />
+			<button type="button" id="bindAccount">绑定管理帐号</button>
+		</div>
+	</form>
+
+</div>
+<script th:inline="javascript" type="text/javascript">
+    console.log("ctx:" + [[${ctx}]]);
+	var ctx = [[${ctx}]]
+</script>
+<script type="text/javascript" th:src="@{/libs/jquery.min.js}"></script>
+<script type="text/javascript" th:src="@{/pages/bind/index.js}"></script>
+<script type="text/javascript" th:src="@{/libs/encryption.js}"></script>
+</body>
+</html>

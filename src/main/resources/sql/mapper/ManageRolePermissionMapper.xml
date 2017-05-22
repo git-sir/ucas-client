@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ucsmy.ucas.manage.dao.ManageRolePermissionMapper">
+
+	<resultMap type="com.ucsmy.ucas.manage.ext.ModulePermissionPojo" id="modulePermission">
+		  <id column="id" property="id"/>
+		 <!--  <result column="moduleId" property="id"/> -->
+		  <result column="parentId" property="parentId"/>
+		  <result column="name" property="name"/>
+		  <collection property="permissionList" column="permissionId" ofType="com.ucsmy.ucas.manage.ext.PermissionPojo">
+			  <id column="permissionId" property="permissionId"/>
+			  <result column="permissionName" property="permissionName"/>
+			  <result column="permissionSn" property="permissionSn"/>
+		  </collection>
+	 </resultMap>
+	 
+<!-- 	 <resultMap type="com.ucsmy.rdp.rolePermission.model.TreeData" id="modulePermission">
+		  <id column="module_id" property="moduleId"/>
+		  <result column="parent_id" property="parentId"/>
+		  <result column="name" property="name"/>
+		  <collection property="permissionList" column="permission_id" ofType="com.ucsmy.rdp.rolePermission.model.PermissionVo">
+			  <id column="permission_id" property="permissionId"/>
+			  <result column="permission_name" property="permissionName"/>
+			  <result column="permission_sn" property="permissionSn"/>
+		  </collection>
+	 </resultMap> -->
+	 
+	<!-- 查询全部菜单所拥有的功能  -->
+	<select id="queryAllModulePermission" resultMap="modulePermission">
+		select
+			a.module_id as id,
+			a.parent_id as parentId,
+			a.`name` as `name`,
+			b.permission_id as permissionId,
+			b.`name` as permissionName,
+			b.sn as permissionSn
+		from
+			manage_module as a
+		left join manage_permission as b on a.module_id = b.module_id
+		order by
+			a.parent_id;
+  	</select>
+  	
+  	<!-- <select id="queryAllModulePermission" resultMap="modulePermission">
+		select
+			a.module_id as id,
+			a.module_id as moduleid,
+			a.parent_id as parentid,
+			a.`name` as `name`,
+			b.permission_id as permissionid,
+			b.`name` as permissionname,
+			b.sn as permissionsn
+		from
+			manage_module as a
+		inner join  manage_permission as b on a.module_id = b.module_id
+		order by
+			a.module_id desc
+  	</select> -->
+  	<!-- 查询角色拥有的权限  -->
+	<select id="queryRolePermissionByRoleID" resultType="com.ucsmy.ucas.manage.entity.ManageRolePermission" parameterType="String">
+		select
+			id,
+			permission_id as permissionId,
+			role_id as roleId
+		from manage_role_permission
+		where role_id = #{roleId}
+	</select>
+	
+	<insert id="insertRolePermissionByBatch" parameterType="java.util.List">
+        insert into manage_role_permission (
+        		id,
+				permission_id,
+				role_id)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.id,jdbcType=VARCHAR}, #{item.permissionId,jdbcType=VARCHAR},#{item.roleId,jdbcType=VARCHAR})
+        </foreach>
+    </insert>
+    
+    <insert id="insertRoleModuleByBatch" parameterType="java.util.List">
+        insert into manage_role_module (
+        		id,
+				module_id,
+				role_id)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.id,jdbcType=VARCHAR}, #{item.moduleId,jdbcType=VARCHAR},#{item.roleId,jdbcType=VARCHAR})
+        </foreach>
+    </insert>
+	
+	<delete id="deleteRolePermissionByRoleID" parameterType="String">
+		delete from manage_role_permission
+			where role_id = #{roleId,jdbcType=VARCHAR}
+	</delete>
+	
+	<delete id="deleteRoleModuleByRoleID" parameterType="String">
+		delete from manage_role_module
+			where role_id = #{roleId,jdbcType=VARCHAR}
+	</delete>
+</mapper>

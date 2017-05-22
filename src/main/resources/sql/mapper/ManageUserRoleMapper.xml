@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ucsmy.ucas.manage.dao.ManageUserRoleMapper">
+	
+	<resultMap id="userRoleResult" type="com.ucsmy.ucas.manage.entity.ManageUserRole">
+		<result column="id" property="id" jdbcType="VARCHAR" />
+		<result column="user_id" property="userId" jdbcType="VARCHAR" />
+		<result column="user_account" property="userAccount" jdbcType="VARCHAR" />
+		<result column="user_name" property="userName" jdbcType="VARCHAR" />
+		<result column="user_position" property="position" jdbcType="VARCHAR" />
+		<association property="role" resultMap="roleResult"/> 
+	</resultMap>
+	<resultMap id="roleResult" type="com.ucsmy.ucas.manage.entity.ManageRole">
+		<result column="role_id" property="roleId" jdbcType="VARCHAR" />
+		<result column="role_name" property="name" jdbcType="VARCHAR" />
+	</resultMap>
+	<select id="queryUserRoleList" resultMap="userRoleResult" parameterType="map">
+		select
+			ur.id as id,
+			ur.user_id as user_id,
+			u.account as user_account,
+			up.name as user_name,
+			up.position as user_position
+		from
+			manage_user_role ur
+		join 
+			manage_user_account u 
+		on 
+			ur.user_id = u.user_id
+		join 
+			manage_user_profile up
+		on
+			u.user_id = up.user_id
+		<where>
+			and ur.role_id = #{roleId}
+			<if test="!(account == null || account == '')">
+				and u.account like concat('%',#{account}, '%')
+			</if>
+		</where>
+	</select>
+	<select id="queryUnbindUserList" resultMap="userRoleResult" parameterType="map">
+		select 
+			u.user_id as id,
+			u.user_id as user_id,
+			u.account as user_account,
+			up.name as user_name,
+			up.position as user_position,
+			r.role_id as role_id,
+			r.name as role_name
+		from
+			manage_user_account u  
+		left join
+			manage_user_role ur
+		on 
+			u.user_id = ur.user_id
+		left join
+			manage_role r 
+		on 
+			ur.role_id = r.role_id 
+		left join
+			manage_user_profile up
+		on
+			u.user_id = up.user_id
+		<where>
+			u.user_id not in
+			(select 
+				user_id 
+			from
+			manage_user_role
+			where 
+				role_id = #{roleId})
+			<if test="!(account == null || account == '')">
+				and u.account like concat('%',#{account}, '%')
+			</if>
+		</where>
+	</select>
+	<select id="queryUserCountByUserIds" resultType="long" parameterType="map">
+		select
+			count(user_id)
+		from
+		manage_user_account
+		where
+			 user_id in
+		<foreach collection="ids" item="item" index="index" separator="," open = "(" close=")">
+           #{item,jdbcType=VARCHAR}
+       	</foreach> 
+	</select>
+		
+	<insert id="insertUserRole" parameterType="com.ucsmy.ucas.manage.entity.ManageUserRole" >
+		insert into
+			manage_user_role(id,user_id,role_id)
+		values(#{id},#{userId},#{role.roleId})
+	</insert>
+	<delete id="deleteUserRoleByUserIds" parameterType="map" >
+		delete from
+		manage_user_role
+		where
+			user_id in
+		<foreach collection="ids" item="item" index="index" separator="," open = "(" close=")">
+           #{item,jdbcType=VARCHAR}
+       	</foreach>
+	</delete>
+	<delete id="deleteUserRoleByIds"  >
+		delete from
+			manage_user_role
+		where
+			user_id =#{id}
+	</delete>
+	<delete id="deleteUserRoles" parameterType="map" >
+		delete from
+			manage_user_role
+		where
+			id in
+		<foreach collection="ids" item="item" index="index" separator="," open = "(" close=")">
+           #{item,jdbcType=VARCHAR}
+       	</foreach> 
+	</delete>
+</mapper>

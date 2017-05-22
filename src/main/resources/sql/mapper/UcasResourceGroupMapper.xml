@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ucsmy.ucas.manage.dao.UcasResourceGroupMapper">
+
+    <resultMap id="resourceGroup" type="com.ucsmy.ucas.manage.entity.UcasResourceGroup">
+        <result column="RES_GROUP_UUID" property="resGroupUuid" jdbcType="VARCHAR" />
+        <result column="CLIENT_ID" property="clientId" jdbcType="VARCHAR" />
+        <result column="GROUP_NAME" property="groupName" jdbcType="VARCHAR" />
+        <result column="DESC_RIBE" property="descRibe" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <resultMap id="resourceGroupExt" type="com.ucsmy.ucas.manage.ext.UcasResourceGroupPojo">
+        <result column="RES_GROUP_UUID" property="resGroupUuid" jdbcType="VARCHAR" />
+        <result column="CLIENT_ID" property="clientId" jdbcType="VARCHAR" />
+        <result column="GROUP_NAME" property="groupName" jdbcType="VARCHAR" />
+        <result column="DESC_RIBE" property="descRibe" jdbcType="VARCHAR" />
+        <result column="CLIENT_NAME" property="clientName" jdbcType="VARCHAR" />
+    </resultMap>
+
+	<select id="queryResourceGroup" resultMap="resourceGroup">
+        select * from ucas_resource_group
+        <where>
+            <if test="!(resGroupUuid == null || resGroupUuid == '')">
+                and RES_GROUP_UUID = #{resGroupUuid}
+            </if>
+            <if test="!(clientId == null || clientId == '')">
+                and CLIENT_ID = #{clientId}
+            </if>
+        </where>
+    </select>
+
+    <select id="queryResourceGroupList" resultMap="resourceGroupExt" parameterType="Map">
+        SELECT a.CLIENT_ID AS CLIENT_ID,
+        RES_GROUP_UUID,
+        GROUP_NAME,
+        a.DESC_RIBE,
+        CLIENT_NAME
+        FROM ucas_resource_group a
+        LEFT JOIN ucas_client_info b ON a.CLIENT_ID=b.CLIENT_ID
+        <where>
+            <if test="!(resGroupUuid == null || resGroupUuid == '')">
+                and RES_GROUP_UUID = #{resGroupUuid}
+            </if>
+            <if test="!(clientId == null || clientId == '')">
+                and a.CLIENT_ID = #{clientId}
+            </if>
+            <if test="!(groupName == null || groupName == '')">
+                and GROUP_NAME LIKE concat('%', #{groupName}, '%')
+            </if>
+            <if test="!(clientName == null || clientName == '')">
+                AND CLIENT_NAME LIKE concat('%', #{clientName}, '%')
+            </if>
+            <if test="!(status == null || status == '')">
+                AND b.STATUS = #{status}
+            </if>
+        </where>
+        ORDER BY b.MODIFY_DATE DESC
+    </select>
+
+    <select id="getResourceGroupByCondition" resultType="com.ucsmy.ucas.manage.entity.UcasResourceGroup" parameterType="Map">
+        SELECT *
+        FROM ucas_resource_group
+        <where>
+            1=1
+            <if test="!(clientId == null || clientId == '')">
+                AND CLIENT_ID=#{clientId}
+            </if>
+            <if test="!(groupName == null || groupName == '')">
+                AND GROUP_NAME=#{groupName}
+            </if>
+            <if test="!(excludeUuid == null || excludeUuid == '')">
+                AND RES_GROUP_UUID!=#{excludeUuid}
+            </if>
+        </where>
+    </select>
+
+    <select id="getResourceGroupById" resultMap="resourceGroup" parameterType="String">
+        SELECT *
+        FROM ucas_resource_group
+        WHERE
+        RES_GROUP_UUID = #{resGroupUuid}
+    </select>
+
+    <insert id="addResourceGroup"  parameterType="com.ucsmy.ucas.manage.entity.UcasResourceGroup">
+        insert into
+        ucas_resource_group(RES_GROUP_UUID, CLIENT_ID, GROUP_NAME, DESC_RIBE)
+        values(
+        #{resGroupUuid},
+        #{clientId},
+        #{groupName},
+        #{descRibe}
+        )
+    </insert>
+
+    <update id="editResourceGroup" parameterType="com.ucsmy.ucas.manage.entity.UcasResourceGroup">
+        update
+        ucas_resource_group
+        set
+        CLIENT_ID = #{clientId},
+        GROUP_NAME = #{groupName},
+        DESC_RIBE = #{descRibe}
+        where
+        RES_GROUP_UUID = #{resGroupUuid}
+    </update>
+
+    <delete id="deleteResourceGroup" parameterType="string">
+        delete from
+        ucas_resource_group
+        where
+        RES_GROUP_UUID = #{resGroupUuid}
+    </delete>
+
+</mapper>

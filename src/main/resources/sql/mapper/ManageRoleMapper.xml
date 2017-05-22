@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ucsmy.ucas.manage.dao.ManageRoleMapper">
+	
+	<resultMap id="roleResult" type="com.ucsmy.ucas.manage.entity.ManageRole">
+		<result column="role_id" property="roleId" jdbcType="VARCHAR" />
+		<result column="name" property="name" jdbcType="VARCHAR" />
+		<result column="description" property="description" jdbcType="VARCHAR" />
+	</resultMap>
+	<sql id="roleColumns">
+		role_id,
+		name,
+		description
+	</sql>
+	<select id="queryRoleList" resultMap="roleResult" >
+		select
+			<include refid="roleColumns" />
+		from
+			manage_role
+		<where>
+			<if test="!(name == null || name == '')">
+				and name like concat('%',#{name}, '%')
+			</if>
+		</where>
+	</select>
+	<select id="queryAllRoleList" resultMap="roleResult" >
+		select
+			role_id,
+			name
+		from
+			manage_role
+	</select>
+	<select id="queryRoleByName" resultMap="roleResult" parameterType="string">
+		select
+			<include refid="roleColumns" />
+		from
+			manage_role
+		where
+			 name = #{name}
+	</select>
+	<select id="queryRoleById" resultMap="roleResult" parameterType="string">
+		select
+			<include refid="roleColumns" />
+		from
+			manage_role
+		where
+			 role_id = #{roleId}
+	</select>
+	<select id="queryRoleUserCountByRoleId" resultType="long" parameterType="string">
+		select
+			count(id)
+		from
+			manage_user_role
+		where
+			 role_id = #{roleId}
+	</select>
+	<select id="queryRoleMark" resultType="string" parameterType="string">
+		select
+			mark
+		from
+			manage_role_param
+		where
+			 role_id = #{roleId}
+	</select>
+	<insert id="addRole" parameterType="map">
+  		insert into 
+  			manage_role(role_id,name,description)
+  			values(#{roleId},#{name},#{description})
+	</insert>
+	<update id="updateRole" parameterType="map">
+  		update
+  			manage_role
+  		set 
+  			name = #{name},description = #{description}
+  		where 
+  			role_id = #{roleId}
+	</update>
+	<delete id="deleteRole" parameterType="string">
+		delete from
+			manage_role
+		where
+			role_id = #{roleId}
+	</delete>
+</mapper>

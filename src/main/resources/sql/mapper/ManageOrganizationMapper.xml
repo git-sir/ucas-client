@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ucsmy.ucas.manage.dao.ManageOrganizationMapper">
+    <resultMap id="organization" type="com.ucsmy.ucas.manage.entity.ManageOrganization">
+        <result column="org_id" property="id" jdbcType="VARCHAR"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="description" property="description" jdbcType="VARCHAR"/>
+        <result column="priority" property="priority" jdbcType="INTEGER"/>
+        <result column="parent_id" property="parentId" jdbcType="VARCHAR"/>
+        <result column="root_id" property="rootId" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <resultMap id="userProfile" type="com.ucsmy.ucas.manage.ext.UcasClientUserProfileWithOrganization">
+        <result column="user_id" property="userId" jdbcType="VARCHAR"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="getOrganizationList" resultMap="organization" >
+        select
+        *
+        from
+        manage_organization
+        order by
+        priority,
+        name
+    </select>
+
+    <select id="getOrganizationById" resultMap="organization" parameterType="string">
+        select
+        *
+        from
+        manage_organization
+        where
+        org_id = #{id}
+    </select>
+
+    <update id="updateOrganization" parameterType="com.ucsmy.ucas.manage.entity.ManageOrganization">
+        update
+        manage_organization
+        set
+        name = #{name},
+        description = #{description},
+        priority = #{priority}
+        where
+        org_id = #{id}
+    </update>
+
+    <insert id="insertOrganization" parameterType="com.ucsmy.ucas.manage.entity.ManageOrganization">
+        insert
+        manage_organization(org_id, name, description, priority, parent_id)
+        values(
+        #{id},
+        #{name},
+        #{description},
+        #{priority},
+        #{parentId}
+        )
+    </insert>
+
+    <select id="countChildren" parameterType="string" resultType="integer">
+        select
+        count(1)
+        from
+        manage_organization
+        where
+        parent_id = #{id}
+    </select>
+
+    <delete id="deleteOrganization" parameterType="string">
+        delete
+        from
+        manage_organization
+        where org_id = #{id}
+    </delete>
+
+    <delete id="deleteBatchByUserIds" parameterType="list">
+        delete
+        from
+        manage_user_organization
+        where
+        user_id in
+        <foreach collection="list" item="item" index="index"  open="(" separator="," close=")">
+            #{item.userId}
+        </foreach>
+    </delete>
+
+    <insert id="insertBatch" parameterType="java.util.List">
+        insert into
+        manage_user_organization(id, user_id, org_id)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.id}, #{item.userId}, #{item.organizationId})
+        </foreach>
+    </insert>
+
+    <delete id="deleteBatch" parameterType="map">
+        delete
+        from
+        manage_user_organization
+        where
+        org_id = #{organizationId}
+        and
+        user_id in
+        <foreach collection="list" item="item" index="index"  open="(" separator="," close=")">
+            #{item.userId}
+        </foreach>
+    </delete>
+
+    <select id="queryUserWithOrganization" parameterType="map" resultMap="userProfile">
+        select a.name, a.user_id
+        from
+        manage_user_profile a
+        where
+        a.user_id in (
+        select
+        b.user_id
+        from
+        manage_user_organization b
+        where
+        org_id = #{id}
+        )
+        order by a.name
+    </select>
+
+    <select id="queryUserWithoutOrganization" parameterType="string" resultMap="userProfile">
+        select a.name, a.user_id
+        from
+        manage_user_profile a
+        where
+        a.user_id not in (
+        select
+        b.user_id
+        from
+        manage_user_organization b
+        where
+        org_id = #{id}
+        )
+        order by a.name
+    </select>
+
+</mapper>

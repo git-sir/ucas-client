@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ucsmy.ucas.manage.dao.ManageUserOauth2RelMapper">
+  <resultMap id="BaseResultMap" type="com.ucsmy.ucas.manage.entity.ManageUserOauth2Rel">
+    <id column="uuid" jdbcType="VARCHAR" property="uuid" />
+    <result column="open_id" jdbcType="VARCHAR" property="openId" />
+    <result column="user_id" jdbcType="VARCHAR" property="userId" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    uuid, open_id, user_id
+  </sql>
+
+  <select id="selectByUsername" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+   l.uuid, l.open_id, l.user_id
+    from manage_user_oauth2_rel l,manage_user_account t
+    where
+     l.user_id=t.user_id
+    AND t.account = #{username,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectByOpenid" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from manage_user_oauth2_rel
+    where open_id = #{openId,jdbcType=VARCHAR}
+  </select>
+
+  <insert id="insert" parameterType="com.ucsmy.ucas.manage.entity.ManageUserOauth2Rel">
+    <selectKey keyProperty="uuid" order="AFTER" resultType="java.lang.String">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into manage_user_oauth2_rel (uuid,open_id, user_id)
+    values (#{uuid,jdbcType=VARCHAR},#{openId,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR})
+  </insert>
+</mapper>

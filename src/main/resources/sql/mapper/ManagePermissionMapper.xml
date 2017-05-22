@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ucsmy.ucas.manage.dao.ManagePermissionMapper">
+
+    <resultMap id="permissionResult" type="com.ucsmy.ucas.manage.entity.ManagePermission">
+        <result column="permission_id" property="permissionId" jdbcType="VARCHAR" />
+        <result column="description" property="description" jdbcType="VARCHAR" />
+        <result column="name" property="name" jdbcType="VARCHAR" />
+        <result column="SN" property="sn" jdbcType="VARCHAR" />
+        <result column="module_id" property="moduleId" jdbcType="VARCHAR" />
+        <result column="url_action" property="urlAction" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <select id="queryPermissionAll" resultMap="permissionResult" >
+        select *
+        from manage_permission
+    </select>
+
+    <select id="queryPermissionByUserID" parameterType="String" resultMap="permissionResult">
+        select
+        p.permission_id,
+        p.sn,
+        p.url_action ,
+        p.`name`
+        from
+        manage_user_role ur
+        join manage_role_permission rp on ur.role_id = rp.role_id
+        join manage_permission p on rp.permission_id = p.permission_id
+        where
+        ur.user_id = #{userId}
+    </select>
+
+    <select id="queryPermissionByModuleID" resultMap="permissionResult" parameterType="String">
+        select *
+        from manage_permission
+        where module_id = #{id}
+    </select>
+
+    <select id="getPermissionById" parameterType="String" resultMap="permissionResult">
+        select *
+        from manage_permission
+        where permission_id=#{permissionId}
+    </select>
+
+    <update id="updatePermission" parameterType="com.ucsmy.ucas.manage.entity.ManagePermission">
+        update manage_permission
+        set
+        permission_id = #{permissionId},
+        description = #{description},
+        name = #{name},
+        sn = #{sn},
+        module_id = #{moduleId},
+        url_action = #{urlAction}
+        where permission_id = #{permissionId}
+    </update>
+
+    <delete id="deletePermissionByID" parameterType="String">
+        delete from manage_permission
+        where permission_id = #{permissionId}
+    </delete>
+
+    <delete id="deletePermissionByModule" parameterType="String">
+        delete from manage_permission where module_id=#{id}
+    </delete>
+
+    <insert id="addPermission" parameterType="com.ucsmy.ucas.manage.entity.ManagePermission">
+        insert into manage_permission (
+        permission_id,
+        description,
+        name,
+        sn,
+        module_id,
+        url_action
+        ) values (
+        #{permissionId},
+        #{description},
+        #{name},
+        #{sn},
+        #{moduleId},
+        #{urlAction}
+        )
+    </insert>
+
+</mapper>

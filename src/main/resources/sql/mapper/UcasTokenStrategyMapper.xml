@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ucsmy.ucas.manage.dao.UcasTokenStrategyMapper">
+
+    <resultMap id="tokenStrategy" type="com.ucsmy.ucas.manage.entity.UcasTokenStrategy">
+        <result column="UUID" property="uuid" jdbcType="VARCHAR"/>
+        <result column="CLIENT_ID" property="clientId" jdbcType="VARCHAR"/>
+        <result column="MAX_TIMES" property="maxTimes" jdbcType="INTEGER"/>
+        <result column="EXPIRY_DATE" property="expiryDate" jdbcType="INTEGER"/>
+        <result column="REFRESH_EXPIRY_DATE" property="refreshExpiryDate" jdbcType="INTEGER"/>
+        <result column="STATUS" property="status" jdbcType="VARCHAR"/>
+        <result column="CREATE_DATE" property="createDate" jdbcType="VARCHAR"/>
+    </resultMap>
+    
+    <resultMap id="tokenStrategyList" type="com.ucsmy.ucas.manage.ext.TokenStrategyPojo">
+        <result column="UUID" property="uuid" jdbcType="VARCHAR"/>
+        <result column="CLIENT_ID" property="clientId" jdbcType="VARCHAR"/>
+        <result column="MAX_TIMES" property="maxTimes" jdbcType="INTEGER"/>
+        <result column="EXPIRY_DATE" property="expiryDate" jdbcType="INTEGER"/>
+        <result column="REFRESH_EXPIRY_DATE" property="refreshExpiryDate" jdbcType="INTEGER"/>
+        <result column="STATUS" property="status" jdbcType="VARCHAR"/>
+        <result column="CREATE_DATE" property="createDate" jdbcType="VARCHAR"/>
+        <result column="GROUP_NAME" property="ucasClientInfo.ucasClientGroup.groupName" jdbcType="VARCHAR"/>
+        <result column="CLIENT_NAME" property="ucasClientInfo.clientName" jdbcType="VARCHAR"/>
+        <result column="bClientId" property="ucasClientInfo.clientId" jdbcType="VARCHAR"/>
+        <result column="CLIENT_SECRET" property="ucasClientInfo.clientSecret" jdbcType="VARCHAR"/>
+        <result column="DESC_RIBE" property="ucasClientInfo.descRibe" jdbcType="VARCHAR"/>
+        <result column="GRANT_TYPE" property="ucasClientInfo.grantType" jdbcType="VARCHAR"/>
+        <result column="CLIENT_URL" property="ucasClientInfo.clientUrl" jdbcType="VARCHAR"/>
+        <result column="clientStatus" property="ucasClientInfo.status" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="queryTokenStrategyList" parameterType="Map" resultMap="tokenStrategyList">
+        SELECT
+        UUID,
+        a.CLIENT_ID AS CLIENT_ID,
+        MAX_TIMES,
+        EXPIRY_DATE,
+        REFRESH_EXPIRY_DATE,
+        a.STATUS AS STATUS,
+        a.CREATE_DATE AS CREATE_DATE,
+        b.CLIENT_ID AS bClientId,
+        b.STATUS AS clientStatus,
+        GROUP_NAME,
+        CLIENT_NAME,
+        CLIENT_SECRET,
+        b.DESC_RIBE AS DESC_RIBE,
+        GRANT_TYPE,
+        CLIENT_URL
+        FROM ucas_token_strategy a
+        LEFT JOIN ucas_client_info b
+        ON a.CLIENT_ID=b.CLIENT_ID
+        LEFT JOIN ucas_client_group c
+        ON b.CLIG_UUID=c.CLIG_UUID
+        <where>
+            1=1
+            <if test="!(clientName == null || clientName == '')">
+                AND b.CLIENT_NAME LIKE concat('%', #{clientName}, '%')
+            </if>
+            <if test="!(clientId == null || clientId == '')">
+                AND a.CLIENT_ID=#{clientId}
+            </if>
+            <if test="!(status == null || status == '')">
+                AND a.STATUS=#{status}
+                AND b.STATUS=#{status}
+            </if>
+        </where>
+        GROUP BY b.MODIFY_DATE DESC
+    </select>
+
+    <select id="queryTokenStrategyListByClientId" parameterType="Map" resultMap="tokenStrategy">
+        SELECT *
+        FROM ucas_token_strategy
+        <where>
+            1=1
+            <if test="!(clientId == null || clientId == '')">
+                AND CLIENT_ID=#{clientId}
+            </if>
+            <if test="!(status == null || status == '')">
+                AND STATUS=#{status}
+            </if>
+        </where>
+        GROUP BY CREATE_DATE DESC
+    </select>
+
+    <select id="queryTokenStrategyByUuid" parameterType="Map" resultMap="tokenStrategy">
+        SELECT *
+        FROM ucas_token_strategy
+        <where>
+            UUID=#{uuid}
+        </where>
+    </select>
+
+    <insert id="addTokenStrategy" parameterType="com.ucsmy.ucas.manage.entity.UcasTokenStrategy">
+        INSERT INTO ucas_token_strategy(
+        UUID,
+        CLIENT_ID,
+        MAX_TIMES,
+        EXPIRY_DATE,
+        REFRESH_EXPIRY_DATE,
+        STATUS,
+        CREATE_DATE)
+        VALUES (
+        #{uuid},
+        #{clientId},
+        #{maxTimes},
+        #{expiryDate},
+        #{refreshExpiryDate},
+        #{status},
+        #{createDate})
+    </insert>
+
+    <update id="updateTokenStrategy" parameterType="com.ucsmy.ucas.manage.entity.UcasTokenStrategy">
+        UPDATE ucas_token_strategy SET
+        CLIENT_ID=#{clientId},
+        MAX_TIMES=#{maxTimes},
+        EXPIRY_DATE=#{expiryDate},
+        REFRESH_EXPIRY_DATE=#{refreshExpiryDate},
+        STATUS=#{status},
+        CREATE_DATE=#{createDate}
+        WHERE
+        UUID=#{uuid}
+    </update>
+
+    <delete id="deleteTokenStrategy" parameterType="Map">
+        DELETE FROM ucas_token_strategy
+        WHERE UUID=#{uuid}
+    </delete>
+
+</mapper>

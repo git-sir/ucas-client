@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ucsmy.ucas.manage.dao.ManageIpScheduleTaskMapper">
+
+    <resultMap id="schedule" type="com.ucsmy.ucas.manage.entity.ManageIpScheduleTask">
+        <result column="id" property="id" jdbcType="VARCHAR"/>
+        <result column="task_code" property="taskCode" jdbcType="VARCHAR"/>
+        <result column="task_name" property="taskName" jdbcType="VARCHAR"/>
+        <result column="task_conf" property="taskConf" jdbcType="VARCHAR"/>
+        <result column="task_class" property="taskClass" jdbcType="VARCHAR"/>
+        <result column="task_server_ip" property="taskServerIp" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="VARCHAR"/>
+        <result column="remark" property="remark" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="getAll" resultMap="schedule">
+        SELECT * FROM manage_ip_schedule_task
+    </select>
+
+    <select id="queryScheduleTask" resultMap="schedule" parameterType="map">
+        select
+        *
+        from
+        manage_ip_schedule_task
+        <where>
+            <if test="!(taskName == null || taskName == '')">
+                and task_name like concat('%', #{taskName}, '%')
+            </if>
+        </where>
+        order by
+        task_code,
+        task_name,
+        task_server_ip
+    </select>
+
+    <select id="getScheduleTaskById" resultMap="schedule" parameterType="string">
+        select
+        *
+        from
+        manage_ip_schedule_task
+        where
+        id = #{id}
+    </select>
+
+    <select id="isTaskCodeExist" resultType="java.lang.Integer" parameterType="string">
+        select
+        count(1)
+        from
+        manage_ip_schedule_task
+        where
+        task_code = #{taskCode}
+        <if test="!(id == null || id == '')">
+            and id != #{id}
+        </if>
+    </select>
+
+    <insert id="addSchedulTask" parameterType="com.ucsmy.ucas.manage.entity.ManageIpScheduleTask">
+        insert
+        manage_ip_schedule_task(id, task_code, task_name, task_conf, task_class, task_server_ip, status, remark)
+        values(
+        #{id},
+        #{taskCode},
+        #{taskName},
+        #{taskConf},
+        #{taskClass},
+        #{taskServerIp},
+        #{status},
+        #{remark}
+        )
+    </insert>
+
+    <update id="updateScheduleTask" parameterType="com.ucsmy.ucas.manage.entity.ManageIpScheduleTask">
+        update
+        manage_ip_schedule_task
+        set
+        task_code = #{taskCode},
+        task_name = #{taskName},
+        task_conf = #{taskConf},
+        task_class = #{taskClass},
+        task_server_ip = #{taskServerIp},
+        status = #{status},
+        remark = #{remark}
+        where
+        id = #{id}
+    </update>
+
+    <delete id="deleteSchedulTask" parameterType="string">
+        delete from
+        manage_ip_schedule_task
+        where
+        id = #{id}
+    </delete>
+
+</mapper>
