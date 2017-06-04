@@ -9,11 +9,11 @@ import org.apache.ibatis.annotations.Param;
 @Mapper
 public interface ManageUserRoleMapper {
 
-	UcasPageInfo<ManageUserRole> queryUserRoleList(@Param("roleId") String roleId,
-                                                   @Param("account") String account, PageRequest pageRequest);
+	UcasPageInfo<ManageUserRole> queryUserRoleList(@Param("roleId") String roleId, @Param("account") String account,
+												   @Param("name") String name, PageRequest pageRequest);
 
-	UcasPageInfo<ManageUserRole> queryUnbindUserList(@Param("roleId") String roleId,
-                                                     @Param("account") String account, PageRequest pageRequest);
+	UcasPageInfo<ManageUserRole> queryUnbindUserList(@Param("roleId") String roleId, @Param("account") String account,
+													 @Param("name") String name, PageRequest pageRequest);
 
 	Long queryUserCountByUserIds(@Param("ids") String[] ids);
 

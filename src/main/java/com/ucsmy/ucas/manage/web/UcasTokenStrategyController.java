@@ -5,13 +5,13 @@ import com.ucsmy.commons.utils.CommStatusEnum;
 import com.ucsmy.commons.utils.StringUtils;
 import com.ucsmy.ucas.commons.aop.exception.result.AosResult;
 import com.ucsmy.ucas.commons.aop.exception.result.ResultConst;
+import com.ucsmy.ucas.commons.constant.CommMessage;
 import com.ucsmy.ucas.manage.entity.UcasTokenStrategy;
 import com.ucsmy.ucas.manage.service.UcasTokenStrategyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 
 /**
  * Token策略Controller
@@ -20,13 +20,8 @@ import java.util.List;
 @RestController
 @RequestMapping("tokenStrategy")
 public class UcasTokenStrategyController {
-    
-    private final String UPDATE_FAIL = "更新失败，请检查网络";
-    private final String UPDATE_SUCCESS = "更新成功";
-    private final String UUID_EMPTY = "Token策略UUID为空";
 
-    private final String DELETE_FAIL = "删除失败，请检查网络";
-    private final String DELETE_SUCCESS = "删除成功";
+    private final static String UUID_EMPTY = "Token策略UUID为空";
 
     @Autowired
     private UcasTokenStrategyService ucasTokenStrategyService;
@@ -50,7 +45,7 @@ public class UcasTokenStrategyController {
      */
     @RequestMapping("queryTokenStrategyByClientId")
     public AosResult queryTokenStrategyListByClientId(String clientId) {
-        return AosResult.retSuccessMsg("success", ucasTokenStrategyService.queryTokenStrategyListByClientId(clientId));
+        return AosResult.retSuccessMsg("success", ucasTokenStrategyService.queryTokenStrategyListByClientId(clientId, null));
     }
 
     /**
@@ -74,9 +69,9 @@ public class UcasTokenStrategyController {
         }
         int result = ucasTokenStrategyService.updateTokenStrategy(ucasTokenStrategy);
         if (result > 0) {
-            return AosResult.retSuccessMsg(UPDATE_SUCCESS);
+            return AosResult.retSuccessMsg(CommMessage.UPDATE_SUCCESS);
         }
-        return AosResult.retFailureMsg(UPDATE_FAIL);
+        return AosResult.retFailureMsg(CommMessage.UPDATE_FAILURE);
     }
 
     /**
@@ -91,8 +86,8 @@ public class UcasTokenStrategyController {
         }
         int result = ucasTokenStrategyService.deleteTokenStrategy(uuid);
         if (result > 0) {
-            return AosResult.retSuccessMsg(DELETE_SUCCESS);
+            return AosResult.retSuccessMsg(CommMessage.DELETE_SUCCESS);
         }
-        return AosResult.retFailureMsg(DELETE_FAIL);
+        return AosResult.retFailureMsg(CommMessage.DELETE_FAILURE);
     }
 }

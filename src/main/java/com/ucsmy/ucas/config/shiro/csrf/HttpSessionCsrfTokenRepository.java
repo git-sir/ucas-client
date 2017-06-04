@@ -11,6 +11,7 @@ import com.ucsmy.ucas.manage.entity.ManageUserOauth2Rel;
 import com.ucsmy.ucas.manage.service.ManageUserAccountService;
 import com.ucsmy.ucas.manage.service.SysTokenManagerService;
 import org.apache.shiro.subject.Subject;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 
@@ -29,6 +30,7 @@ public class HttpSessionCsrfTokenRepository implements CsrfTokenRepository {
     private static final String TYPE_LOCAL_TOKEN = "LOCAL";
 
 
+    private static org.slf4j.Logger log = LoggerFactory.getLogger(HttpSessionCsrfTokenRepository.class);
 
 
 
@@ -75,9 +77,7 @@ public class HttpSessionCsrfTokenRepository implements CsrfTokenRepository {
 
 	public CsrfToken generateToken(HttpServletRequest request) {
 
-        String type = "";
-        Token token = null;
-        token = new Token(this.headerName, this.parameterName, TYPE_LOCAL_TOKEN, this.createNewToken());
+        Token token =  new Token(this.headerName, this.parameterName, TYPE_LOCAL_TOKEN, this.createNewToken());
         if (StringAndNumberUtil.isNull(request.getParameter(token_type))) {
             token =this.getAccessToken(token, request);
         } else {
@@ -115,20 +115,17 @@ public class HttpSessionCsrfTokenRepository implements CsrfTokenRepository {
     }
 
 	public CsrfToken generateToken(HttpServletRequest request, String accessCode) {
-		// TODO Auto-generated method stub
 		 return new Token(this.headerName, this.parameterName,  TYPE_ACCESS_TOKEN,this.getoauth2Token(accessCode));
 	}
     @Override
 	public String getoauth2Token(String accessCode) {
-		// TODO Auto-generated method stub
 
         String token="";
 		try {
               token =  oauth2Http.getAccessToken(accessCode);
 
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+            log.debug("HttpSessionCsrfTokenRepository",e);
 		}
         return token;
 	}
@@ -163,9 +160,15 @@ public class HttpSessionCsrfTokenRepository implements CsrfTokenRepository {
             manageUserOauth2Rel = new ManageUserOauth2Rel();
             manageUserOauth2Rel.setOpenId(openId);
             manageUserOauth2Rel.setUserId(user.getId());
-            manageUserOauth2Rel.setUuid(UUIDGenerator.generate(32));
+            manageUserOauth2Rel.setUuid(UUIDGenerator.generate());
             manageUserOauth2RelMapper.insert(manageUserOauth2Rel);
         }
+    }
+
+    @Override
+    public void removeToken( HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+         session.getAttribute(this.sessionAttributeName);
     }
 
 
@@ -174,13 +177,13 @@ public class HttpSessionCsrfTokenRepository implements CsrfTokenRepository {
         if (!(StringAndNumberUtil.isNull(code))){
             Token accessToken = new Token(this.headerName, this.parameterName, TYPE_LOCAL_TOKEN, this.getoauth2Token(code));
             String account = manageUserAccountService.getAccountByOprenid(sysTokenManagerService.getSysLoginToken("openId"));
-            if (accessToken!=null&& !(StringAndNumberUtil.isNull(account))) {
-                if (!accessToken.getToken().equals("false")) {
+            if (accessToken!=null&& !(StringAndNumberUtil.isNull(account))
+                    && !accessToken.getToken().equals("false")) {
                     Boolean bo = oauth2Http.userLogin(account);
                     if (bo) {
                         token = accessToken;
                     }
-                }
+
             }
         }
         return token;

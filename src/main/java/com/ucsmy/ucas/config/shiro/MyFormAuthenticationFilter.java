@@ -59,7 +59,6 @@ public class MyFormAuthenticationFilter extends FormAuthenticationFilter {
      * @return
      */
     protected AuthenticationToken createToken(ServletRequest request, ServletResponse response) {
-        System.out.println(getClass()+"拦截到URL："+((HttpServletRequest)request).getRequestURI());
         String username = this.getUsername(request);
         String password = this.getPassword(request);
         boolean rememberMe = this.isRememberMe(request);
@@ -73,8 +72,7 @@ public class MyFormAuthenticationFilter extends FormAuthenticationFilter {
      */
     @Override
     protected boolean onLoginSuccess(AuthenticationToken token, Subject subject, ServletRequest request, ServletResponse response) throws Exception {
-        System.out.println(getClass()+"执行onLoginSuccess");
-        HttpServletResponse resp = (HttpServletResponse) response;
+    	HttpServletResponse resp = (HttpServletResponse) response;
     	HttpServletRequest req = (HttpServletRequest)request;
         this.csrfTokenRepository.addUserOauthRel(subject);
         Map<String, Object> map = new HashMap<>();
@@ -94,8 +92,7 @@ public class MyFormAuthenticationFilter extends FormAuthenticationFilter {
      */
     @Override
     protected boolean onLoginFailure(AuthenticationToken token, AuthenticationException e, ServletRequest request, ServletResponse response) {
-        System.out.println(getClass()+"执行onLoginFailure");
-        HttpServletResponse resp = (HttpServletResponse) response;
+    	HttpServletResponse resp = (HttpServletResponse) response;
     	Map<String, Object> map = new HashMap<>();
     	map.put("success", false);
     	map.put("msg", getFailureMsg(e));
@@ -103,6 +100,7 @@ public class MyFormAuthenticationFilter extends FormAuthenticationFilter {
     	try {
 			resp.getWriter().write(JsonUtils.formatObjectToJson(map));
 		} catch (IOException e1) {
+            log.error("MyFormAuthenticationFilter",e);
 		}
     	return false;
     }
@@ -115,25 +113,12 @@ public class MyFormAuthenticationFilter extends FormAuthenticationFilter {
     }
     @Override
     protected boolean isAccessAllowed(ServletRequest request,   ServletResponse response, Object mappedValue) {
-        System.out.println(getClass()+"执行isAccessAllowed");
-        return super.isAccessAllowed(request, response, mappedValue);
+         return super.isAccessAllowed(request, response, mappedValue);
     }
-//    @Override
-//    protected boolean onAccessDenied(ServletRequest request, ServletResponse response) throws Exception {
-//        Subject subject = getSubject(request, response);
-//        Session session = subject.getSession();
-//        // clear session if session id is not null and in URL
-//        if(session.getId() != null){
-//            request.setAttribute(ShiroHttpServletRequest.REFERENCED_SESSION_ID_SOURCE,ShiroHttpServletRequest.COOKIE_SESSION_ID_SOURCE);
-//            request.setAttribute(ShiroHttpServletRequest.REFERENCED_SESSION_ID, session.getId());
-//          request.setAttribute(ShiroHttpServletRequest.REFERENCED_SESSION_ID_IS_VALID, Boolean.TRUE);
-//        }
-//        return super.onAccessDenied(request, response);
-//    }
+
     @Override
 	protected boolean onAccessDenied(ServletRequest request, ServletResponse response) throws Exception {
-        System.out.println(getClass()+"执行onAccessDenied");
-        if (isLoginRequest(request, response)) {
+    	if (isLoginRequest(request, response)) {
 			if (isLoginSubmission(request, response)) {
 				if (log.isTraceEnabled()) {
 					log.trace("Login submission detected.  Attempting to execute login.");
@@ -163,8 +148,7 @@ public class MyFormAuthenticationFilter extends FormAuthenticationFilter {
 
 
 	private String getFailureMsg(AuthenticationException ae) {
-        System.out.println(getClass()+"执行getFailureMsg");
-    	String msg = null;
+    	String msg ;
         if(ae instanceof UnknownAccountException)
             msg = "账号不存在";
         else if(ae instanceof IncorrectCredentialsException)

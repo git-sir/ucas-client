@@ -62,9 +62,6 @@
         FROM ucas_resource_group
         <where>
             1=1
-            <if test="!(clientId == null || clientId == '')">
-                AND CLIENT_ID=#{clientId}
-            </if>
             <if test="!(groupName == null || groupName == '')">
                 AND GROUP_NAME=#{groupName}
             </if>

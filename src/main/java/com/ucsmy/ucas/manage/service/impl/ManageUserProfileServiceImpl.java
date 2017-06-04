@@ -25,7 +25,6 @@ import com.ucsmy.ucas.manage.dao.ManageUserProfileMapper;
 import com.ucsmy.ucas.manage.entity.ManageUserProfile;
 import com.ucsmy.ucas.manage.service.ManageUserProfileService;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ManageUserProfileServiceImpl implements ManageUserProfileService {
@@ -41,56 +40,48 @@ public class ManageUserProfileServiceImpl implements ManageUserProfileService {
 	@Override
 	@Logger(printSQL = true)
 	public PageInfo<ManageUserProfile> queryUserProfile(String name, int pageNum, int pageSize) {
-		// TODO Auto-generated method stub
 		return manageUserProfileMapper.queryUserProfile(name,new PageRequest(pageNum,pageSize));
 	}
 
 	@Override
 	@Logger(printSQL = true)
 	public UserProfilePojo queryUserProfileByUserId(String userId) {
-		// TODO Auto-generated method stub
 		return manageUserProfileMapper.queryUserProfileByUserId(userId);
 	}
 
 	@Override
 	@Logger(printSQL = true)
 	public ManageUserProfile queryUserProfileByLoginName(String loginName) {
-		// TODO Auto-generated method stub
 		return manageUserProfileMapper.queryUserProfileByLoginName(loginName);
 	}
 
 	@Override
 	@Logger(printSQL = true)
 	public int chenckUserProfileByMobilephone(String mobilephone) {
-		// TODO Auto-generated method stub
 		return manageUserProfileMapper.chenckUserProfileByMobilephone(mobilephone);
 	}
 
 	@Override
 	@Logger(printSQL = true)
 	public int chenckUserProfileByEmail(String email) {
-		// TODO Auto-generated method stub
 		return manageUserProfileMapper.chenckUserProfileByEmail(email);
 	}
 
 	@Override
 	@Logger(printSQL = true)
 	public int saveUserProfile(ManageUserProfile manageUserProfile) {
-		// TODO Auto-generated method stub
 		return manageUserProfileMapper.saveUserProfile(manageUserProfile);
 	}
 
 	@Override
 	@Logger(printSQL = true)
 	public int updateUserProfile(ManageUserProfile manageUserProfile) {
-		// TODO Auto-generated method stub
 		return manageUserProfileMapper.updateUserProfile(manageUserProfile);
 	}
 
 	@Override
 	@Logger(printSQL = true)
 	public int deleteUserProfile(String userId) {
-		// TODO Auto-generated method stub
 		return manageUserProfileMapper.deleteUserProfile(userId);
 	}
 

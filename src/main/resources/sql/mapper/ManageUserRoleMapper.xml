@@ -36,6 +36,9 @@
 			<if test="!(account == null || account == '')">
 				and u.account like concat('%',#{account}, '%')
 			</if>
+			<if test="!(name == null || name == '')">
+				and up.name LIKE concat('%', #{name}, '%')
+			</if>
 		</where>
 	</select>
 	<select id="queryUnbindUserList" resultMap="userRoleResult" parameterType="map">
@@ -71,6 +74,9 @@
 				role_id = #{roleId})
 			<if test="!(account == null || account == '')">
 				and u.account like concat('%',#{account}, '%')
+			</if>
+			<if test="!(name == null || name == '')">
+				and up.name LIKE concat('%', #{name}, '%')
 			</if>
 		</where>
 	</select>

@@ -24,7 +24,7 @@ var me = this;
     		{
     			me.refs.dataResult.value=JSON.stringify(data);
     		},
-    		error:function(e)
+    		error:function()
     		{
     			UcsmyIndex.alert("失败", "网络异常");
     		}
@@ -50,7 +50,6 @@ var me = this;
     },
 
 	render:function() {
-		var me = this;
 		return (
 			<div>
 

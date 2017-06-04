@@ -1,6 +1,5 @@
 package com.ucsmy.ucas.manage.ext;
 
-import com.ucsmy.ucas.manage.entity.UcasClientGroup;
 import com.ucsmy.ucas.manage.entity.UcasClientInfo;
 import com.ucsmy.ucas.manage.entity.UcasTokenStrategy;
 
@@ -12,6 +11,8 @@ public class TokenStrategyPojo extends UcasTokenStrategy {
 
     private static final long serialVersionUID = 1L;
 
+    private String clientName;
+
     private UcasClientInfo ucasClientInfo;
 
     public UcasClientInfo getUcasClientInfo() {
@@ -20,5 +21,13 @@ public class TokenStrategyPojo extends UcasTokenStrategy {
 
     public void setUcasClientInfo(UcasClientInfo ucasClientInfo) {
         this.ucasClientInfo = ucasClientInfo;
+    }
+
+    public String getClientName() {
+        return clientName;
+    }
+
+    public void setClientName(String clientName) {
+        this.clientName = clientName;
     }
 }

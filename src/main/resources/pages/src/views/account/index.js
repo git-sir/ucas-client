@@ -38,11 +38,11 @@ myPanel = React.createClass({
 				data: data.data,
 				urgentFlag:data.data
 			});
-		}, "json").error(function(xhr, errorText, errorType){
+		}, "json").error(function(){
+			UcsmyIndex.alert("失败","系统异常");
 		});
 	},
     _query: function() {
-		{/*this.refs.grid.load(this.refs.queryForm.getValues());*/}
 
 		this.refs.grid.load({
 			ucasAccount: this.refs.ucasAccount.getValue(),
@@ -59,44 +59,43 @@ myPanel = React.createClass({
     	UcsmyIndex.openChildrenPage(UserForm, function(refPanel) {
     		refPanel.init('account/addUser','新增帐号',  {gender: "1"}, function(){
     			me.refs.grid.load();
-				//me._reload();
     		});
     	});
 
     },
-	_freeze:function(column,event)
+	_freeze:function(column)
 	{
 		var me = this;
 		UcsmyIndex.confirm("确定", "你真的要冻结该用户吗？", function() {
 			$.post("account/freeze", {ucasAccount: column.ucasAccount}, function(data) {
-				if(data.retcode == 0) {
+				if(data.retcode === '0') {
 					UcsmyIndex.alert("成功", data.retmsg);
 					me.refs.grid.reload();
 				} else {
 					UcsmyIndex.alert("失败", data.retmsg);
 				}
-			}, "json").error(function(xhr, errorText, errorType){
+			}, "json").error(function(){
 				UcsmyIndex.alert("失败", "网络异常");
 			});
 		});
 	},
-	_unfreeze:function(column,event)
+	_unfreeze:function(column)
 	{
 		var me = this;
 		UcsmyIndex.confirm("确定", "你真的要解冻该用户吗？", function() {
 			$.post("account/unfreeze", {ucasAccount: column.ucasAccount}, function(data) {
-				if(data.retcode == 0) {
+				if(data.retcode === '0') {
 					UcsmyIndex.alert("成功", data.retmsg);
 					me.refs.grid.reload();
 				} else {
 					UcsmyIndex.alert("失败", data.retmsg);
 				}
-			}, "json").error(function(xhr, errorText, errorType){
+			}, "json").error(function(){
 				UcsmyIndex.alert("失败", "网络异常");
 			});
 		});
 	},
-	_mod_email:function(column,event)
+	_mod_email:function(column)
 	{
 		var me = this;
 		UcsmyIndex.openChildrenPage(EmailForm, function(refPanel) {
@@ -105,7 +104,7 @@ myPanel = React.createClass({
 			});
 		});
 	},
-	_mod_mobile:function(column,event)
+	_mod_mobile:function(column)
 	{
 		var me = this;
 		UcsmyIndex.openChildrenPage(PhoneForm, function(refPanel) {
@@ -114,32 +113,29 @@ myPanel = React.createClass({
 			});
 		});
 	},
-    _update: function(column, event) {
+    _update: function(column) {
 		var me = this;
 		UcsmyIndex.openChildrenPage(UpdateuserDetailForm, function(refPanel) {
 			refPanel.init('account/upInfo','修改基本信息',  column, function(){
-				//me.refs.grid.load();
 				me.refs.grid.reload();
 			});
 		});
     },
-    _updatePassword: function(column, event) {
-    	var me = this;
+    _updatePassword: function(column) {
     	UcsmyIndex.openChildrenPage(PasswordForm, function(refPanel) {
     		refPanel.init(column);
     	});
     },
-	_detail:function(column, event) //基本信息
+	_detail:function(column) //基本信息
 	{
 		var me = this;
 		UcsmyIndex.openChildrenPage(UserDetailForm, function(refPanel) {
 			refPanel.init('account/upInfo','修改基本信息',  column, function(){
-				//me.refs.grid.load();
 				me.refs.grid.reload();
 			});
 		});
 	},
-    _delete: function(column, event) {
+    _delete: function(column) {
     	var me = this;
 		UcsmyIndex.confirm("确定", "你真的要删除该用户吗？", function() {
 			$.post("account/delete", {ucasAccount: column.ucasAccount}, function(data) {
@@ -149,7 +145,7 @@ myPanel = React.createClass({
 				} else {
 					UcsmyIndex.alert("失败", data.retmsg);
 				}
-			}, "json").error(function(xhr, errorText, errorType){
+			}, "json").error(function(){
 				UcsmyIndex.alert("失败", "网络异常");
 		    });
 		});
@@ -158,7 +154,7 @@ myPanel = React.createClass({
 		var me = this;
 		return (
 			<div>
-			     <h2 className="content-title">用户管理</h2>
+			     <h2 className="content-title">帐号管理</h2>
 			    <div className="panel">
 			            <div className="panel-title">查询条件</div>
 						<div className="panel-content">
@@ -170,7 +166,7 @@ myPanel = React.createClass({
 							  <SelectDropDown ref="sta" defaultText="请选择" defaultValue="" option={option} searchPlaceholder="请选择" />
 							</FormItem>
 							<FormItem label="用户组">
-								<SelectDropDown ref="accgUuid" defaultText="请选择" defaultValue="" option={me.state.urgentFlag} />
+								<SelectDropDown ref="accgUuid" name="select" defaultText="请选择" showNum="8" defaultValue="" option={me.state.urgentFlag} />
 
 							</FormItem>
 					    </div>
@@ -205,7 +201,7 @@ myPanel = React.createClass({
 		                     , {
           						name: 'status', header: '状态',width: 30, content:function(column){
          				    		 return (<span>
-        				    		 	{column.status == '0' ? '正常' : '冻结'}
+        				    		 	{column.status === '0' ? '正常' : '冻结'}
         				    		 </span>)
         						}
           					}, {

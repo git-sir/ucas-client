@@ -21,7 +21,7 @@ module.exports = React.createClass({
         $.post("account/getUser",
             {'ucasAccount':data.ucasAccount},
             function (result) {
-                if (result && result.retcode && result.retcode == "0") {
+                if (result && result.retcode && result.retcode === "0") {
                     me.setState({
                         title: title,
                         url: url,
@@ -32,16 +32,14 @@ module.exports = React.createClass({
                 } else {
                     UcsmyIndex.alert("提示", result.retmsg);
                 }
-            }).error(function(xhr, errorText, errorType){
+            }).error(function(){
             UcsmyIndex.alert("失败", "网络异常");
         });
-        // this.refs.saveForm.setValues(data);
     },
-    _return: function (event) {
+    _return: function () {
         UcsmyIndex.closeChildrenPage();
     },
     render: function () {
-        var that = this;
         return (
             <div>
             <div className="panel">
@@ -79,7 +77,7 @@ module.exports = React.createClass({
         </div>*/}
         <div className="ucs-form-group">
             <span className="label">状态：</span>
-        <span>{this.state.ucasAccountGroup.status=='0' ? '正常':'冻结'}</span>
+        <span>{this.state.ucasAccountGroup.status==='0' ? '正常':'冻结'}</span>
         </div>
         <div className="ucs-form-group">
             <span className="label">组织名称：</span>
@@ -92,7 +90,7 @@ module.exports = React.createClass({
         </div>
         <div className="ucs-form-group">
             <span className="label">性别：</span>
-        <span>{this.state.ucasAccountGroup.sex=='1' ? '男' : '女'}</span>
+        <span>{this.state.ucasAccountGroup.sex==='1' ? '男' : '女'}</span>
         </div>
         <div className="ucs-form-group">
             <span className="label">用户组：</span>
@@ -100,7 +98,7 @@ module.exports = React.createClass({
         </div>
         <div className="ucs-form-group">
             <span className="label">指纹标识：</span>
-        <span>{this.state.ucasAccountGroup.fingerprint=='1' ? '有':'无'}</span>
+        <span>{this.state.ucasAccountGroup.fingerprint==='1' ? '有':'无'}</span>
         </div>
              <div className="ucs-form-group">
                  <span className="label">头像地址：</span>

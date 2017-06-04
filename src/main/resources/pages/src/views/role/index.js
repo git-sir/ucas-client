@@ -39,29 +39,25 @@ myPanel = React.createClass({
 				} else {
 					UcsmyIndex.alert("失败", data.retmsg);
 				}
-			}, "json").error(function(xhr, errorText, errorType){
+			}, "json").error(function(){
 				UcsmyIndex.alert("失败", "网络异常");
 		    });
 		});
 	},
 	_unbindClick:function(column){		
-		var me = this;
     	UcsmyIndex.openChildrenPage(RoleUser, function(refPanel) {
     		refPanel.init("unbind", column);
     	});	
 	},
 	_bindClick: function(column) {
-		var me = this;
     	UcsmyIndex.openChildrenPage(RoleUser, function(refPanel) {
     		refPanel.init("bind", column);
     	});		
 	},
 	_bindPermClick: function(column){
-		var me = this;
     	UcsmyIndex.openChildrenPage(BindPermissionPanel, function(refPanel) {
     		refPanel.load(column.roleId,column.name);
     	});
-		//this.props._bindPermission(column.roleId,column.name);
 	},
 	render:function() {
 		var me = this;

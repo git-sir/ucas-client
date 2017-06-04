@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 61);
+/******/ 	return __webpack_require__(__webpack_require__.s = 62);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -83,7 +83,7 @@ var configFormData = {
 	        {type : "maxlength", maxlength : 32, msg : "菜单名称长度不能大于32"}
 	    ],
 		"url": [
-			{type : "maxlength", maxlength : 256, msg : "响应地址长度不能大于256"}
+			{type : "maxlength", maxlength : 245, msg : "响应地址长度不能大于245"}
 		],
 	    "priority": [
 	        {type: "required", msg: "优先级不能为空"},
@@ -91,10 +91,11 @@ var configFormData = {
                 var m = /^\d+$/;
                 return m.test(value);
 	        }, msg: '优先级必须为大于等于0的整数'
-	        }
+	        },
+            {type : "maxlength", maxlength : 9, msg : "优先级长度不能大于9"}
 	    ],
 	    "description": [
-		        {type : "maxlength", maxlength : 36, msg : "描述长度不能大于256"}
+		        {type : "maxlength", maxlength : 256, msg : "描述长度不能大于256"}
 		    ],
 	   "image": [
 		{type : "maxlength", maxlength : 64, msg : "图标长度不能大于64"}
@@ -147,7 +148,7 @@ module.exports = React.createClass({displayName: "module.exports",
 				} else {
 					UcsmyIndex.alert("失败", data.retmsg);
 				}
-			}, "json").error(function(xhr, errorText, errorType){
+			}, "json").error(function(){
                 _removeButtonDisabled('save');
 				UcsmyIndex.alert("失败", "网络异常");
 			});
@@ -158,7 +159,6 @@ module.exports = React.createClass({displayName: "module.exports",
 		UcsmyIndex.closeChildrenPage();
 	},
     render:function(){
-    	var me = this;
     	return(
 			React.createElement("div", null, 
 				React.createElement("div", {className: "panel"}, 
@@ -190,7 +190,7 @@ module.exports = React.createClass({displayName: "module.exports",
 
 /***/ }),
 
-/***/ 61:
+/***/ 62:
 /***/ (function(module, exports, __webpack_require__) {
 
 var TreeTable = UcsmyUI.TreeTable;

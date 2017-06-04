@@ -1,5 +1,7 @@
 package com.ucsmy.commons.utils;
 
+import org.apache.logging.log4j.LogManager;
+
 import java.io.UnsupportedEncodingException;
 import java.text.DecimalFormat;
 import java.util.Random;
@@ -11,6 +13,8 @@ import java.util.Random;
  * @version 1.0
  */
 public class StringAndNumberUtil{
+
+	private final static org.apache.logging.log4j.Logger log = LogManager.getLogger();
 
 	public final static short BYTE = 0;
 	public final static short SHORT = 1;
@@ -31,45 +35,38 @@ public class StringAndNumberUtil{
 	 */
 	public static Object changeToBaseType(String str, short type, int radix) throws NumberFormatException{
 		try{
-			if (str == null || str.trim().equals("")){
+			if (str == null || StringUtils.isEmpty(str.trim())){
 				return null;
 			}
-			Object obj = null;
+			Object obj;
 			switch(type){
-				case BYTE : {
+				case BYTE :
 					obj = Byte.parseByte(str.trim(),radix);
 					break;
-				}
-				case SHORT : {
+				case SHORT :
 					obj = Short.parseShort(str.trim(),radix);
 					break;
-				}
-				case INT : {
+				case INT :
 					obj = Integer.parseInt(str.trim(),radix);
 					break;
-				}
-				case LONG : {
+				case LONG :
 					obj = Long.parseLong(str.trim(),radix);
 					break;
-				}
-				case FLOAT : {
+				case FLOAT :
 					obj = Float.parseFloat(str.trim());
 					break;
-				}
-				case DOUBLE : {
+				case DOUBLE :
 					obj = Double.parseDouble(str.trim());
 					break;
-				}
-				case BOOLEAN : {
+				case BOOLEAN :
 					obj = Boolean.parseBoolean(str.trim());
 					break;
-				}
-				default:{
+				default:
 					return null;
-				}
 			}
 			return obj;
 		}catch (Exception e){
+			log.error(e);
 			throw e;
 		}
 	}
@@ -84,6 +81,7 @@ public class StringAndNumberUtil{
 		try{
 			return changeToBaseType(str,type,10);
 		}catch(Exception e){
+			log.error(e);
 			throw e;
 		}
 	}
@@ -103,6 +101,7 @@ public class StringAndNumberUtil{
 			String str = df.format(val);
 			return Double.parseDouble(str);
 		}catch (Exception e){
+			log.error(e);
 			throw e;
 		}
 	}
@@ -130,6 +129,7 @@ public class StringAndNumberUtil{
 			}
 			return new String(str.getBytes(ecode.trim()),dcode.trim());
 		} catch(Exception e){
+			log.error(e);
 			throw e;
 		}
 	}
@@ -145,6 +145,7 @@ public class StringAndNumberUtil{
 			return toString(str,ecode,"UTF-8");
 		}
 		catch(Exception e){
+			log.error(e);
 			throw e;
 		}
 	}
@@ -176,9 +177,9 @@ public class StringAndNumberUtil{
 			for (int i = nozero; i < length; i++){
 				str.append(charlist.charAt(random.nextInt(charlist.length())));
 			}
-			charlist = null;
 			return str.toString();
 		} catch (Exception e) {
+			log.error(e);
 			throw e;
 		}
 	}
@@ -196,12 +197,13 @@ public class StringAndNumberUtil{
 			}
 			String charlist = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 			Random random = new Random();
-			StringBuffer str = new StringBuffer();
+			StringBuilder str = new StringBuilder();
 			for (int i = 0; i < length; i++){
 				str.append(charlist.charAt(random.nextInt(charlist.length())));
 			}
 			return str.toString();
 		} catch (Exception e) {
+			log.error(e);
 			throw e;
 		}
 	}
@@ -219,6 +221,7 @@ public class StringAndNumberUtil{
 			java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("^[-\\+]?[\\d]*$");
 			return pattern.matcher(str).matches();
 		} catch (Exception e) {
+			log.error(e);
 			throw e;
 		}
 	}
@@ -236,6 +239,7 @@ public class StringAndNumberUtil{
 			java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("^[-\\+]?[.\\d]*$");
 			return pattern.matcher(str).matches();
 		} catch (Exception e) {
+			log.error(e);
 			throw e;
 		}
 	}
@@ -252,6 +256,7 @@ public class StringAndNumberUtil{
 			}
 			return false;
 		} catch (Exception e) {
+			log.error(e);
 			throw e;
 		}
 	}
@@ -268,6 +273,7 @@ public class StringAndNumberUtil{
 			}
 			return false;
 		} catch (Exception e) {
+			log.error(e);
 			throw e;
 		}
 	}
@@ -284,6 +290,7 @@ public class StringAndNumberUtil{
 			}
 			return str;
 		} catch (Exception e) {
+			log.error(e);
 			throw e;
 		}
 	}
@@ -317,6 +324,7 @@ public class StringAndNumberUtil{
 				return trimStr(newStr.toString(),indexStr);
 			}
 		} catch (Exception e) {
+			log.error(e);
 			throw e;
 		}
 	}
@@ -341,6 +349,7 @@ public class StringAndNumberUtil{
 				return newStr;
 			}
 		} catch (Exception e) {
+			log.error(e);
 			throw e;
 		}
 	}
@@ -359,6 +368,7 @@ public class StringAndNumberUtil{
 			int length = str.length();
 			return length > size;
 		} catch (Exception e) {
+			log.error(e);
 			throw e;
 		}
 	}
@@ -377,7 +387,7 @@ public class StringAndNumberUtil{
 			if(strArr.length == 0){
 				return "";
 			}
-			StringBuffer strBuf = new StringBuffer();
+			StringBuilder strBuf = new StringBuilder();
 			if(split == null){
 				split = ",";	//若为空，默认为“,”
 			}
@@ -387,11 +397,9 @@ public class StringAndNumberUtil{
 			String str = strBuf.toString();
 			return str.substring(0, str.length() - split.length());
 		} catch (Exception e) {
+			log.error(e);
 			throw e;
 		}
 	}
 
-	public static void main(String args[]){
-		
-	}
 }

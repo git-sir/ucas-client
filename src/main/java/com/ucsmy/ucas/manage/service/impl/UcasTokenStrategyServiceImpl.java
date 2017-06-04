@@ -8,13 +8,16 @@ import com.ucsmy.commons.utils.UUIDGenerator;
 import com.ucsmy.ucas.commons.aop.annotation.Logger;
 import com.ucsmy.ucas.commons.aop.exception.result.AosResult;
 import com.ucsmy.ucas.commons.page.UcasPageInfo;
+import com.ucsmy.ucas.config.log4j2.LogOuputTarget;
 import com.ucsmy.ucas.manage.dao.UcasTokenStrategyMapper;
 import com.ucsmy.ucas.manage.entity.UcasTokenStrategy;
+import com.ucsmy.ucas.manage.ext.TokenStrategyPojo;
 import com.ucsmy.ucas.manage.service.UcasTokenStrategyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -24,33 +27,28 @@ import java.util.List;
 @Service
 public class UcasTokenStrategyServiceImpl implements UcasTokenStrategyService {
 
-    private final String CLIENT_ID_EMPTY = "应用Id不能为空";
-    private final int DEFAULT_MAX_TIMES = 1;
-    private final String EXPIRY_DATE_EMPTY = "Token有效期不能为空";
-    private final String REFRESH_EXPIRY_DATE_EMPTY = "RefreshToken有效期不能为空";
-    private final String HAS_INUSE_DATA = "该应用下已有在用策略";
-
-    /**
-     * 主键长度
-     */
-    private static final int UUID_MAXLENGTH = 32;
+    private static final String CLIENT_ID_EMPTY = "应用Id不能为空";
+    private static final int DEFAULT_MAX_TIMES = 1;
+    private static final String EXPIRY_DATE_EMPTY = "Token有效期不能为空";
+    private static final String REFRESH_EXPIRY_DATE_EMPTY = "RefreshToken有效期不能为空";
+    private static final String HAS_INUSE_DATA = "该应用下已有在用策略";
 
     @Autowired
     private UcasTokenStrategyMapper ucasTokenStrategyMapper;
 
     @Override
     @Logger(printSQL = true)
-    public UcasPageInfo<UcasTokenStrategy> queryTokenStrategyList(String clientName, String clientId, String status, int pageNum, int pageSize) {
+    public UcasPageInfo<TokenStrategyPojo> queryTokenStrategyList(String clientName, String clientId, String status, int pageNum, int pageSize) {
         return ucasTokenStrategyMapper.queryTokenStrategyList(clientName, clientId, status, new PageRequest(pageNum, pageSize));
     }
 
     @Override
     @Logger(printSQL = true)
-    public List<UcasTokenStrategy> queryTokenStrategyListByClientId(String clientId) {
+    public List<UcasTokenStrategy> queryTokenStrategyListByClientId(String clientId, String uuid) {
         if (StringUtils.isEmpty(clientId)) {
-            return null;
+            return new ArrayList<>();
         }
-        List<UcasTokenStrategy> list = ucasTokenStrategyMapper.queryTokenStrategyListByClientId(clientId, CommStatusEnum.SYS_INUSE.getValue());
+        List<UcasTokenStrategy> list = ucasTokenStrategyMapper.queryTokenStrategyListByClientId(clientId, uuid, CommStatusEnum.SYS_INUSE.getValue());
         autoFixedDuplicateTokenStrategy(list);
         return list;
     }
@@ -62,17 +60,17 @@ public class UcasTokenStrategyServiceImpl implements UcasTokenStrategyService {
     }
 
     @Override
-    @Logger(printSQL = true)
+    @Logger(operationName = "添加token策略", printSQL = true, outputTarget = LogOuputTarget.DATABASE)
     @Transactional(rollbackFor = Exception.class)
     public int addTokenStrategy(UcasTokenStrategy ucasTokenStrategy) {
-        ucasTokenStrategy.setUuid(UUIDGenerator.generate(UUID_MAXLENGTH));
+        ucasTokenStrategy.setUuid(UUIDGenerator.generate());
         ucasTokenStrategy.setStatus(Integer.parseInt(CommStatusEnum.SYS_INUSE.getValue()));
         ucasTokenStrategy.setCreateDate(new Date());
         return ucasTokenStrategyMapper.addTokenStrategy(ucasTokenStrategy);
     }
 
     @Override
-    @Logger(printSQL = true)
+    @Logger(operationName = "更新token策略", printSQL = true, outputTarget = LogOuputTarget.DATABASE)
     @Transactional(rollbackFor = Exception.class)
     public int updateTokenStrategy(UcasTokenStrategy ucasTokenStrategy) {
         UcasTokenStrategy oldTokenStrategy = queryTokenStrategyByUuid(ucasTokenStrategy.getUuid());
@@ -84,7 +82,7 @@ public class UcasTokenStrategyServiceImpl implements UcasTokenStrategyService {
     }
 
     @Override
-    @Logger(printSQL = true)
+    @Logger(operationName = "删除token策略", printSQL = true, outputTarget = LogOuputTarget.DATABASE)
     @Transactional(rollbackFor = Exception.class)
     public int deleteTokenStrategy(String uuid) {
         UcasTokenStrategy oldTokenStrategy = queryTokenStrategyByUuid(uuid);
@@ -116,11 +114,8 @@ public class UcasTokenStrategyServiceImpl implements UcasTokenStrategyService {
     @Override
     @Logger(printSQL = true)
     public AosResult checkTokenStrategyExist(UcasTokenStrategy ucasTokenStrategy) {
-        List<UcasTokenStrategy> inUseTokenStrategyList = queryTokenStrategyListByClientId(ucasTokenStrategy.getClientId());
-        if ( (inUseTokenStrategyList != null && inUseTokenStrategyList.size() > 1)
-                || (inUseTokenStrategyList != null && inUseTokenStrategyList.size() == 1
-                && inUseTokenStrategyList.get(0) != null
-                && !inUseTokenStrategyList.get(0).getUuid().equals(ucasTokenStrategy.getUuid())) ) {
+        List<UcasTokenStrategy> inUseTokenStrategyList = queryTokenStrategyListByClientId(ucasTokenStrategy.getClientId(), ucasTokenStrategy.getUuid());
+        if (inUseTokenStrategyList != null && !inUseTokenStrategyList.isEmpty()) {
             return AosResult.retFailureMsg(HAS_INUSE_DATA);
         }
         return AosResult.retSuccessMsg("success");

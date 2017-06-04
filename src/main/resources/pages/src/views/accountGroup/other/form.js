@@ -12,7 +12,7 @@ var configFormData = {
     ],
     "descRibe": [
         {type: "required", msg: "账号组描述不能为空"},
-        {type : "maxlength", maxlength : 2000, msg : "账号组描述长度不能超过2000"}
+        {type : "maxlength", maxlength : 200, msg : "账号组描述长度不能超过200"}
     ]
 
 };
@@ -53,22 +53,20 @@ module.exports = React.createClass({
                     UcsmyIndex.closeChildrenPage();
                     me.state.callback();
                 } else {
-                    UcsmyIndex.alert("提示","失败");
+                    UcsmyIndex.alert("提示",result.retmsg);
                 }
             });
         });
     },
     init: function (url, title, data, callback) {
-        var me = this;
         this.setState({
             title: title,
             url: url,
             ucasAccountGroup: data,
             callback: callback,
         });
-        // this.refs.saveForm.setValues(data);
     },
-    _return: function (event) {
+    _return: function () {
         UcsmyIndex.closeChildrenPage();
     },
     render: function () {

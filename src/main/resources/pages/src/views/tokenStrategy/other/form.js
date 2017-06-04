@@ -12,17 +12,17 @@ var formData = {
     "maxTimes": [
         {type: "required", msg: "最大使用次数不能为空"},
         {type: "digits", msg: "最大使用次数只能为数字"},
-        {type : "maxlength", maxlength : 11, msg : "参数值长度不能超过11"}
+        {type : "maxlength", maxlength : 9, msg : "参数值长度不能超过9"}
     ],
     "expiryDate": [
         {type: "digits", msg: "Token时效只能为数字"},
         {type: "required", msg: "Token时效不能为空"},
-        {type : "maxlength", maxlength : 11, msg : "参数值长度不能超过11"}
+        {type : "maxlength", maxlength : 9, msg : "参数值长度不能超过9"}
     ],
     "refreshExpiryDate": [
         {type: "digits", msg: "刷新Token时效只能为数字"},
         {type: "required", msg: "刷新Token时效不能为空"},
-        {type : "maxlength", maxlength : 11, msg : "参数值长度不能超过11"}
+        {type : "maxlength", maxlength : 9, msg : "参数值长度不能超过9"}
     ]
 
 };

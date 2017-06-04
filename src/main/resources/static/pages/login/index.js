@@ -63,12 +63,12 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 58);
+/******/ 	return __webpack_require__(__webpack_require__.s = 59);
 /******/ })
 /************************************************************************/
 /******/ ({
 
-/***/ 58:
+/***/ 59:
 /***/ (function(module, exports, __webpack_require__) {
 
 var MessageBox = __webpack_require__(6);
@@ -90,7 +90,7 @@ var Root=React.createClass({displayName: "Root",
 	},
 	componentDidMount: function(){
 		var me = this;
-		$(".login").keydown(function(event) { 
+		$(".login").keydown(function() {
 			if(window.event.keyCode == 13) {
 				me._click();
 				$("#messageBox").focus();
@@ -108,19 +108,17 @@ var Root=React.createClass({displayName: "Root",
 
 		
 		$.ajax({
-			url:'getRsa',
+			url:'getRsa?time='+new Date().getTime(),
 			type:'GET',
 			success:function(data)
 			{
 				var rsaKey = new RSAKey();
-				//var userTypeValue;
 				rsaKey.setPublic(b64tohex(data.data.modulus), b64tohex(data.data.exponent));
 				var enPassword = hex2b64(rsaKey.encrypt(password));
 				var loginType = data.data.loginType;
 
 				if(loginType!=null&&loginType=="local"){
-					var data = {username: userName, password: enPassword,"token_type":"LOCAL"};
-//				data["_csrf"] = document.getElementsByTagName('meta')['_csrf'].getAttribute("content");
+					var ndata = {username: userName, password: enPassword,"token_type":"LOCAL"};
 					me.setState({
 						login: {
 							disabled: true,
@@ -129,7 +127,7 @@ var Root=React.createClass({displayName: "Root",
 					});
 
 
-					$.post("login", data, function(data) {
+					$.post("login", ndata, function(data) {
 						me.setState({
 							login: _login
 						});
@@ -138,7 +136,7 @@ var Root=React.createClass({displayName: "Root",
 						} else {
 							me.refs.messageBox.alert("失败", data.msg);
 						}
-					}, "json").error(function(xhr, errorText, errorType) {
+					}, "json").error(function(xhr) {
 						me.setState({
 							login: _login
 						});
@@ -162,13 +160,11 @@ var Root=React.createClass({displayName: "Root",
 
 				
 			},
-			error:function(XMLHttpRequest, textStatus, errorThrown)
+			error:function()
 			{
 				
 				me.refs.messageBox.alert("异常", "网络异常");
-				console.log(XMLHttpRequest);
-				console.log(textStatus);
-				console.log(errorThrown);
+
 			}
 		});
 
@@ -216,9 +212,6 @@ var Root=React.createClass({displayName: "Root",
 	
 },
 
-	handleKeyPress: function(e) {
-		console.log(e);
-	},
     render:function(){
     	return (
 	    React.createElement("div", {className: "login"}, 

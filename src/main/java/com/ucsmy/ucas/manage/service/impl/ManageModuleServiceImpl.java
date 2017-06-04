@@ -35,9 +35,15 @@ public class ManageModuleServiceImpl implements ManageModuleService {
     @Override
     @SuppressWarnings("unchecked")
     @Logger(operationName="查询菜单", printSQL = true)
-    public List<ModuleTreePojo> getModuleListByCondition(String name) {
-        List<ModuleTreePojo> list = manageModuleMapper.getModuleList(name, null);
+    public List<ModuleTreePojo> getModuleListByName(String name) {
+        List<ModuleTreePojo> list = manageModuleMapper.getModuleList(name, null, null);
         return (List<ModuleTreePojo>) TreeTool.getTreeList(list);
+    }
+
+    @Override
+    @Logger(operationName="查询重名菜单", printSQL = true)
+    public List<ModuleTreePojo> getModuleListByCondition(String name, String parentId, String excludeId) {
+        return manageModuleMapper.getModuleList(name, parentId, excludeId);
     }
 
     @Override
@@ -78,7 +84,7 @@ public class ManageModuleServiceImpl implements ManageModuleService {
     @Override
     @Logger(operationName="根据用户查询菜单", printSQL = true)
     public List<MainModulePojo> queryMainModuleByUser(ShiroRealmImpl.LoginUser user) {
-        List<MainModulePojo> rawList = new ArrayList<>();
+        List<MainModulePojo> rawList;
         if ("admin".equals(user.getUserName())) {
             rawList = manageModuleMapper.queryMainAllModule();
         } else {
@@ -87,13 +93,11 @@ public class ManageModuleServiceImpl implements ManageModuleService {
         List<MainModulePojo> nodeList = new ArrayList<>();
         for(MainModulePojo node1 : rawList){
             boolean mark = false;
-
             if (node1.getIcon()==null) {
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("left", "iconfont menu-left-span " + node1.getImage());
                 node1.setIcon(jsonObject);
             }
-
             node1.setHref("javascript:;");
             for(MainModulePojo node2 : rawList){
                 if(node1.getParentId() !=null && node1.getParentId().equals(node2.getId())){
@@ -104,7 +108,6 @@ public class ManageModuleServiceImpl implements ManageModuleService {
                     iconJson.put("left", "iconfont menu-left-span "+ node2.getImage());
                     iconJson.put("right", "iconfont menu-right-span");
                     node2.setIcon(iconJson);
-
                     if(node2.getChildren() == null)
                         node2.setChildren(new ArrayList<MainModulePojo>());
                     node2.getChildren().add(node1);

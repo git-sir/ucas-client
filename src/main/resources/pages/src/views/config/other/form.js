@@ -61,23 +61,21 @@ module.exports = React.createClass({
                 } else {
                     UcsmyIndex.alert("提示", result.retmsg);
                 }
-            }, "json").error(function(xhr, errorText, errorType){
+            }, "json").error(function(){
                 _removeButtonDisabled('save');
                 UcsmyIndex.alert("失败", "网络异常");
             });
         });
     },
     init: function (url, title, data, callback) {
-        var me = this;
         this.setState({
             title: title,
             url: url,
             config: data,
             callback: callback,
         });
-        // this.refs.saveForm.setValues(data);
     },
-    _return: function (event) {
+    _return: function () {
         UcsmyIndex.closeChildrenPage();
     },
     render: function () {

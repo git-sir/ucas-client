@@ -35,8 +35,18 @@ public interface ManageOrganizationMapper {
 
     int deleteBatch(Map<String, Object> map);
 
-    UcasPageInfo<UcasClientUserProfileWithOrganization> queryUserWithOrganization(@Param("id")String id, PageRequest pageRequest);
+    UcasPageInfo<UcasClientUserProfileWithOrganization> queryUserWithOrganization(@Param("id")String id
+            , @Param("name") String name, @Param("account") String account, PageRequest pageRequest);
 
-    UcasPageInfo<UcasClientUserProfileWithOrganization> queryUserWithoutOrganization(@Param("id")String id, PageRequest pageRequest);
+    UcasPageInfo<UcasClientUserProfileWithOrganization> queryUserWithoutOrganization(@Param("id")String id
+            , @Param("name") String name, @Param("account") String account, PageRequest pageRequest);
 
+    /**
+     * 根据条件查询
+     * @param name 组织名称，全等，不用like
+     * @param parentId 父节点ID，如果不传，返回空列表
+     * @param excludeId 排除的ID
+     * @return
+     */
+    List<ManageOrganization> queryOrganizationByCondition(@Param("name") String name, @Param("parentId") String parentId, @Param("excludeId") String excludeId);
 }

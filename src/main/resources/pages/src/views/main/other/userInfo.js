@@ -4,18 +4,16 @@ var Input = UcsmyUI.Input;
 var Button = UcsmyUI.Button;
 var FormItem = UcsmyUI.Form.FormItem;
 module.exports = React.createClass({
-	_update: function(event) {
-		var me = this;
+	_update: function() {
         _addButtonDisabled('save');
 		$.post("user/updateUserPassword", this.refs.passwordForm.getValues(), function(data) {
             _removeButtonDisabled('save');
 			if(data.retcode == 0) {
-				//UcsmyIndex.alert("成功", data.msg);
 				UcsmyIndex.alert("更新成功", data.msg);
 			} else {
 				UcsmyIndex.alert("失败", data.msg);
 			}
-		}, "json").error(function(xhr, errorText, errorType) {
+		}, "json").error(function() {
             _removeButtonDisabled('save');
 			UcsmyIndex.alert("失败", "网络异常");
 	    });
@@ -54,13 +52,14 @@ module.exports = React.createClass({
 		                	itemClassName: "col-xs-11",
 		                	panelType: Input,
 		                	name: "userId",
-							hidden:true
+							hidden: true
 		                }, {
 							itemText: "新密码",
 							itemClassName: "col-xs-11",
 							panelType: Input,
 							name: "password",
-							type: "password"
+							type: "password",
+                            v_maxlength: 32
 						}, {
 		                	itemText: "确认新密码",
 		                	itemClassName: "col-xs-11",

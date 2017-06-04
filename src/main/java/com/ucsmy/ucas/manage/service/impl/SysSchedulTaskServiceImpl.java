@@ -19,8 +19,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class SysSchedulTaskServiceImpl implements SysScheduleTaskService {
 
-    private final String STATUS_STOP = "0";
-    private final String STATUS_START = "1";
+    private final static String STATUS_STOP = "0";
+    private final static String STATUS_START = "1";
 
     @Autowired
     private ManageIpScheduleTaskMapper manageIpScheduleTaskMapper;

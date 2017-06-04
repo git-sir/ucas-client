@@ -1,6 +1,8 @@
 package com.ucsmy.ucas.config.quartz.util;
 
 
+import org.slf4j.LoggerFactory;
+
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -12,6 +14,8 @@ public class ScheduleTaskNetwork {
 
     private final static ScheduleTaskNetwork instance = new ScheduleTaskNetwork();
     private Set<String> ips = new HashSet<>();
+    private static org.slf4j.Logger log = LoggerFactory.getLogger(ScheduleTaskNetwork.class);
+
 
     /**
      * 暴露的接口，可以允许获得已经复制过的 IP Set
@@ -19,7 +23,7 @@ public class ScheduleTaskNetwork {
      * @return
      */
     public static Set<String> getIPs() {
-        return new HashSet<String>(instance.ips);
+        return new HashSet<>(instance.ips);
     }
 
     /**
@@ -45,16 +49,16 @@ public class ScheduleTaskNetwork {
         try {
             this.procceed();
         } catch (Exception ex) {
-            ex.printStackTrace();
+            log.error("ScheduleTaskNetwork",ex);
         }
 
     }
 
     private void procceed() throws SocketException {
         Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
-        NetworkInterface networkInterface = null;
-        Enumeration<InetAddress> inetAddresses = null;
-        InetAddress inetAddress = null;
+        NetworkInterface networkInterface ;
+        Enumeration<InetAddress> inetAddresses ;
+        InetAddress inetAddress ;
 
         while (networkInterfaces.hasMoreElements()) {
             networkInterface = networkInterfaces.nextElement();

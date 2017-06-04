@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 62);
+/******/ 	return __webpack_require__(__webpack_require__.s = 63);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -181,8 +181,8 @@ module.exports = Grid;
 var Button = UcsmyUI.Button;
 var TreeTable = UcsmyUI.TreeTable;
 var Checkbox = UcsmyUI.Checkbox;
-var Form = __webpack_require__(64);
-var Bind = __webpack_require__(63);
+var Form = __webpack_require__(65);
+var Bind = __webpack_require__(64);
 
 module.exports = React.createClass({displayName: "module.exports",
 
@@ -234,7 +234,7 @@ module.exports = React.createClass({displayName: "module.exports",
                     rootThis.load();
                 },
                 {
-                    parentId: id
+                    organization: {parentId: id}
                 }
             );
         });
@@ -287,7 +287,6 @@ module.exports = React.createClass({displayName: "module.exports",
     },
 
     _bind: function (item) {
-        var rootThis = this;
         var id = item.id;
         var name = item.name;
         UcsmyIndex.openChildrenPage(Bind, function (ref) {
@@ -304,7 +303,6 @@ module.exports = React.createClass({displayName: "module.exports",
     },
 
     _unbind: function (item) {
-        var rootThis = this;
         var id = item.id;
         var name = item.name;
         UcsmyIndex.openChildrenPage(Bind, function (ref) {
@@ -354,7 +352,7 @@ module.exports = React.createClass({displayName: "module.exports",
 
 /***/ }),
 
-/***/ 62:
+/***/ 63:
 /***/ (function(module, exports, __webpack_require__) {
 
 var Input = UcsmyUI.Input;
@@ -391,7 +389,7 @@ myPanel = React.createClass({displayName: "myPanel",
 
 /***/ }),
 
-/***/ 63:
+/***/ 64:
 /***/ (function(module, exports, __webpack_require__) {
 
 var Input = UcsmyUI.Input;
@@ -412,9 +410,6 @@ module.exports = React.createClass({displayName: "module.exports",
 
     },
 
-
-
-
     init: function (title, operationUrl, userOrganizationUrl, data) {
         this.setState({
             title: title,
@@ -431,8 +426,8 @@ module.exports = React.createClass({displayName: "module.exports",
     },
 
     _bind: function () {
-
-        var idArray = new Array();
+        var me = this;
+        var idArray = [];
         var obj = document.getElementsByName("userId");
         for(var key = 0; key < obj.length; key++) {
             if(obj[key].checked)
@@ -443,7 +438,7 @@ module.exports = React.createClass({displayName: "module.exports",
         var rootThis = this;
         _addButtonDisabled('save');
         $.post(
-            this.state.operationUrl,
+            me.state.operationUrl,
             {
                 userId: ids,
                 organizationId: this.state.id
@@ -452,10 +447,12 @@ module.exports = React.createClass({displayName: "module.exports",
                 _removeButtonDisabled('save');
                 UcsmyIndex.alert("提示", result.retmsg);
                 if(result && result.retcode == '0') {
+                    me.refs.account.setValue('');
+                    me.refs.name.setValue('');
                     rootThis.refs.grid.load();
                 }
             }
-            , "json").error(function(xhr, errorText, errorType){
+            , "json").error(function(){
             _removeButtonDisabled('save');
             UcsmyIndex.alert("失败", "网络异常");
         });
@@ -465,6 +462,13 @@ module.exports = React.createClass({displayName: "module.exports",
 
     _checkAll: function () {
         UEventHub.emit('checkAllEvent', this.refs.checkAllBox.getChecked());
+    },
+
+    _query: function() {
+        this.refs.grid.load({
+            'account': this.refs.account.getValue(),
+            'name': this.refs.name.getValue()
+        });
     },
 
     callback: function () {
@@ -478,11 +482,22 @@ module.exports = React.createClass({displayName: "module.exports",
                 React.createElement("div", null)
             )
         }
-
         return (
             React.createElement("div", null, 
                 React.createElement("h2", {className: "content-title"}, this.state.title, " - ", this.state.organizationName), 
+                React.createElement("div", {className: "panel"}, 
+                    React.createElement("div", {className: "panel-title"}, "查询条件"), 
+                    React.createElement("div", {className: "panel-content"}, 
+                        React.createElement(FormItem, {label: "用户账号"}, 
+                            React.createElement(Input, {ref: "account"})
+                        ), 
+                        React.createElement(FormItem, {label: "用户姓名"}, 
+                            React.createElement(Input, {ref: "name"})
+                        )
+                    )
+                ), 
                 React.createElement("div", {className: "btn-panel"}, 
+                    React.createElement(Button, {buttonType: "bidnow", onClick: this._query}, "查询"), 
                     React.createElement(Button, {id: "save", buttonType: "bidnow", onClick: this._bind}, this.state.title), 
                     React.createElement(Button, {buttonType: "cancel", onClick: this._return}, "取消")
                 ), 
@@ -500,6 +515,9 @@ module.exports = React.createClass({displayName: "module.exports",
                                     }.bind(this)
                                 },
                                 {
+                                    name: 'account', header: '用户账号'
+                                },
+                                {
                                     name: 'name', header: '姓名'
                                 }
                             ], 
@@ -515,7 +533,7 @@ module.exports = React.createClass({displayName: "module.exports",
 
 /***/ }),
 
-/***/ 64:
+/***/ 65:
 /***/ (function(module, exports) {
 
 var Input = UcsmyUI.Input;
@@ -539,7 +557,8 @@ var organizationFormData = {
             var m = /^\d+$/;
             return m.test(value);
         }, msg: '优先级必须为大于等于0的整数'
-        }
+        },
+        {type : "maxlength", maxlength : 9, msg : "优先级长度不能大于9"}
     ]
 };
 
@@ -586,7 +605,7 @@ module.exports = React.createClass({displayName: "module.exports",
                     } else {
                         UcsmyIndex.alert("提示", result.retmsg);
                     }
-                }, "json").error(function(xhr, errorText, errorType){
+                }, "json").error(function(){
                 _removeButtonDisabled('save');
                 UcsmyIndex.alert("失败", "网络异常");
             });
@@ -595,7 +614,6 @@ module.exports = React.createClass({displayName: "module.exports",
     },
 
     init: function (url, title, callback, data) {
-        var rootThis = this;
 
         this.setState({
             url: url,
@@ -607,7 +625,7 @@ module.exports = React.createClass({displayName: "module.exports",
 
     },
 
-    _return: function(event) {
+    _return: function() {
         UcsmyIndex.closeChildrenPage();
     },
 
@@ -619,7 +637,7 @@ module.exports = React.createClass({displayName: "module.exports",
                     React.createElement("div", {className: "panel-content"}, 
                         React.createElement(Form, {id: "form", ref: "saveForm", formData: organizationFormData}, 
                             React.createElement("input", {type: "hidden", name: "id", value: this.state.organization.id}), 
-                            React.createElement("input", {type: "hidden", name: "parentId", value: this.state.parentId}), 
+                            React.createElement("input", {type: "hidden", name: "parentId", value: this.state.organization.parentId}), 
                             React.createElement(FormItem, {label: "名称", className: "col-xs-5"}, React.createElement(Input, {value: this.state.organization.name, name: "name"})), 
                             React.createElement(FormItem, {label: "描述", className: "col-xs-5"}, React.createElement(Input, {value: this.state.organization.description, name: "description"})), 
                             React.createElement(FormItem, {label: "优先级", className: "col-xs-5"}, React.createElement(Input, {value: this.state.organization.priority, name: "priority"}))

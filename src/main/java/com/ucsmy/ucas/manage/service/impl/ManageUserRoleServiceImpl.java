@@ -26,24 +26,20 @@ public class ManageUserRoleServiceImpl implements ManageUserRoleService {
 
 	@Override
 	@Logger(printSQL = true)
-	public PageInfo<ManageUserRole> queryUserRoleList(String roleId, String account, int pageNum, int pageSize) {
-		// TODO Auto-generated method stub
-		return userRoleMapper.queryUserRoleList(roleId, account, new PageRequest(pageNum, pageSize));
+	public PageInfo<ManageUserRole> queryUserRoleList(String roleId, String account, String name, int pageNum, int pageSize) {
+		return userRoleMapper.queryUserRoleList(roleId, account, name, new PageRequest(pageNum, pageSize));
 	}
 
 	@Override
 	@Logger(printSQL = true)
-	public PageInfo<ManageUserRole> queryUnbindUserList(String roleId, String account, int pageNum, int pageSize) {
-		// TODO Auto-generated method stub
-		return userRoleMapper.queryUnbindUserList(roleId, account, new PageRequest(pageNum, pageSize));
+	public PageInfo<ManageUserRole> queryUnbindUserList(String roleId, String account, String name, int pageNum, int pageSize) {
+		return userRoleMapper.queryUnbindUserList(roleId, account, name, new PageRequest(pageNum, pageSize));
 	}
 
 	@Override
 	@Logger(printSQL = true)
-	public int queryUserCountByUserIds(Map<String, Object> map) {
-		// TODO Auto-generated method stub
-		// return userRoleMapper.queryUserCountByUserIds(map);
-		return 0;
+	public Long queryUserCountByUserIds(String[] ids) {
+		return userRoleMapper.queryUserCountByUserIds(ids);
 	}
 
 	@Override
@@ -61,13 +57,13 @@ public class ManageUserRoleServiceImpl implements ManageUserRoleService {
 				return AosResult.retFailureMsg("操作失败，部分用户不存在");
 			} else {
 				// 先删除原先的绑定数据
-				int delResult = userRoleMapper.deleteUserRoleByUserIds(userIdArr);
+				userRoleMapper.deleteUserRoleByUserIds(userIdArr);
 				ManageUserRole manageUserRole = new ManageUserRole();
 				manageUserRole.setRole(role);
 				for (String userId : userIdArr) {
 					manageUserRole.setId(UUIDGenerator.generate());
 					manageUserRole.setUserId(userId);
-					int insertResult = userRoleMapper.insertUserRole(manageUserRole);
+					userRoleMapper.insertUserRole(manageUserRole);
 				}
 				return AosResult.retSuccessMsg("操作成功");
 			}
@@ -77,14 +73,12 @@ public class ManageUserRoleServiceImpl implements ManageUserRoleService {
 	@Override
 	@Logger(printSQL = true)
 	public int deleteUserRoleByUserIds(String[] ids) {
-		// TODO Auto-generated method stub
 		return userRoleMapper.deleteUserRoleByUserIds(ids);
 	}
 
 	@Override
 	@Logger(printSQL = true)
 	public int deleteUserRoleByIds(String id) {
-		// TODO Auto-generated method stub
 		return userRoleMapper.deleteUserRoleByIds(id);
 	}
 
@@ -95,7 +89,7 @@ public class ManageUserRoleServiceImpl implements ManageUserRoleService {
 			return AosResult.retFailureMsg("参数错误");
 		} else {
 			String[] userIdArr = ids.split(",");
-			int result = userRoleMapper.deleteUserRoles(userIdArr);
+			userRoleMapper.deleteUserRoles(userIdArr);
 			return AosResult.retSuccessMsg("操作成功");
 		}
 	}
@@ -103,7 +97,6 @@ public class ManageUserRoleServiceImpl implements ManageUserRoleService {
 	@Override
 	@Logger(printSQL = true)
 	public int insertUserRole(ManageUserRole manageUserRole) {
-		// TODO Auto-generated method stub
 		return userRoleMapper.insertUserRole(manageUserRole);
 	}
 

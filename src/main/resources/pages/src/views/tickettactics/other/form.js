@@ -10,8 +10,9 @@ var ClientInfo = require('../../client_info/other/viewClientInfo');
 var formData = {
 
     "maxTimes": [
+        {type:"maxlength", maxlength:9, msg : "使用次数长度不能超过9"},
         {type: "fn", validator: function(value){
-            if(""!=value) {
+            if(""!==value) {
 
                 var m =/^[1-9]*[1-9][0-9]*$/;
 
@@ -21,8 +22,9 @@ var formData = {
         }
     ],
     "expiryTime": [
+        {type:"maxlength", maxlength:9, msg : "有效时间长度不能超过9"},
         {type: "fn", validator: function(value){
-            if(""!=value) {
+            if(""!==value) {
                 var m =/^[1-9]*[1-9][0-9]*$/;
 
                 return m.test(value);
@@ -49,7 +51,8 @@ module.exports = React.createClass({
             successFn: successFn
         })
         this.refs.clientInfo.setState({
-            showReturn:null
+            showReturn:null,
+            showTokenStrategy : false
         })
     },
 
@@ -59,7 +62,6 @@ module.exports = React.createClass({
             "maxTimes", "expiryTime"
         ];
         var fn = function (result) {
-            console.log(result);
             if(result) {
                 callback();
             }
@@ -70,20 +72,18 @@ module.exports = React.createClass({
         return status;
     },
 
-    _return: function(event) {
+    _return: function() {
         UcsmyIndex.closeChildrenPage();
     },
 
-    _save: function(event) {
+    _save: function() {
         var rootThis = this;
-        console.log(111)
         this._validate(function () {
-            console.log(22)
             $.post(
                 rootThis.state.url,
                 $('#form').serialize(),
                 function (result) {
-                    if (result.retcode == "0") {
+                    if (result.retcode === "0") {
                         UcsmyIndex.alert("提示", result.retmsg);
                         rootThis.state.successFn();
                         rootThis._return();

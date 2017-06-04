@@ -7,6 +7,7 @@ import com.ucsmy.commons.utils.HibernateValidateUtils;
 import com.ucsmy.commons.utils.StringAndNumberUtil;
 import com.ucsmy.commons.utils.UUIDGenerator;
 import com.ucsmy.ucas.commons.aop.exception.result.AosResult;
+import com.ucsmy.ucas.commons.constant.CommMessage;
 import com.ucsmy.ucas.manage.entity.ManageOrganization;
 import com.ucsmy.ucas.manage.ext.UcasClientOrganizationUser;
 import com.ucsmy.ucas.manage.ext.UcasClientUserProfileWithOrganization;
@@ -31,19 +32,13 @@ public class ManageOrganizationController {
     @Autowired
     ManageOrganizationService manageOrganizationService;
 
-    private final String MESSAGE_CHECK_SUCCESS = "数据查找成功";
-    private final String MESSAGE_CHECK_FAIL = "数据查找失败";
-    private final String MESSAGE_ZERO = "没有组织数据";
-
-    private final String MESSAGE_SUCCESS = "数据删除成功";
-    private final String MESSAGE_FAIL = "数据删除失败";
-    private final String MESSAGE_ZJ_ID_NULL = "组织 ID 为空";
-    private final String MESSAGE_EXISTS_CHILDREN = "该节点存在下级子节点";
-    private final String MESSAGE_BIND_SUCCESS = "成功绑定";
-    private final String MESSAGE_ORGANIZATION_ID_NULL = "组织 ID 为空";
-    private final String MESSAGE_UESR_IDS = "没有选择用户";
-
-    private final String MESSAGE_ID_NULL = "ID 为空";
+    private final static String MESSAGE_ZJ_ID_NULL = "组织 ID 为空";
+    private final static String MESSAGE_EXISTS_CHILDREN = "该节点存在下级子节点";
+    private final static String MESSAGE_BIND_SUCCESS = "成功绑定";
+    private final static String MESSAGE_ORGANIZATION_ID_NULL = "组织 ID 为空";
+    private final static String MESSAGE_UESR_IDS = "没有选择用户";
+    private final static String MESSAGE_SAME_NAME = "该父节点下存在相同名称的节点";
+    private final static String MESSAGE_ID_NULL = "ID 为空";
 
 
     //组织列表业务逻辑
@@ -52,11 +47,11 @@ public class ManageOrganizationController {
     public AosResult queryOrganization() throws JsonProcessingException {
         List<ManageOrganization> manageOrganizationList = manageOrganizationService.getOrganizationList();
         if (null == manageOrganizationList) {
-            return AosResult. retFailureMsg(  MESSAGE_CHECK_FAIL);
-        } else if (manageOrganizationList.size() == 0) {
-            return AosResult.retSuccessMsg(MESSAGE_ZERO, TreeTool.getTreeList(manageOrganizationList));
+            return AosResult.retFailureMsg(CommMessage.COMMON_FAILURE);
+        } else if (manageOrganizationList.isEmpty()) {
+            return AosResult.retSuccessMsg(CommMessage.DATA_NOT_EXIST, TreeTool.getTreeList(manageOrganizationList));
         } else {
-            return AosResult.retSuccessMsg(MESSAGE_CHECK_SUCCESS, TreeTool.getTreeList(manageOrganizationList));
+            return AosResult.retSuccessMsg(CommMessage.COMMON_SUCCESS, TreeTool.getTreeList(manageOrganizationList));
         }
     }
 
@@ -65,13 +60,13 @@ public class ManageOrganizationController {
     @ResponseBody
     public AosResult getOrganization(String id) throws JsonProcessingException {
         if (StringAndNumberUtil.isNullAfterTrim(id)) {
-            return AosResult. retFailureMsg(  MESSAGE_ID_NULL, null);
+            return AosResult.retFailureMsg(MESSAGE_ID_NULL, null);
         } else {
             ManageOrganization organization = manageOrganizationService.getOrganizationById(id);
             if (null == organization) {
-                return AosResult. retFailureMsg(  MESSAGE_FAIL, null);
+                return AosResult.retFailureMsg(CommMessage.DELETE_FAILURE, null);
             } else {
-                return AosResult.retSuccessMsg(MESSAGE_SUCCESS, organization);
+                return AosResult.retSuccessMsg(CommMessage.DELETE_SUCCESS, organization);
             }
         }
     }
@@ -82,18 +77,20 @@ public class ManageOrganizationController {
     public AosResult editOrganization(ManageOrganization manageOrganization) {
         String errorMsg = HibernateValidateUtils.getErrors(manageOrganization);
         if (!StringAndNumberUtil.isNullAfterTrim(errorMsg)) {
-            return AosResult. retFailureMsg(  errorMsg);
+            return AosResult.retFailureMsg(errorMsg);
+        }
+        if (StringAndNumberUtil.isNullAfterTrim(manageOrganization.getId())) {
+            return AosResult.retFailureMsg(MESSAGE_ZJ_ID_NULL);
+        }
+        List<ManageOrganization> sameNameList = manageOrganizationService.queryOrganizationByCondition(manageOrganization);
+        if (!sameNameList.isEmpty()) {
+            return AosResult.retFailureMsg(MESSAGE_SAME_NAME);
+        }
+        int updateCount = manageOrganizationService.updateOrganization(manageOrganization);
+        if (updateCount > 0) {
+            return AosResult.retSuccessMsg(CommMessage.UPDATE_SUCCESS, null);
         } else {
-            if (StringAndNumberUtil.isNullAfterTrim(manageOrganization.getId())) {
-                return AosResult. retFailureMsg(  MESSAGE_ZJ_ID_NULL);
-            } else {
-                int updateCount = manageOrganizationService.updateOrganization(manageOrganization);
-                if (updateCount > 0) {
-                    return AosResult.retSuccessMsg("数据更新成功", null);
-                } else {
-                    return AosResult. retFailureMsg(  "数据更新失败");
-                }
-            }
+            return AosResult.retFailureMsg(CommMessage.UPDATE_FAILURE);
         }
     }
 
@@ -103,15 +100,18 @@ public class ManageOrganizationController {
     public AosResult addOrganization(ManageOrganization manageOrganization) {
         String errorMsg = HibernateValidateUtils.getErrors(manageOrganization);
         if (!StringAndNumberUtil.isNullAfterTrim(errorMsg)) {
-            return AosResult. retFailureMsg(  errorMsg);
+            return AosResult.retFailureMsg(errorMsg);
+        }
+        manageOrganization.setId(UUIDGenerator.generate());
+        List<ManageOrganization> sameNameList = manageOrganizationService.queryOrganizationByCondition(manageOrganization);
+        if (!sameNameList.isEmpty()) {
+            return AosResult.retFailureMsg(MESSAGE_SAME_NAME);
+        }
+        int insertCount = manageOrganizationService.insertOrganization(manageOrganization);
+        if (insertCount > 0) {
+            return AosResult.retSuccessMsg(CommMessage.ADD_SUCCESS, null);
         } else {
-            manageOrganization.setId(UUIDGenerator.generate());
-            int insertCount = manageOrganizationService.insertOrganization(manageOrganization);
-            if (insertCount > 0) {
-                return AosResult.retSuccessMsg("数据插入成功", null);
-            } else {
-                return AosResult. retFailureMsg(  "数据插入失败");
-            }
+            return AosResult.retFailureMsg(CommMessage.ADD_FAILURE);
         }
     }
 
@@ -120,13 +120,13 @@ public class ManageOrganizationController {
     @ResponseBody
     public AosResult deleteOrganization(String id) {
         if (this.isExistChildren(id)) {
-            return AosResult. retFailureMsg(  MESSAGE_EXISTS_CHILDREN);
+            return AosResult.retFailureMsg(MESSAGE_EXISTS_CHILDREN);
         } else {
             int deleteCount = manageOrganizationService.deleteOrganization(id);
             if (deleteCount > 0) {
-                return AosResult.retSuccessMsg(MESSAGE_SUCCESS, null);
+                return AosResult.retSuccessMsg(CommMessage.DELETE_SUCCESS, null);
             } else {
-                return AosResult.retSuccessMsg(MESSAGE_FAIL, null);
+                return AosResult.retSuccessMsg(CommMessage.DELETE_FAILURE, null);
             }
         }
     }
@@ -136,10 +136,10 @@ public class ManageOrganizationController {
     @ResponseBody
     public AosResult bindOrganization(String organizationId, String userId) {
         if (StringAndNumberUtil.isNullAfterTrim(organizationId)) {
-            return AosResult. retFailureMsg(  MESSAGE_ORGANIZATION_ID_NULL);
+            return AosResult.retFailureMsg(MESSAGE_ORGANIZATION_ID_NULL);
         } else {
             if (StringAndNumberUtil.isNullAfterTrim(userId)) {
-                return AosResult. retFailureMsg(  MESSAGE_UESR_IDS);
+                return AosResult.retFailureMsg(MESSAGE_UESR_IDS);
             } else {
                 this.deleteBatchByUserIds(userId);
                 this.insertBatch(userId, organizationId);
@@ -153,11 +153,11 @@ public class ManageOrganizationController {
     @ResponseBody
     public AosResult unbindOrganization(String organizationId, String userId) {
         if (StringAndNumberUtil.isNullAfterTrim(organizationId)) {
-            return AosResult. retFailureMsg(  "组织 ID 为空");
+            return AosResult.retFailureMsg("组织 ID 为空");
 
         } else {
             if (StringAndNumberUtil.isNullAfterTrim(userId)) {
-                return AosResult. retFailureMsg(  "没有选择用户");
+                return AosResult.retFailureMsg("没有选择用户");
             } else {
                 this.deleteBatch(userId, organizationId);
                 return AosResult.retSuccessMsg("成功解绑", null);
@@ -168,21 +168,25 @@ public class ManageOrganizationController {
     //绑定组织的用户业务逻辑
     @RequestMapping("queryUserWithOrganization")
     @ResponseBody
-    public PageInfo<UcasClientUserProfileWithOrganization> queryUserWithOrganization(@RequestParam(required = true) String id, @RequestParam(required = true) int pageNum, @RequestParam(required = true) int pageSize) {
-        return manageOrganizationService.queryUserWithOrganization(id, pageNum, pageSize);
+    public PageInfo<UcasClientUserProfileWithOrganization> queryUserWithOrganization(@RequestParam(required = true) String id
+            , String name, String account
+            , @RequestParam(required = true) int pageNum, @RequestParam(required = true) int pageSize) {
+        return manageOrganizationService.queryUserWithOrganization(id, name, account, pageNum, pageSize);
     }
 
     //没有绑定组织的用户业务逻辑
     @RequestMapping("queryUserWithoutOrganization")
     @ResponseBody
-    public PageInfo<UcasClientUserProfileWithOrganization> queryUserWithoutOrganization(@RequestParam(required = true) String id, @RequestParam(required = true) int pageNum, @RequestParam(required = true) int pageSize) {
-        return manageOrganizationService.queryUserWithoutOrganization(id, pageNum, pageSize);
+    public PageInfo<UcasClientUserProfileWithOrganization> queryUserWithoutOrganization(@RequestParam(required = true) String id
+            , String name, String account
+            , @RequestParam(required = true) int pageNum, @RequestParam(required = true) int pageSize) {
+        return manageOrganizationService.queryUserWithoutOrganization(id, name, account, pageNum, pageSize);
     }
 
     private void deleteBatch(String userIds, String organizationId) {
         String[] userIdArray = userIds.split(",");
         List<UcasClientOrganizationUser> list = new ArrayList<>();
-        UcasClientOrganizationUser organizationUser = null;
+        UcasClientOrganizationUser organizationUser;
         for (String userId : userIdArray) {
             organizationUser = new UcasClientOrganizationUser();
             organizationUser.setId(UUIDGenerator.generate());
@@ -199,7 +203,7 @@ public class ManageOrganizationController {
     private void deleteBatchByUserIds(String userIds) {
         String[] userIdArray = userIds.split(",");
         List<UcasClientOrganizationUser> list = new ArrayList<>();
-        UcasClientOrganizationUser organizationUser = null;
+        UcasClientOrganizationUser organizationUser;
         for (String userId : userIdArray) {
             organizationUser = new UcasClientOrganizationUser();
             organizationUser.setId(UUIDGenerator.generate());
@@ -214,7 +218,7 @@ public class ManageOrganizationController {
     private void insertBatch(String userIds, String organizationId) {
         String[] userIdArray = userIds.split(",");
         List<UcasClientOrganizationUser> list = new ArrayList<>();
-        UcasClientOrganizationUser organizationUser = null;
+        UcasClientOrganizationUser organizationUser;
         for (String userId : userIdArray) {
             organizationUser = new UcasClientOrganizationUser();
             organizationUser.setId(UUIDGenerator.generate());

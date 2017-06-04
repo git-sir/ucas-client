@@ -6,10 +6,8 @@ import com.ucsmy.commons.utils.StringUtils;
 import com.ucsmy.ucas.commons.aop.exception.result.ResultConst;
 import com.ucsmy.ucas.manage.ext.UcasResourceGroupPojo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ucsmy.commons.interceptor.domain.PageInfo;
 import com.ucsmy.ucas.commons.aop.exception.result.AosResult;
@@ -21,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("resourceGroup")
 public class UcasResourceGroupController {
 
-	private final String ID_EMPTY = "资源组id不能为空";
+	private final static String ID_EMPTY = "资源组id不能为空";
 
 	@Autowired
 	private UcasResourceGroupService ucasResourceGroupService;

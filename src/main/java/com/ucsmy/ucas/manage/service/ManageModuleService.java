@@ -13,11 +13,15 @@ import java.util.List;
 public interface ManageModuleService {
 
     /**
-     * 根据名称查询
-     * @param name 非必填
+     * 根据条件查询
+     * @param name 菜单名称
+     * @param parentId 父节点ID
+     * @param excludeId 排除的节点
      * @return
      */
-    List<ModuleTreePojo> getModuleListByCondition(String name);
+    List<ModuleTreePojo> getModuleListByCondition(String name, String parentId, String excludeId);
+
+    List<ModuleTreePojo> getModuleListByName(String name);
 
     /**
      * 根据主键查询

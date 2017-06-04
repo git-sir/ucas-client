@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.WeakHashMap;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.ucsmy.ucas.commons.aop.annotation.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,78 +37,37 @@ public class ManageRolePermissionServiceImpl implements ManageRolePermissionServ
 
 	@Override
 	@Logger(printSQL = true)
-	public String queryAllModulePermission(String role_id) throws Exception {		
-		return getTreeTable(role_id);
-	}
-
-	@Override
-	@Logger(printSQL = true)
-	public ManageRolePermission queryRolePermissionByRoleID() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	@Logger(printSQL = true)
-	public int insertRolePermissionByBatch() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	@Logger(printSQL = true)
-	public int insertRoleModuleByBatch() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	@Logger(printSQL = true)
-	public int deleteRolePermissionByRoleID() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	@Logger(printSQL = true)
-	public int deleteRoleModuleByRoleID() {
-		// TODO Auto-generated method stub
-		return 0;
+	public String queryAllModulePermission(String roleId) throws JsonProcessingException {
+		return getTreeTable(roleId);
 	}
 
 	@Logger(printSQL = true)
 	@Transactional(rollbackFor = Exception.class)
-	public String addRolePermission(String role_id,String permissions_id,String name){
+	public String addRolePermission(String roleId,String permissionsId,String name){
 		
 		boolean success = false;
 		StringBuilder msg = new StringBuilder();
 		
-		if(role_id != null && !"".equals(role_id.trim())){
-			if(permissions_id != null && !"".equals(permissions_id.trim())){
+		if(roleId != null && !"".equals(roleId.trim())){
+			if(permissionsId != null && !"".equals(permissionsId.trim())){
 				//删除角色功能				
-				int del_permission = manageRolePermissionMapper.deleteRolePermissionByRoleID(role_id);
-				//logger.debug("->AddRolePermissionStep", "删除角色："+role_id+"的权限数量：" + del_permission);
-				//删除角色菜单				
-				int del_module = manageRolePermissionMapper.deleteRoleModuleByRoleID(role_id);
-				//logger.debug("->AddRolePermissionStep", "删除角色："+role_id+"的菜单数量：" + del_module);
-				
-				//[0]:module_id;[1]:permission_id
-				String[] module_permission_ID =  splitModuleIDAndPermissionID(permissions_id);
+				manageRolePermissionMapper.deleteRolePermissionByRoleID(roleId);
+				//删除角色菜单
+				manageRolePermissionMapper.deleteRoleModuleByRoleID(roleId);
+
+				String[] module_permission_ID =  splitModuleIDAndPermissionID(permissionsId);
 				//查询所有菜单				
-				List<ModuleTreePojo> mudule_list = manageModuleMapper.getModuleList(null, null);
+				List<ModuleTreePojo> mudule_list = manageModuleMapper.getModuleList(null, null, null);
 				//迭代所有菜单的父菜单编号
-//				List<String> moduleId_list = getParentIdByID(mudule_list,module_permission_ID[0].substring(0,module_permission_ID[0].length()-1));
+
+				String sModuleIdList = getParentIdByID(mudule_list,module_permission_ID[0].substring(0,module_permission_ID[0].length()-1));
 				
-				String s_moduleId_list = getParentIdByID(mudule_list,module_permission_ID[0].substring(0,module_permission_ID[0].length()-1));
+				List<ManageRoleModule> roleModuleList = setRoleModule(roleId,sModuleIdList.substring(0,sModuleIdList.length()-1));
 				
-				List<ManageRoleModule> roleModule_list = setRoleModule(role_id,s_moduleId_list.substring(0,s_moduleId_list.length()-1));
+				List<ManageRolePermission> rolePermissionList = setRolePermission(roleId,module_permission_ID[1].substring(0,module_permission_ID[1].length()-1));
 				
-				List<ManageRolePermission> rolePermission_list = setRolePermission(role_id,module_permission_ID[1].substring(0,module_permission_ID[1].length()-1));
-				
-				int module_count = manageRolePermissionMapper.insertRoleModuleByBatch(roleModule_list);
-				//logger.debug("->AddRolePermissionStep", "添加角色："+role_id+"的菜单数量：" + module_count);				
-				int permission_count = manageRolePermissionMapper.insertRolePermissionByBatch(rolePermission_list);
-				//logger.debug("->AddRolePermissionStep", "添加角色："+role_id+"的功能数量：" + permission_count);
+				manageRolePermissionMapper.insertRoleModuleByBatch(roleModuleList);
+				int permission_count = manageRolePermissionMapper.insertRolePermissionByBatch(rolePermissionList);
 				if(permission_count > 0 ){
 					success = true;
 					msg.append("权限分配成功！");
@@ -119,7 +79,7 @@ public class ManageRolePermissionServiceImpl implements ManageRolePermissionServ
 			msg.append("请选择需要分配的权限！");
 		}
 		JSONObject jsonObject = new JSONObject();
-		jsonObject.put("role_id", role_id);
+		jsonObject.put("role_id", roleId);
 		jsonObject.put("success", success);
 		jsonObject.put("msg", msg);
 		jsonObject.put("name", name);
@@ -127,33 +87,33 @@ public class ManageRolePermissionServiceImpl implements ManageRolePermissionServ
 	}
 
 	@Logger(printSQL = true)
-	public String getTreeTable(String role_id) throws Exception {
+	public String getTreeTable(String roleId) throws JsonProcessingException {
 		
 		//查询菜单列表
-		List<ModulePermissionPojo>  modulePermission_list = manageRolePermissionMapper.queryAllModulePermission();
+		List<ModulePermissionPojo>  modulePermissionList = manageRolePermissionMapper.queryAllModulePermission();
 		//查询角色已经分配的权限
 		
-		List<ManageRolePermission> rolePermission_list = manageRolePermissionMapper.queryRolePermissionByRoleID(role_id);
+		List<ManageRolePermission> rolePermissionList = manageRolePermissionMapper.queryRolePermissionByRoleID(roleId);
 		
-		String rolePermissions = JsonUtils.formatObjectToJson(TreeTool.getTreeList(setSortList(modulePermission_list,rolePermission_list)));
+		String rolePermissions = JsonUtils.formatObjectToJson(TreeTool.getTreeList(setSortList(modulePermissionList,rolePermissionList)));
 		
 		return rolePermissions;
 	}
 		
 	/**
 	 * 判断角色所拥有的功能权限
-	 * @param modulePermission_list  所有功能权限列表
-	 * @param rolePermission_list	  角色功能列表
+	 * @param modulePermissionList  所有功能权限列表
+	 * @param rolePermissionList	  角色功能列表
 	 * @return
 	 */
 	@Logger(printSQL = true)
-	public static List<ModulePermissionPojo> setSortList(List<ModulePermissionPojo>  modulePermission_list,List<ManageRolePermission> rolePermission_list){
-		for(ModulePermissionPojo modulePermissionBean: modulePermission_list){
+	public static List<ModulePermissionPojo> setSortList(List<ModulePermissionPojo> modulePermissionList, List<ManageRolePermission> rolePermissionList){
+		for(ModulePermissionPojo modulePermissionBean: modulePermissionList){
 			List<PermissionPojo> permissionList = modulePermissionBean.getPermissionList();
-			if(permissionList != null && permissionList.size() > 0){
+			if(permissionList != null && !permissionList.isEmpty()){
 				for(PermissionPojo  permissionVo: permissionList){
-					if(rolePermission_list != null && rolePermission_list.size() > 0){
-						for(ManageRolePermission rolePermissionBean : rolePermission_list){
+					if(rolePermissionList != null && !rolePermissionList.isEmpty()){
+						for(ManageRolePermission rolePermissionBean : rolePermissionList){
 							if(permissionVo.getPermissionId().equals(rolePermissionBean.getPermissionId())){
 								permissionVo.setCheched(true);
 								break;
@@ -166,7 +126,7 @@ public class ManageRolePermissionServiceImpl implements ManageRolePermissionServ
 				modulePermissionBean.setPermissionList(linkedList);
 			}
 		}
-		return modulePermission_list;
+		return modulePermissionList;
 	}
 	
 	/**
@@ -177,9 +137,9 @@ public class ManageRolePermissionServiceImpl implements ManageRolePermissionServ
 	@Logger(printSQL = true)
 	public static LinkedList<PermissionPojo> setLinkedList(List<PermissionPojo> permissionList){
 		
-		LinkedList<PermissionPojo> linkedList = new LinkedList<PermissionPojo>();
+		LinkedList<PermissionPojo> linkedList = new LinkedList<>();
 		
-		WeakHashMap<String,PermissionPojo> map = new WeakHashMap<String,PermissionPojo>();
+		WeakHashMap<String,PermissionPojo> map = new WeakHashMap<>();
 		int count = 5;
 		for(PermissionPojo bean: permissionList){
 			if("新增".equals(bean.getPermissionName().trim())){
@@ -208,19 +168,19 @@ public class ManageRolePermissionServiceImpl implements ManageRolePermissionServ
 	//------------------------------------------------------------------------------------------------------------------------------------------
 	/**
 	 * 拆分菜单编号和功能编号
-	 * @param permissions_id
+	 * @param permissionsId
 	 * @return  [0]:菜单编号；[1]:功能编号
 	 */
 	@Logger(printSQL = true)
-	protected String[] splitModuleIDAndPermissionID(String permissions_id){
-		String[] permission_id = permissions_id.split(",");
+	protected String[] splitModuleIDAndPermissionID(String permissionsId){
+		String[] permission_id = permissionsId.split(",");
 		
 		Set<String> moduleSet = new HashSet<>();
 		Set<String> permissionSet = new HashSet<>();
 		
-		for(String m_p_ID : permission_id){
-			String moduleID = m_p_ID.substring(0,m_p_ID.indexOf("_"));
-			String permissionID = m_p_ID.substring(m_p_ID.indexOf("_") + 1);
+		for(String mPID : permission_id){
+			String moduleID = mPID.substring(0,mPID.indexOf('_'));
+			String permissionID = mPID.substring(mPID.indexOf('_') + 1);
 			
 			permissionSet.add(permissionID);
 			if(!moduleSet.contains(moduleID)) {
@@ -228,35 +188,35 @@ public class ManageRolePermissionServiceImpl implements ManageRolePermissionServ
 			}
 			
 		}
-		StringBuilder s_moduleID = new StringBuilder();
-		for(String moduleId: moduleSet) {
-			s_moduleID.append(moduleId);
-			s_moduleID.append(",");
+		StringBuilder sModuleID = new StringBuilder();
+		for(String moduleId : moduleSet) {
+			sModuleID.append(moduleId);
+			sModuleID.append(",");
 		}
-		StringBuilder s_permissionID = new StringBuilder();
-		for(String permissionId: permissionSet) {
-			s_permissionID.append(permissionId);
-			s_permissionID.append(",");
+		StringBuilder sPermissionID = new StringBuilder();
+		for(String permissionId : permissionSet) {
+			sPermissionID.append(permissionId);
+			sPermissionID.append(",");
 		}
 		
-		return new String[]{s_moduleID.toString(),s_permissionID.toString()};
+		return new String[]{sModuleID.toString(),sPermissionID.toString()};
 	}
 	/**
 	 * 遍历页面流传来的所有菜单ID的父菜单
-	 * @param mudule_list		菜单集合
-	 * @param s_moduleID		菜单编号组合
+	 * @param muduleList		菜单集合
+	 * @param sModuleID		菜单编号组合
 	 * @return
 	 */
 	@Logger(printSQL = true)
-	protected String getParentIdByID(List<ModuleTreePojo> mudule_list,String s_moduleID){
-		String[] s_moduleIDs = s_moduleID.split(",");
+	protected String getParentIdByID(List<ModuleTreePojo> muduleList,String sModuleID){
+		String[] s_moduleIDs = sModuleID.split(",");
 		Set<String> set = new HashSet<>();
 		for(String moduleID : s_moduleIDs){
 			set.add(moduleID);
-			IterationModuleID(mudule_list,moduleID,set);
+			IterationModuleID(muduleList,moduleID,set);
 		}
 		
-		StringBuffer str = new StringBuffer();
+		StringBuilder str = new StringBuilder();
 		for(String id: set) {
 			str.append(id);
 			str.append(",");
@@ -266,14 +226,14 @@ public class ManageRolePermissionServiceImpl implements ManageRolePermissionServ
 	}
 	/**
 	 * 根据菜单ID迭代出该菜单的所有父菜单
-	 * @param module_list		菜单集合
+	 * @param moduleList		菜单集合
 	 * @param moduleID			菜单编号
 	 * @param ids				返回数据
 	 * @return
 	 */
 	@Logger(printSQL = true)
-	public void IterationModuleID(List<ModuleTreePojo> module_list,String moduleID,Set<String> ids){
-		for(ModuleTreePojo bean : module_list){
+	public void IterationModuleID(List<ModuleTreePojo> moduleList,String moduleID,Set<String> ids){
+		for(ModuleTreePojo bean : moduleList){
 			if(moduleID.equals(bean.getId().trim())){
 				if(bean.getParentId() != null) {
 					String parentId = bean.getParentId().trim();
@@ -281,7 +241,7 @@ public class ManageRolePermissionServiceImpl implements ManageRolePermissionServ
 						if(!ids.contains(parentId)) {
 							ids.add(parentId);
 						} 
-						IterationModuleID(module_list,bean.getParentId().trim(),ids);
+						IterationModuleID(moduleList,bean.getParentId().trim(),ids);
 					}
 				}
 			}
@@ -290,18 +250,18 @@ public class ManageRolePermissionServiceImpl implements ManageRolePermissionServ
 	
 	/**
 	 * 封装角色添加的功能权限
-	 * @param role_id      角色编号
-	 * @param permissions_id	功能编号
+	 * @param roleId      角色编号
+	 * @param permissionsId	功能编号
 	 * @return
 	 */
 	@Logger(printSQL = true)
-	protected List<ManageRolePermission> setRolePermission(String role_id, String permissions_id){
-		String[] permission_id = permissions_id.split(",");
+	protected List<ManageRolePermission> setRolePermission(String roleId, String permissionsId){
+		String[] permissionId = permissionsId.split(",");
 		List<ManageRolePermission> list = new ArrayList<ManageRolePermission>();
-		for(String str : permission_id){
+		for(String str : permissionId){
 			ManageRolePermission bean = new ManageRolePermission();
 			bean.setId(UUIDGenerator.generate());
-			bean.setRoleId(role_id);
+			bean.setRoleId(roleId);
 			bean.setPermissionId(str);
 			list.add(bean);
 		}
@@ -309,19 +269,19 @@ public class ManageRolePermissionServiceImpl implements ManageRolePermissionServ
 	}
 	/**
 	 * 封装角色菜单对于关系
-	 * @param moduleId_list 角色编号
-	 * @param module_ids 菜单编号
+	 * @param roleId 角色编号
+	 * @param moduleIdList 菜单编号
 	 * @return
 	 */
 	@Logger(printSQL = true)
-	protected List<ManageRoleModule> setRoleModule(String role_id, List<String> moduleId_list){
-		List<ManageRoleModule> list = new ArrayList<ManageRoleModule>();
-		for(String module_ids : moduleId_list){
-			String[] module_id = module_ids.substring(0, module_ids.length()-1).split(",");
-			for(String str : module_id){
+	protected List<ManageRoleModule> setRoleModule(String roleId, List<String> moduleIdList){
+		List<ManageRoleModule> list = new ArrayList<>();
+		for(String moduleIds : moduleIdList){
+			String[] moduleId = moduleIds.substring(0, moduleIds.length()-1).split(",");
+			for(String str : moduleId){
 				ManageRoleModule bean = new ManageRoleModule();
 				bean.setId(UUIDGenerator.generate());
-				bean.setRoleId(role_id);
+				bean.setRoleId(roleId);
 				bean.setModuleId(str);
 				list.add(bean);
 			}
@@ -330,14 +290,14 @@ public class ManageRolePermissionServiceImpl implements ManageRolePermissionServ
 	}
 
 	@Logger(printSQL = true)
-	protected List<ManageRoleModule> setRoleModule(String role_id, String moduleId_list){
-		List<ManageRoleModule> list = new ArrayList<ManageRoleModule>();
+	protected List<ManageRoleModule> setRoleModule(String roleId, String moduleIdList){
+		List<ManageRoleModule> list = new ArrayList<>();
 //		for(String module_ids : moduleId_list){
-		String[] module_id = moduleId_list.split(",");
-		for(String str : module_id){
+		String[] moduleId = moduleIdList.split(",");
+		for(String str : moduleId){
 			ManageRoleModule bean = new ManageRoleModule();
 			bean.setId(UUIDGenerator.generate());
-			bean.setRoleId(role_id);
+			bean.setRoleId(roleId);
 			bean.setModuleId(str);
 			list.add(bean);
 		}

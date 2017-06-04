@@ -78,13 +78,20 @@ public class ManageOrganizationServiceImpl implements ManageOrganizationService 
 
     @Override
     @Logger(printSQL = true)
-    public PageInfo<UcasClientUserProfileWithOrganization> queryUserWithOrganization(String id, int page, int size) {
-        return manageOrganizationMapper.queryUserWithOrganization(id, new PageRequest(page,size));
+    public PageInfo<UcasClientUserProfileWithOrganization> queryUserWithOrganization(String id, String name, String account, int page, int size) {
+        return manageOrganizationMapper.queryUserWithOrganization(id, name, account, new PageRequest(page,size));
     }
 
     @Override
     @Logger(printSQL = true)
-    public PageInfo<UcasClientUserProfileWithOrganization> queryUserWithoutOrganization(String id, int page, int size) {
-        return manageOrganizationMapper.queryUserWithoutOrganization(id, new PageRequest(page,size));
+    public PageInfo<UcasClientUserProfileWithOrganization> queryUserWithoutOrganization(String id, String name, String account, int page, int size) {
+        return manageOrganizationMapper.queryUserWithoutOrganization(id, name, account, new PageRequest(page,size));
+    }
+
+    @Override
+    @Logger(printSQL = true)
+    public List<ManageOrganization> queryOrganizationByCondition(ManageOrganization manageOrganization) {
+        return manageOrganizationMapper.queryOrganizationByCondition(manageOrganization.getName()
+                , manageOrganization.getParentId(), manageOrganization.getOrgId());
     }
 }

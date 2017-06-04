@@ -18,7 +18,8 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.ssl.SSLContextBuilder;
-import org.apache.http.ssl.SSLContexts;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -43,15 +44,15 @@ public class HttpConnectionManager {
     PoolingHttpClientConnectionManager cm = null;
     PoolingHttpClientConnectionManager cms = null;
     SSLConnectionSocketFactory sslConnectionSocketFactory = null;
-    private static final int MaxTotal = 200;//最大连接数
-    private static final int DefaultMaxPerRoute = 2;//默认路由
-    private static RequestConfig requestConfig;//请求配置
+    private static final int MAXTOTAL = 200;//最大连接数
+    private static final int DEFAULTMAXPERROUTE = 2;//默认路由
+    private  RequestConfig requestConfig;//请求配置
 
-    private static final int socketTimeout = 10000;
-    private static final int connectTimeout = 10000;
-    private static final int connectionRequestTimeout = 10000;
+    private static final int SOCKETTIMEOUT= 10000;
+    private static final int CONNECTTIMEOUT = 10000;
+    private static final int CONNECTIONREQUESTTIMEOUT= 10000;
 
-
+    private static Logger log = LoggerFactory.getLogger(HttpConnectionManager.class);
     @PostConstruct
     public void init() {
 
@@ -59,10 +60,9 @@ public class HttpConnectionManager {
                 .register("http", new PlainConnectionSocketFactory())
                 .build();
         cm =new PoolingHttpClientConnectionManager(socketFactoryRegistry);
-        cm.setMaxTotal(MaxTotal);
-        cm.setDefaultMaxPerRoute(DefaultMaxPerRoute);
+        cm.setMaxTotal(MAXTOTAL);
+        cm.setDefaultMaxPerRoute(DEFAULTMAXPERROUTE);
 
-//        SSLContext sslcontext = SSLContexts.createSystemDefault();
         SSLContext sslcontext = null;
         try {
             sslcontext = new SSLContextBuilder().loadTrustMaterial(null, new TrustStrategy() {
@@ -72,11 +72,11 @@ public class HttpConnectionManager {
                 }
             }).build();
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+            log.error("HttpConnectionManager",e);
         } catch (KeyManagementException e) {
-            e.printStackTrace();
+            log.error("HttpConnectionManager",e);
         } catch (KeyStoreException e) {
-            e.printStackTrace();
+            log.error("HttpConnectionManager",e);
         }
 
         sslConnectionSocketFactory = new SSLConnectionSocketFactory(
@@ -87,12 +87,12 @@ public class HttpConnectionManager {
                 .register("https", sslConnectionSocketFactory)
                 .build();
          cms = new PoolingHttpClientConnectionManager(socketFactoryRegistrys);
-         cms.setMaxTotal(MaxTotal);
-         cms.setDefaultMaxPerRoute(DefaultMaxPerRoute);
+         cms.setMaxTotal(MAXTOTAL);
+         cms.setDefaultMaxPerRoute(DEFAULTMAXPERROUTE);
 
         requestConfig = RequestConfig.custom().setConnectionRequestTimeout(
-                connectionRequestTimeout).setSocketTimeout(socketTimeout).setConnectTimeout(
-                connectTimeout).build();
+                CONNECTIONREQUESTTIMEOUT).setSocketTimeout(SOCKETTIMEOUT).setConnectTimeout(
+                CONNECTTIMEOUT).build();
 
 
     }
@@ -131,36 +131,24 @@ public class HttpConnectionManager {
     {
         // 请求重试处理
         HttpRequestRetryHandler httpRequestRetryHandler = new HttpRequestRetryHandler() {
-            public boolean retryRequest(IOException exception,
-                                        int executionCount, HttpContext context) {
-                if (executionCount >= 2) {// 如果已经重试了2次，就放弃
+            public boolean retryRequest(IOException exception, int executionCount, HttpContext context) {
+                 if (executionCount >= 2 //重试2试
+                        || exception instanceof SSLHandshakeException
+                        || exception instanceof UnknownHostException
+                        || exception instanceof SSLException) {// 不要重试SSL握手异常
                     return false;
                 }
-                else if (exception instanceof NoHttpResponseException) {// 如果服务器丢掉了连接，那么就重试
-                    return true;
-                }
-                else if (exception instanceof SSLHandshakeException) {// 不要重试SSL握手异常
-                    return false;
-                }
-                else if (exception instanceof InterruptedIOException) {// 超时
-                    return true;
-                }
-                else if (exception instanceof UnknownHostException) {// 目标服务器不可达
-                    return false;
-                }
-                else if (exception instanceof ConnectTimeoutException) {// 连接被拒绝
-                    return true;
-                }
-                else if (exception instanceof SSLException) {// SSL握手异常
-                    return false;
-                }
-                HttpClientContext clientContext = HttpClientContext
-                        .adapt(context);
-                HttpRequest request = clientContext.getRequest();
+                HttpRequest request = HttpClientContext.adapt(context).getRequest();
                 // 如果请求是幂等的，就再次尝试
                 if (!(request instanceof HttpEntityEnclosingRequest)) {
                     return true;
                 }
+                else if (exception instanceof NoHttpResponseException
+                        || exception instanceof InterruptedIOException
+                        || exception instanceof ConnectTimeoutException) {// 如果服务器丢掉了连接，那么就重试
+                    return true;
+                }
+
                 return false;
             }
         };

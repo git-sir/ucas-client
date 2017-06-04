@@ -3,10 +3,9 @@ server:
   context-path:
   session:
     timeout: 3600
-
 spring:
   datasource:
-    url: jdbc:mysql://172.17.22.38:8066/ucas_center
+    url: jdbc:mysql://172.17.21.71:8066/ucas_center
     username: root
     password: root
     driverClassName: com.mysql.jdbc.Driver
@@ -17,30 +16,24 @@ spring:
       max-wait: 200
       test-on-borrow: true
   session:
-      store-type: redis
+    store-type: redis
+    redis:
+      namespace: ucas:client
   aop:
     auto: true
   thymeleaf:
     cache: false
     prefix: classpath:/templates/pages/
   redis:
+     password: 123456
      cluster:
           nodes:
-            - 10.0.0.213:7080
-            - 10.0.0.213:7081
-            - 10.0.0.213:7082
-            - 10.0.0.214:7083
-            - 10.0.0.214:7084
-            - 10.0.0.214:7085
-
-
-  data:
-    mongodb:
-        uri: mongodb://admin:123456@172.17.22.38:7009,172.17.22.38:7010/client?replicaSet=repset&readPreference=primaryPreferred
-
-
+              - 172.17.21.59:7003
+              - 172.17.21.59:7004
+              - 172.17.21.59:7005
+              - 172.17.21.63:7009
+              - 172.17.21.63:7011
+              - 172.17.21.63:7010
 #是否启动quartz任务扫描器
 quartz:
   scan: false
-
-

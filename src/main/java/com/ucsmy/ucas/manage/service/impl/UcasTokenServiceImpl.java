@@ -3,6 +3,7 @@ package com.ucsmy.ucas.manage.service.impl;
 import com.ucsmy.commons.interceptor.domain.PageInfo;
 import com.ucsmy.commons.interceptor.domain.PageRequest;
 import com.ucsmy.ucas.commons.aop.annotation.Logger;
+import com.ucsmy.ucas.config.log4j2.LogOuputTarget;
 import com.ucsmy.ucas.manage.dao.UcasTokenMapper;
 import com.ucsmy.ucas.manage.entity.UcasAccountGroup;
 import com.ucsmy.ucas.manage.entity.UcasClientToken;
@@ -33,7 +34,7 @@ public class UcasTokenServiceImpl implements UcasTokenService{
     }
 
     @Override
-    @Logger(printSQL = true)
+    @Logger(operationName = "更新token", printSQL = true, outputTarget = LogOuputTarget.DATABASE)
     @Transactional(rollbackFor = Exception.class)
     public int editToken(UcasClientToken ucasClientToken) {
         return ucasTokenMapper.editToken(ucasClientToken);

@@ -103,6 +103,7 @@ module.exports = React.createClass({
                 <div className="table-panel">
                     <Grid
                         url={this.state.gridUrl} ref="grid"
+                        isTextOverflowHidden={true}
                         columns={[ {
                             name: 'ucasAccount', header: '用户网金账号', width: 150
                         },

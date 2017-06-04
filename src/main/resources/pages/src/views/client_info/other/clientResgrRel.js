@@ -10,6 +10,7 @@ var Form = UcsmyUI.Form;
 var configFormData = {
 
 	"maxTimes": [
+		{type:"maxlength", maxlength:9, msg : "使用次数长度不能超过9"},
 		{type: "fn", validator: function(value){
 			if(""!=value) {
 
@@ -21,6 +22,7 @@ var configFormData = {
 		}
 	],
 	"expiryTime": [
+		{type:"maxlength", maxlength:9, msg : "有效时间长度不能超过9"},
 		{type: "fn", validator: function(value){
 			if(""!=value) {
 				var m =/^[1-9]*[1-9][0-9]*$/;
@@ -238,13 +240,14 @@ module.exports = React.createClass({
 	render: function() {
 		return (					
 			<div>
+				<div className="panel-content">
 			<Form ref="saveForm" formData={configFormData} id="saveForm">
                <Layer ref="layer4" title="设置属性" width= "450">
                   <div className="ucs-form-group">
-			        <FormItem label="最大调用次数"><Input name="maxTimes" ref="maxTimes" placeholder="默认为空"/>次</FormItem>
+			        <FormItem label="最大调用次数"><Input name="maxTimes" ref="maxTimes" placeholder="默认为空"/><i className="unit">次</i></FormItem>
 			     </div>
 			    <div className="ucs-form-group">
-			       <FormItem label="有效时间"><Input name="expiryTime" ref="expiryTime" placeholder="默认36000"/>秒</FormItem>
+			       <FormItem label="有效时间"><Input name="expiryTime" ref="expiryTime" placeholder="默认36000"/><i className="unit">秒</i></FormItem>
 			    </div>
 				<div className="ucs-layer-footer">
 			         <Button id="bindResour" buttonType="bidnow" onClick={this._bindResour.bind(this,'bindResour')}>确定</Button>
@@ -252,14 +255,15 @@ module.exports = React.createClass({
 			    </div>
 			   </Layer>
              </Form>
+					</div>
 	            <div className="panel">
 	                <div className="panel-title">查询条件</div>
 	                <div className="panel-content">
 		                <FormItem label="应用简称">
-		                	<SelectDropDown ref="clientId" defaultText="全部" defaultValue="" option={this.state.clientArray} onChange={this._changeClient} />
+		                	<SelectDropDown ref="clientId" defaultText="全部" defaultValue="" option={this.state.clientArray} onChange={this._changeClient} showNum="10" />
 		                </FormItem>
 	                    <FormItem label="资源组">
-	                    	<SelectDropDown ref="resGroupUuid" defaultText="全部" defaultValue="" option={this.state.resGroupArray} disabled={this.state.resGroupDisabled} />
+	                    	<SelectDropDown ref="resGroupUuid" defaultText="全部" defaultValue="" option={this.state.resGroupArray} disabled={this.state.resGroupDisabled} showNum="10" />
 	                    </FormItem>
 	                </div>
 	            </div>
@@ -285,6 +289,7 @@ module.exports = React.createClass({
 				<div className="table-panel">
 		            <Grid
 		            	url={this.state.gridUrl} ref="grid"
+						isTextOverflowHidden={true}
 		                columns={[ {
 							 name:'clientId',
 							 header: "",
@@ -294,11 +299,11 @@ module.exports = React.createClass({
 								 );
 							 }.bind(this)
 						}, {
-      						name: 'clientName', header: '应用简称'
+      						name: 'clientName', header: '应用简称',width: 300
       					},{
-      						name: 'groupName', header: '资源组'
+      						name: 'groupName', header: '资源组',width: 300
       					}, {
-      						name: 'descRibe', header: '资源组描述'
+      						name: 'descRibe', header: '资源组描述',width: 300
       					}
 		               ]}
 		            />

@@ -21,6 +21,8 @@ public class UcasClientUserProfileWithOrganization implements Serializable {
 	
 	private String name;
 
+	private String account;
+
 	public String getUserId() {
 		return userId;
 	}
@@ -36,7 +38,12 @@ public class UcasClientUserProfileWithOrganization implements Serializable {
 	public void setName(String name) {
 		this.name = name;
 	}
-	
-	
-	
+
+	public String getAccount() {
+		return account;
+	}
+
+	public void setAccount(String account) {
+		this.account = account;
+	}
 }

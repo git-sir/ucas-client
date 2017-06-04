@@ -12,7 +12,8 @@ var configFormData = {
 			  p=value;
 			  return true;
 		}, msg: ''
-		}
+		},
+        {type : "maxlength", maxlength : 32, msg : "密码长度不能超过32"}
 	],
 	"newPassword": [
 		{type: "required", msg: "确认密码不能为空"},
@@ -66,22 +67,19 @@ module.exports = React.createClass({
 					} else {
 						UcsmyIndex.alert("提示",result.retmsg);
 					}
-				}).error(function(xhr, errorText, errorType){
+				}).error(function(){
                 _removeButtonDisabled('save');
 				UcsmyIndex.alert("失败", "网络异常");
 			});
 		});
 	},
 	init: function (data) {
-		var me = this;
 		this.setState({
 			title: '密码修改',
 			ucasAccount: data
 		});
-		console.log(data);
-		// this.refs.saveForm.setValues(data);
 	},
-	_return: function (event) {
+	_return: function () {
 		UcsmyIndex.closeChildrenPage();
 	},
 	render: function () {

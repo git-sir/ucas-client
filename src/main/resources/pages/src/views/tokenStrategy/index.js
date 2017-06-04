@@ -72,13 +72,7 @@ myPanel = React.createClass({
                           isTextOverflowHidden={true}
                           columns={[
                               {name: 'clientId', header: '所属应用id', width: 270},
-                              {name: 'clientName', header: '应用简称', width: 150, content: function (item) {
-                                  return(
-                                      <span>
-                                          {item.ucasClientInfo == null ? '' : item.ucasClientInfo.clientName}
-                                      </span>
-                                  )
-                              }},
+                              {name: 'clientName', header: '应用简称', width: 150},
                               {name: 'maxTimes', header: '最大使用次数', width: 100},
                               {name: 'expiryDate', header: 'TOKEN有效期', width: 100},
                               {name: 'refreshExpiryDate', header: 'RefreshToken有效期', width: 200},

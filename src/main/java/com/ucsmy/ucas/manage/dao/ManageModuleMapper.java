@@ -15,7 +15,8 @@ import java.util.List;
 @Mapper
 public interface ManageModuleMapper {
 
-    List<ModuleTreePojo> getModuleList(@Param("name") String name, @Param("parentId") String parentId);
+    List<ModuleTreePojo> getModuleList(@Param("name") String name
+            , @Param("parentId") String parentId, @Param("excludeId") String excludeId);
 
     ModuleTreePojo getModuleDetail(@Param("id") String id);
 

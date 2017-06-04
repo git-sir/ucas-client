@@ -42,7 +42,7 @@ var BindPermissionPanel = React.createClass({
 	load:function(id,name){
 		var that = this;
 		
-		$.post("rolePermission/queryRolePermission", {"role_id":id}, function(data) {
+		$.post("rolePermission/queryRolePermission", {"roleId":id}, function(data) {
 			if(!data.success){
 				UcsmyIndex.alert("失败", data.msg);
 			}else{
@@ -62,15 +62,19 @@ var BindPermissionPanel = React.createClass({
 	},
 	_addPermission:function(){
 		var that = this;
-		var ids = new Array();
+		var ids = [];
 		var obj = document.getElementsByName("rolePermissionID");
-	    for(k in obj){
+	    for(var k = 0; k < obj.length; k++){
 	        if(obj[k].checked)
 	        	ids.push(obj[k].value);
 	    }
+        if (ids.length == 0){
+            UcsmyIndex.alert("异常消息", "请选择要绑定的权限");
+            return;
+        }
 	    UcsmyIndex.confirm("确定", "你真的要为角色分配权限吗？", function() {
             _addButtonDisabled('save');
-	    	$.post("rolePermission/addRolePermission", {"role_id": that.state.roleId,"permissions_id": ids.join(","),"name": that.state.name}, function(data) {
+	    	$.post("rolePermission/addRolePermission", {"roleId": that.state.roleId,"permissionsId": ids.join(","),"name": that.state.name}, function(data) {
                 _removeButtonDisabled('save');
 	    		if(data.success){
 					UcsmyIndex.alert("消息", data.msg);
@@ -78,7 +82,7 @@ var BindPermissionPanel = React.createClass({
 				}else{
 					UcsmyIndex.alert("异常消息", data.msg);
 				}
-	 		}, "json").error(function(xhr, errorText, errorType){
+	 		}, "json").error(function(){
                 _removeButtonDisabled('save');
 	 			UcsmyIndex.alert("失败", "网络异常");
 	 	    });

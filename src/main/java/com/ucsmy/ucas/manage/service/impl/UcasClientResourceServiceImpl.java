@@ -4,6 +4,7 @@ import java.util.Date;
 import com.ucsmy.commons.utils.CommStatusEnum;
 
 import com.ucsmy.ucas.commons.aop.annotation.Logger;
+import com.ucsmy.ucas.config.log4j2.LogOuputTarget;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -42,9 +43,9 @@ public class UcasClientResourceServiceImpl implements UcasClientResourceService 
 	}
 
 	@Override
-	@Logger(printSQL = true)
+	@Logger(operationName = "添加资源", printSQL = true, outputTarget = LogOuputTarget.DATABASE)
 	public int addResource(UcasClientResource ucasClientResource) {
-		ucasClientResource.setResUuid(UUIDGenerator.generate(32));
+		ucasClientResource.setResUuid(UUIDGenerator.generate());
 		ucasClientResource.setStatus(CommStatusEnum.SYS_INUSE.getValue());
 		ucasClientResource.setCreateDate(new Date());
 		ucasClientResource.setModifyDate(new Date());
@@ -52,14 +53,14 @@ public class UcasClientResourceServiceImpl implements UcasClientResourceService 
 	}
 
 	@Override
-	@Logger(printSQL = true)
+	@Logger(operationName = "更新资源", printSQL = true, outputTarget = LogOuputTarget.DATABASE)
 	public int editResource(UcasClientResource ucasClientResource) {
 		ucasClientResource.setModifyDate(new Date());
 		return ucasClientResourceMapper.editResource(ucasClientResource);
 	}
 
 	@Override
-	@Logger(printSQL = true)
+	@Logger(operationName = "删除资源", printSQL = true, outputTarget = LogOuputTarget.DATABASE)
 	public int deleteResource(String resUuid) {
 		if (ucasUserResRelMapper.getUserRelResourceByResUuid(resUuid) > 0) {
 			return -1;
@@ -72,7 +73,7 @@ public class UcasClientResourceServiceImpl implements UcasClientResourceService 
 	}
 
 	@Override
-	@Logger(printSQL = true)
+	@Logger(operationName = "删除资源", printSQL = true, outputTarget = LogOuputTarget.DATABASE)
 	public int deleteResourcePhysical(String resUuid) {
 		return ucasClientResourceMapper.deleteResource(resUuid);
 	}

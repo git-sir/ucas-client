@@ -1,14 +1,13 @@
 package com.ucsmy.ucas.manage.service.impl;
 
 import com.ucsmy.commons.interceptor.domain.PageRequest;
-import com.ucsmy.commons.utils.CommStatusEnum;
 import com.ucsmy.ucas.commons.aop.annotation.Logger;
 import com.ucsmy.ucas.commons.page.UcasPageInfo;
+import com.ucsmy.ucas.config.log4j2.LogOuputTarget;
 import com.ucsmy.ucas.manage.dao.UcasUserAccountMapper;
 import com.ucsmy.ucas.manage.dao.UcasUserClientRelMapper;
 import com.ucsmy.ucas.manage.dao.UcasUserResRelMapper;
 import com.ucsmy.ucas.manage.ext.UserRelClientInfoPojo;
-import com.ucsmy.ucas.manage.ext.UserRelManageListPojo;
 import com.ucsmy.ucas.manage.service.UcasUserClientRelService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,9 +23,6 @@ public class UcasUserClientRelServiceImpl implements UcasUserClientRelService {
     private UcasUserClientRelMapper ucasUserClientRelMapper;
 
     @Autowired
-    private UcasUserAccountMapper ucasUserAccountMapper;
-
-    @Autowired
     private UcasUserResRelMapper ucasUserResRelMapper;
 
     @Override
@@ -36,7 +32,7 @@ public class UcasUserClientRelServiceImpl implements UcasUserClientRelService {
     }
 
     @Override
-    @Logger(printSQL = true)
+    @Logger(operationName = "取消应用授权", printSQL = true, outputTarget = LogOuputTarget.DATABASE)
     @Transactional(rollbackFor = Exception.class)
     public int deleteUserRelClient(String openId) {
         int delResRel = ucasUserResRelMapper.deleteUserRelResource(openId);

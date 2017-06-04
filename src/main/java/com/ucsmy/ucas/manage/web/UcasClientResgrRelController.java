@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.ucsmy.commons.interceptor.domain.PageInfo;
 import com.ucsmy.ucas.commons.aop.exception.result.AosResult;
 import com.ucsmy.ucas.manage.entity.UcasClientResgrRel;
-import com.ucsmy.ucas.manage.entity.UcasResourceGroup;
 import com.ucsmy.ucas.manage.ext.UcasClientResgrRelPojo;
 import com.ucsmy.ucas.manage.ext.UcasResourceGroupPojo;
 import com.ucsmy.ucas.manage.service.UcasClientResgrRelService;

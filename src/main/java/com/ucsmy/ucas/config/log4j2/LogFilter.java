@@ -18,21 +18,26 @@ public class LogFilter extends HttpServlet implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        System.out.println("in Log Filter");
+        // nothing
     }
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        ThreadContext.put("ipAddress", LogCommUtil.getIpAddress());
-        if (SecurityUtils.getSubject().isAuthenticated()) {
+        ThreadContext.put(LogCommUtil.MSG_IP_ADDRESS, LogCommUtil.getIpAddress());
+        try {
             ShiroRealmImpl.LoginUser user = ShiroUtils.getContextUser();
             if (user != null) {
-                ThreadContext.put("userId", user.getId());
-                ThreadContext.put("userName", user.getUserName());
+                ThreadContext.put(LogCommUtil.MSG_USER_ID, user.getId());
+                ThreadContext.put(LogCommUtil.MSG_USER_NAME, user.getUserName());
+            } else {
+                ThreadContext.put(LogCommUtil.MSG_USER_ID, "");
+                ThreadContext.put(LogCommUtil.MSG_USER_NAME, "");
             }
+        } catch (Exception e) {
+            ThreadContext.put(LogCommUtil.MSG_USER_ID, "");
+            ThreadContext.put(LogCommUtil.MSG_USER_NAME, "");
         }
         chain.doFilter(request, response);
-        ThreadContext.clearMap();
     }
 
     @Override

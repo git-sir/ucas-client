@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 54);
+/******/ 	return __webpack_require__(__webpack_require__.s = 55);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -209,10 +209,12 @@ var resourceFormData = {
         {type: "required", msg: "资源组不能为空"}
     ],
     "descRibe": [
-        {type: "required", msg: "资源描述不能为空"}
+        {type: "required", msg: "资源描述不能为空"},
+        {type : "maxlength", maxlength : 200, msg : "资源描述长度不能超过200"}
     ],
     "resUri": [
-        {type: "required", msg: "资源URI不能为空"}
+        {type: "required", msg: "资源URI不能为空"},
+        {type : "maxlength", maxlength : 200, msg : "资源URI长度不能超过200"}
     ]
 };
 
@@ -245,7 +247,7 @@ module.exports = React.createClass({displayName: "module.exports",
         $.post("resourceGroup/queryAllResourceGroup", {}, function(data) {        	
             if(data.retcode != 0) {
                 return;
-            }            
+            }
             var array = [];
             data.data.map(function(returnData) {
                 array.push({
@@ -260,18 +262,18 @@ module.exports = React.createClass({displayName: "module.exports",
         }, "json").error(function(xhr, errorText, errorType){
         });
         
-        $.post("client_info/query", {pageNum:1,pageSize:99999}, function(data) {        	
+        $.post("client_info/query", {pageNum:1,pageSize:99999}, function(data) {
             if(data.retcode != 0) {
                 return;
-            }            
-            
+            }
+
             var array = [];
             data.data.resultList.map(function(returnData) {
             	array.push({
                     option: returnData.clientName,
                     value: returnData.clientId
                 });
-            });            
+            });
             me.setState({
             	clientArray: array
             });
@@ -304,16 +306,16 @@ module.exports = React.createClass({displayName: "module.exports",
 		});
 		//this.refs.saveForm.setValues(data);
 	},
-	_changeClient: function(event) {    	
+	_changeClient: function(event) {
     	var array = [];
-    	
-    	$.each(this.state.resGroupObj,function(){    		
+
+    	$.each(this.state.resGroupObj,function(){
     		if(event == "" || this.clientId == event){
     			array.push({
     				option: this.groupName,
                     value: this.resGroupUuid
     			});
-    		}	
+    		}
     	});
     	this.setState({
     		resGroupArray: array,
@@ -355,10 +357,10 @@ module.exports = React.createClass({displayName: "module.exports",
                             React.createElement("input", {type: "hidden", name: "resUuid", value: this.state.clientResource.resUuid}), 
                             React.createElement("input", {type: "hidden", name: "status", value: this.state.clientResource.status}), 
                             React.createElement(FormItem, {label: "应用简称"}, 
-			                	React.createElement(SelectDropDown, {ref: "clientId", defaultText: "全部", defaultValue: "", value: this.state.clientResource.clientId, option: this.state.clientArray, onChange: this._changeClient})
+			                	React.createElement(SelectDropDown, {ref: "clientId", defaultText: "全部", defaultValue: "", value: this.state.clientResource.clientId, option: this.state.clientArray, onChange: this._changeClient, showNum: "10"})
 			                ), 
                             React.createElement(FormItem, {label: "资源组"}, 
-                            	React.createElement(SelectDropDown, {name: "resGroupUuid", defaultText: "全部", defaultValue: "", value: this.state.clientResource.resGroupUuid, option: this.state.resGroupArray, disabled: this.state.resGroupDisabled})
+                            	React.createElement(SelectDropDown, {name: "resGroupUuid", defaultText: "全部", defaultValue: "", value: this.state.clientResource.resGroupUuid, option: this.state.resGroupArray, disabled: this.state.resGroupDisabled, showNum: "10"})
                             ), 
                             React.createElement(FormItem, {label: "资源描述"}, React.createElement(Input, {name: "descRibe", value: this.state.clientResource.descRibe})), 
                             React.createElement(FormItem, {label: "资源URI"}, React.createElement(Input, {name: "resUri", value: this.state.clientResource.resUri})), 
@@ -369,7 +371,7 @@ module.exports = React.createClass({displayName: "module.exports",
                             	React.createElement(SelectDropDown, {name: "isDefault", value: this.state.clientResource.isDefault, option: commonDropDown})
                             )
                             /*<FormItem label="资源状态">
-                            	<SelectDropDown name="status" value={this.state.clientResource.status} option={statusDropDown} />                            
+                            	<SelectDropDown name="status" value={this.state.clientResource.status} option={statusDropDown} />
                             </FormItem>*/
                         )
 	                )
@@ -393,7 +395,7 @@ var Button = UcsmyUI.Button;
 var Form = UcsmyUI.Form;
 var FormItem = Form.FormItem;
 var SelectDropDown = UcsmyUI.SelectDropDown;
-
+var Tooltip=UcsmyUI.Tooltip;
 var commonMap = {"0":"否","1":"是"};
 
 //var statusMap = {"0":"正常","1":"停用"};
@@ -427,19 +429,35 @@ module.exports = React.createClass({displayName: "module.exports",
 					React.createElement("div", {className: "panel-content"}, 
 						React.createElement("div", {className: "ucs-form-group"}, 
 							React.createElement("span", {className: "label"}, "应用简称："), 
-							React.createElement("span", null, this.state.clientResource.clientName)
+							React.createElement("div", {className: "custom-tooltip"}, 
+								React.createElement(Tooltip, {title: this.state.clientResource.clientName}, 
+									this.state.clientResource.clientName
+								)
+							)
 						), 
 						React.createElement("div", {className: "ucs-form-group"}, 
 							React.createElement("span", {className: "label"}, "资源组："), 
-							React.createElement("span", null, this.state.clientResource.groupName)
+							React.createElement("div", {className: "custom-tooltip"}, 
+								React.createElement(Tooltip, {title: this.state.clientResource.groupName}, 
+									this.state.clientResource.groupName
+								)
+							)
 						), 
 						React.createElement("div", {className: "ucs-form-group"}, 
 							React.createElement("span", {className: "label"}, "资源描述："), 
-							React.createElement("span", null, this.state.clientResource.descRibe)
+							React.createElement("div", {className: "custom-tooltip"}, 
+								React.createElement(Tooltip, {title: this.state.clientResource.descRibe}, 
+									this.state.clientResource.descRibe
+								)
+							)
 						), 
 						React.createElement("div", {className: "ucs-form-group"}, 
 							React.createElement("span", {className: "label"}, "资源URI："), 
-							React.createElement("span", null, this.state.clientResource.resUri)
+							React.createElement("div", {className: "custom-tooltip"}, 
+								React.createElement(Tooltip, {title: this.state.clientResource.resUri}, 
+									this.state.clientResource.resUri
+								)
+							)
 						), 
 						React.createElement("div", {className: "ucs-form-group"}, 
 							React.createElement("span", {className: "label"}, "涉及用户隐私："), 
@@ -465,7 +483,7 @@ module.exports = React.createClass({displayName: "module.exports",
 
 /***/ }),
 
-/***/ 54:
+/***/ 55:
 /***/ (function(module, exports, __webpack_require__) {
 
 var Input = UcsmyUI.Input;
@@ -499,10 +517,8 @@ myPanel = React.createClass({displayName: "myPanel",
             if(data.retcode != 0) {
                 return;
             }            
-//            var map = {};
             var array = [];
             data.data.map(function(returnData) {            	
-//            	map[returnData.resGroupUuid] = returnData.groupName;
             	array.push({
                     option: returnData.groupName,
                     value: returnData.resGroupUuid
@@ -513,7 +529,8 @@ myPanel = React.createClass({displayName: "myPanel",
             	resGroupArray: array,
             	resGroupObj: data.data
             });
-        }, "json").error(function(xhr, errorText, errorType){
+        }, "json").error(function(){
+			UcsmyIndex.alert("失败", "网络异常");
         });
         
         $.post("client_info/query", {pageNum:1,pageSize:99999}, function(data) {        	
@@ -532,7 +549,8 @@ myPanel = React.createClass({displayName: "myPanel",
             	clientArray: array,
             	clientRepo: array
             });
-        }, "json").error(function(xhr, errorText, errorType){
+        }, "json").error(function(){
+			UcsmyIndex.alert("失败", "网络异常");
         });
     },
 	/*_changeGroup: function(event) {		
@@ -547,7 +565,7 @@ myPanel = React.createClass({displayName: "myPanel",
     		resGroupUuid: this.refs.resGroupUuid.getValue()
     	});
     },*/
-    _query: function(event) {		
+    _query: function() {
     	this.refs.grid.load({
 //    		status: this.refs.status.getValue(),
     		resGroupUuid: this.refs.resGroupUuid.getValue(),
@@ -583,8 +601,6 @@ myPanel = React.createClass({displayName: "myPanel",
 	    		}	
 	    	});
     	}
-//    	console.log(value);
-    	console.log(array);
     	this.setState({
     		clientArray: array
     	});
@@ -623,29 +639,25 @@ myPanel = React.createClass({displayName: "myPanel",
 				} else {
 					UcsmyIndex.alert("失败", data.retmsg);
 				}
-			}, "json").error(function(xhr, errorText, errorType){
+			}, "json").error(function(){
 				UcsmyIndex.alert("失败", "网络异常");
 		    });
 		});
 	},
 	_unbindClick:function(column){		
-		var me = this;
     	UcsmyIndex.openChildrenPage(RoleUser, function(refPanel) {
     		refPanel.init("unbind", column);
     	});	
 	},
 	_bindClick: function(column) {
-		var me = this;
     	UcsmyIndex.openChildrenPage(RoleUser, function(refPanel) {
     		refPanel.init("bind", column);
     	});		
 	},
 	_bindPermClick: function(column){
-		var me = this;
     	UcsmyIndex.openChildrenPage(BindPermissionPanel, function(refPanel) {
     		refPanel.load(column.roleId,column.name);
     	});
-		//this.props._bindPermission(column.roleId,column.name);
 	},
 	render:function() {
 		var me = this;
@@ -656,10 +668,10 @@ myPanel = React.createClass({displayName: "myPanel",
 	                React.createElement("div", {className: "panel-title"}, "查询条件"), 
 	                React.createElement("div", {className: "panel-content"}, 
 		                React.createElement(FormItem, {label: "应用简称"}, 
-		                	React.createElement(SelectDropDown, {type: "search", ref: "clientId", defaultText: "全部", defaultValue: "", option: this.state.clientArray, onChange: this._changeClient, searchChange: this._searchChangeClient})
+		                	React.createElement(SelectDropDown, {type: "search", ref: "clientId", defaultText: "全部", defaultValue: "", option: this.state.clientArray, onChange: this._changeClient, searchChange: this._searchChangeClient, showNum: "10"})
 		                ), 
 	                    React.createElement(FormItem, {label: "资源组"}, 
-	                    	React.createElement(SelectDropDown, {ref: "resGroupUuid", defaultText: "全部", defaultValue: "", option: this.state.resGroupArray, disabled: this.state.resGroupDisabled})
+	                    	React.createElement(SelectDropDown, {ref: "resGroupUuid", defaultText: "全部", defaultValue: "", option: this.state.resGroupArray, disabled: this.state.resGroupDisabled, showNum: "10"})
 	                    )
 	                    /*<FormItem label="资源状态">
 	                    	<SelectDropDown ref="status" defaultText="全部" defaultValue="" option={statusArray} />
@@ -673,11 +685,11 @@ myPanel = React.createClass({displayName: "myPanel",
 				React.createElement("div", {className: "table-panel"}, 
 		            React.createElement(Grid, {url: "clientResource/queryResource", ref: "grid", isTextOverflowHidden: true, 
 		                columns: [ {
-          						name:'groupName', header: '资源组'
+          						name:'groupName', header: '资源组', width: 250
           					}, {
-          						name: 'descRibe', header: '资源描述'
+          						name: 'descRibe', header: '资源描述',width: 250
           					}, {
-          						name: 'resUri', header: '资源URI'
+          						name: 'resUri', header: '资源URI',width: 250
           					}/*, {
           						name: 'isPrivacy', header: '涉及用户隐私', content: function (item) {
                                     var statusText = '否';

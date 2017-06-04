@@ -38,8 +38,7 @@ public class UcasClientGroupController {
     public PageInfo<UcasClientGroup> queryClientGroup(@RequestParam(required = false)String groupName
             , @RequestParam(required = false) String isSso, String accountGroupName
             , int pageNum, int pageSize) {
-        UcasPageInfo<UcasClientGroup> resultList = ucasClientGroupService.queryClientGroup(groupName, isSso, accountGroupName, pageNum, pageSize);
-        return resultList;
+        return ucasClientGroupService.queryClientGroup(groupName, isSso, accountGroupName, pageNum, pageSize);
     }
 
     /**
@@ -93,10 +92,13 @@ public class UcasClientGroupController {
      */
     @RequestMapping("queryClientInfo")
     public PageInfo<UcasClientInfo> queryClient(String cligUuid, String clientName, String grantType, int pageNum, int pageSize) {
+        String resultId;
         if (StringUtils.isEmpty(cligUuid)) {
-            cligUuid = ucasClientGroupService.getDefaultClientGroup().getCligUuid();
+            resultId = ucasClientGroupService.getDefaultClientGroup().getCligUuid();
+        } else {
+            resultId = cligUuid;
         }
-        return ucasClientInfoService.queryClientInfoByCligUuid(cligUuid, clientName, grantType, pageNum, pageSize);
+        return ucasClientInfoService.queryClientInfoByCligUuid(resultId, clientName, grantType, pageNum, pageSize);
     }
 
     /**
@@ -110,12 +112,15 @@ public class UcasClientGroupController {
         if (StringUtils.isEmpty(clientIds)) {
             return AosResult.retFailureMsg("请选择应用");
         }
+        String resultId;
         if (StringUtils.isEmpty(cligUuid)) {
             // 解绑，先查默认应用组
             UcasClientGroup defClientGroup = ucasClientGroupService.getDefaultClientGroup();
-            cligUuid = defClientGroup.getCligUuid();
+            resultId = defClientGroup.getCligUuid();
+        } else {
+            resultId = cligUuid;
         }
-        ucasClientInfoService.updateClientInfoCligUuid(cligUuid, clientIds);
+        ucasClientInfoService.updateClientInfoCligUuid(resultId, clientIds);
         return AosResult.retSuccessMsg("操作成功");
     }
 

@@ -64,11 +64,11 @@ public class SysHttpRequestServerImpl extends HttpExecuteFactory implements SysH
     }
 
     private   String convertStringParamter(Map parameterMap) {
-        StringBuffer parameterBuffer = new StringBuffer();
+        StringBuilder parameterBuffer = new StringBuilder();
         if (parameterMap != null) {
             Iterator iterator = parameterMap.keySet().iterator();
-            String key = null;
-            String value = null;
+            String key ;
+            String value ;
             while (iterator.hasNext()) {
                 key = (String) iterator.next();
                 if (parameterMap.get(key) != null) {

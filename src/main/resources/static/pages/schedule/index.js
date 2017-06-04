@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 68);
+/******/ 	return __webpack_require__(__webpack_require__.s = 69);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -188,27 +188,30 @@ var scheduleFormData = {
 
     "taskCode": [
         {type: "required", msg: "任务码不能为空"},
-        {type : "maxlength", maxlength : 100, msg : "参数名称长度不能超过100"}
+        {type : "maxlength", maxlength : 100, msg : "任务码长度不能超过100"},
+        {type: "rule", rule: "/^(?!_)(?!.*?_$)[a-zA-Z0-9_]+$/", msg: "任务码为字母、数字、下划线组合，且不能以下划线开头或结尾"}
     ],
     "taskName": [
         {type: "required", msg: "任务名称不能为空"},
-        {type : "maxlength", maxlength : 100, msg : "参数值长度不能超过100"}
+        {type : "maxlength", maxlength : 100, msg : "任务名称长度不能超过100"},
     ],
     "taskConf": [
         {type: "required", msg: "定时配置不能为空"},
-        {type : "maxlength", maxlength : 100, msg : "参数描述长度不能超过100"}
+        {type : "maxlength", maxlength : 100, msg : "定时配置长度不能超过100"},
     ],
     "taskClass": [
         {type: "required", msg: "执行地址不能为空"},
-        {type : "maxlength", maxlength : 100, msg : "参数描述长度不能超过100"}
+        {type : "maxlength", maxlength : 100, msg : "执行地址长度不能超过100"},
+        {type: "rule", rule: "/^[a-zA-Z0-9\.]+$/", msg: "执行地址不能为特殊字符或汉字"}
     ],
     "taskServerIp": [
         {type: "required", msg: "指定IP不能为空"},
-        {type : "maxlength", maxlength : 100, msg : "参数描述长度不能超过100"}
+        {type : "maxlength", maxlength : 100, msg : "指定IP长度不能超过100"},
+        {type: "rule", rule: "/^[0-9\.]+$/", msg: "IP格式错误"}
     ],
     "remark": [
         {type: "required", msg: "备注不能为空"},
-        {type : "maxlength", maxlength : 250, msg : "参数描述长度不能超过250"}
+        {type : "maxlength", maxlength : 250, msg : "备注长度不能超过250"},
     ]
 };
 
@@ -254,7 +257,7 @@ module.exports = React.createClass({displayName: "module.exports",
                     } else {
                         UcsmyIndex.alert("提示", result.retmsg);
                     }
-                }, "json").error(function(xhr, errorText, errorType){
+                }, "json").error(function(){
                 _removeButtonDisabled('save');
                 UcsmyIndex.alert("失败", "网络异常");
             });
@@ -262,8 +265,6 @@ module.exports = React.createClass({displayName: "module.exports",
     },
 
     init: function (url, title, callback, data) {
-        var rootThis = this;
-
         this.setState({
             url: url,
             title: title,
@@ -273,7 +274,7 @@ module.exports = React.createClass({displayName: "module.exports",
 
     },
 
-    _return: function(event) {
+    _return: function() {
         UcsmyIndex.closeChildrenPage();
     },
 
@@ -306,7 +307,7 @@ module.exports = React.createClass({displayName: "module.exports",
 
 /***/ }),
 
-/***/ 68:
+/***/ 69:
 /***/ (function(module, exports, __webpack_require__) {
 
 var Input = UcsmyUI.Input;
@@ -326,9 +327,8 @@ myPanel = React.createClass({displayName: "myPanel",
         }
     },
 
-    _add: function (item) {
+    _add: function () {
         var rootThis = this;
-        var id = item.id
         UcsmyIndex.openChildrenPage(Form, function (ref) {
             ref.init(
                 'schedule/add',

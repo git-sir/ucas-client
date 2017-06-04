@@ -34,6 +34,25 @@
         org_id = #{id}
     </select>
 
+    <select id="queryOrganizationByCondition" resultMap="organization" parameterType="Map">
+        SELECT *
+        FROM manage_organization
+        <where>
+            <if test="!(name == null || name == '')">
+                AND `name`=#{name}
+            </if>
+            <if test="!(parentId == null || parentId == '')">
+                AND parent_id=#{parentId}
+            </if>
+            <if test="!(excludeId == null || excludeId == '')">
+                AND org_id!=#{excludeId}
+            </if>
+            <if test="(parentId == null || parentId == '')">
+                AND 1=0
+            </if>
+        </where>
+    </select>
+
     <update id="updateOrganization" parameterType="com.ucsmy.ucas.manage.entity.ManageOrganization">
         update
         manage_organization
@@ -107,9 +126,11 @@
     </delete>
 
     <select id="queryUserWithOrganization" parameterType="map" resultMap="userProfile">
-        select a.name, a.user_id
+        select a.name, a.user_id, userAccount.account
         from
         manage_user_profile a
+        LEFT JOIN manage_user_account userAccount
+        ON a.user_id=userAccount.user_id
         where
         a.user_id in (
         select
@@ -119,13 +140,21 @@
         where
         org_id = #{id}
         )
+        <if test="!(name == null || name == '')">
+            AND a.name LIKE concat('%', #{name}, '%')
+        </if>
+        <if test="!(account == null || account == '')">
+            AND userAccount.account LIKE concat('%', #{account}, '%')
+        </if>
         order by a.name
     </select>
 
     <select id="queryUserWithoutOrganization" parameterType="string" resultMap="userProfile">
-        select a.name, a.user_id
+        select a.name, a.user_id, userAccount.account
         from
         manage_user_profile a
+        LEFT JOIN manage_user_account userAccount
+        ON a.user_id=userAccount.user_id
         where
         a.user_id not in (
         select
@@ -135,6 +164,12 @@
         where
         org_id = #{id}
         )
+        <if test="!(name == null || name == '')">
+            AND a.name LIKE concat('%', #{name}, '%')
+        </if>
+        <if test="!(account == null || account == '')">
+            AND userAccount.account LIKE concat('%', #{account}, '%')
+        </if>
         order by a.name
     </select>
 

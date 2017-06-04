@@ -51,7 +51,6 @@ public @interface Logger {
 
     /**
      * log输出目标
-     * TODO
      * @return
      */
     LogOuputTarget outputTarget() default LogOuputTarget.FILE;

@@ -47,7 +47,7 @@ public class EncryptUtils {
             messageDigest.update(info.getBytes(charsetName == null ? "UTF-8" : charsetName));
             byte[] encryption = messageDigest.digest();
 
-            StringBuffer strBuf = new StringBuffer();
+            StringBuilder strBuf = new StringBuilder();
             for (int i = 0; i < encryption.length; i++) {
                 if (Integer.toHexString(0xff & encryption[i]).length() == 1) {
                     strBuf.append("0");

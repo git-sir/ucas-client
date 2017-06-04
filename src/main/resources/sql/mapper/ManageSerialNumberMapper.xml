@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ucsmy.ucas.manage.dao.ManageSerialNumberMapper">
+
+    <resultMap id="serialNumber" type="com.ucsmy.ucas.manage.entity.ManageSerialNumber">
+        <result column="serial_number_id" property="serialNumberId" jdbcType="VARCHAR" />
+        <result column="current_serial_number" property="currentSerialNumber" jdbcType="INTEGER" />
+        <result column="generated_serial_number" property="generatedSerialNumber" jdbcType="INTEGER" />
+        <result column="serial_number_date" property="serialNumberDate" jdbcType="DATE" />
+    </resultMap>
+
+    <select id="querySerialNumberByDateForUpdate" resultMap="serialNumber" parameterType="DATE">
+        SELECT *
+        FROM manage_serial_number
+        <where>
+            <if test="!(serialNumberDate == null)">
+                date(serial_number_date) = date(#{serialNumberDate,jdbcType=DATE})
+            </if>
+        </where>
+        FOR UPDATE
+    </select>
+
+    <select id="querySerialNumberById" resultMap="serialNumber" parameterType="Map">
+        SELECT *
+        FROM manage_serial_number
+        <where>
+            serial_number_id = #{serialNumberId}
+        </where>
+        FOR UPDATE 
+    </select>
+
+    <insert id="addSerialNumber" parameterType="com.ucsmy.ucas.manage.entity.ManageSerialNumber">
+        INSERT INTO manage_serial_number(
+        serial_number_id, current_serial_number, generated_serial_number, serial_number_date
+        ) VALUES (
+        #{serialNumberId},
+        #{currentSerialNumber},
+        #{generatedSerialNumber},
+        date(#{serialNumberDate,jdbcType=DATE})
+        )
+    </insert>
+
+    <update id="updateSerialNumber" parameterType="com.ucsmy.ucas.manage.entity.ManageSerialNumber">
+        UPDATE manage_serial_number
+        SET
+        current_serial_number=#{currentSerialNumber},
+        generated_serial_number=#{generatedSerialNumber},
+        serial_number_date=date(#{serialNumberDate,jdbcType=DATE})
+        WHERE
+        serial_number_id=#{serialNumberId}
+    </update>
+</mapper>

@@ -8,11 +8,11 @@ import java.util.Map;
 
 public interface ManageUserRoleService {
 	
-	PageInfo<ManageUserRole> queryUserRoleList(String roleId, String account, int pageNum, int pageSize);
+	PageInfo<ManageUserRole> queryUserRoleList(String roleId, String account, String name, int pageNum, int pageSize);
 	
-	PageInfo<ManageUserRole> queryUnbindUserList(String roleId, String account, int pageNum, int pageSize);
+	PageInfo<ManageUserRole> queryUnbindUserList(String roleId, String account, String name, int pageNum, int pageSize);
 	
-	int queryUserCountByUserIds(Map<String, Object> map);	
+	Long queryUserCountByUserIds(String[] ids);
 	
 	int insertUserRole(ManageUserRole manageUserRole);
 	

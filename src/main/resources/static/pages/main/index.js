@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 59);
+/******/ 	return __webpack_require__(__webpack_require__.s = 60);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -71,7 +71,6 @@
 /***/ 2:
 /***/ (function(module, exports) {
 
-//var FormItem = UcsmyUI.FormItem;
 var Form = UcsmyUI.Form;
 var FormItem = Form.FormItem;
 
@@ -104,7 +103,6 @@ var MyForm = React.createClass({displayName: "MyForm",
         return value;
     },
     isValid: function(retFn, validateField) {
-        var me = this;
         var fn = function (b) {
             retFn ? retFn(b) : "";
         };
@@ -173,7 +171,7 @@ var MyForm = React.createClass({displayName: "MyForm",
         if(data.v_minlength !== undefined)
             rules.push({type: "rule", rule: "/[\\s\\S]{" + data.v_minlength + ",}/", msg: data.itemText + "最小长度是：" + data.v_minlength});
         if(data.rules && data.rules.length > 0)
-            rules.push(...data.rules);
+        $.merge(rules,data.rules);
 
         return rules;
     },
@@ -368,7 +366,7 @@ _error = function(XMLHttpRequest, bfn) {
 }
 
 $(window).resize(function () {
-	resizeContent();
+	//resizeContent();
 });
 
 UcsmyIndex.fn = {};
@@ -472,7 +470,7 @@ var Left = React.createClass({
 })
 module.exports = Left;
 */
-var Navigation = __webpack_require__(60);
+var Navigation = __webpack_require__(61);
 var Left = React.createClass({displayName: "Left",
     getDefaultProps: function(){
 		return{
@@ -572,18 +570,16 @@ var Input = UcsmyUI.Input;
 var Button = UcsmyUI.Button;
 var FormItem = UcsmyUI.Form.FormItem;
 module.exports = React.createClass({displayName: "module.exports",
-	_update: function(event) {
-		var me = this;
+	_update: function() {
         _addButtonDisabled('save');
 		$.post("user/updateUserPassword", this.refs.passwordForm.getValues(), function(data) {
             _removeButtonDisabled('save');
 			if(data.retcode == 0) {
-				//UcsmyIndex.alert("成功", data.msg);
 				UcsmyIndex.alert("更新成功", data.msg);
 			} else {
 				UcsmyIndex.alert("失败", data.msg);
 			}
-		}, "json").error(function(xhr, errorText, errorType) {
+		}, "json").error(function() {
             _removeButtonDisabled('save');
 			UcsmyIndex.alert("失败", "网络异常");
 	    });
@@ -622,13 +618,14 @@ module.exports = React.createClass({displayName: "module.exports",
 		                	itemClassName: "col-xs-11",
 		                	panelType: Input,
 		                	name: "userId",
-							hidden:true
+							hidden: true
 		                }, {
 							itemText: "新密码",
 							itemClassName: "col-xs-11",
 							panelType: Input,
 							name: "password",
-							type: "password"
+							type: "password",
+                            v_maxlength: 32
 						}, {
 		                	itemText: "确认新密码",
 		                	itemClassName: "col-xs-11",
@@ -648,7 +645,94 @@ module.exports = React.createClass({displayName: "module.exports",
 
 /***/ }),
 
-/***/ 59:
+/***/ 6:
+/***/ (function(module, exports) {
+
+var Layer = UcsmyUI.Layer;
+var Button = UcsmyUI.Button;
+var MessageBox = React.createClass({displayName: "MessageBox",
+	getInitialState: function(){
+		return {
+			isOpen: false,
+			cancelButShow: true,
+			title: 'title',
+			msg: 'msg',
+			okFn: function() {
+			},
+			cancelFn: function() {
+			}
+		}
+	},
+	alert: function(title, msg, okFn) {
+		if(this.state.isOpen)
+			this._layerClose();// 执行关闭操作，防止多次弹出阴影层
+		okFn = okFn ? okFn : function(){};
+		this.setState({
+			isOpen: true,
+			cancelButShow: false,
+			title: title,
+			msg: msg,
+			okFn: okFn,
+			cancelFn: function(){}
+		});
+		this._layerOpen();
+	},
+	confirm: function(title, msg, okFn, cancelFn){
+		if(this.state.isOpen)
+			this._layerClose();// 执行关闭操作，防止多次弹出阴影层
+		okFn = okFn ? okFn : function(){};
+		cancelFn = cancelFn ? cancelFn : function(){};
+		this.setState({
+			isOpen: true,
+			cancelButShow: true,
+			title: title,
+			msg: msg,
+			okFn: okFn,
+			cancelFn: cancelFn
+		});
+		this._layerOpen();
+	},
+	_layerOpen: function() {
+		this.refs.layerMessageBox.layerOpen();
+		var background = $(".layer-background");
+		$(background[background.length - 1]).addClass("layerMessageBoxBackground");
+	},
+	_layerClose: function() {
+		this.setState({
+			isOpen: false
+		});
+		this.refs.layerMessageBox.layerClose();
+	},
+	_okFn: function() {
+		this._layerClose();
+		this.state.okFn();
+	},
+	_cancelFn: function() {
+		this._layerClose();
+		this.state.cancelFn();
+	},
+	render: function() {
+		return(
+			React.createElement("div", null, 
+				React.createElement(Layer, {ref: "layerMessageBox", className: "layerMessageBox", title: this.state.title, width: "350", showClose: false}, 
+					React.createElement("label", null, this.state.msg), 
+					React.createElement("br", null), 
+					React.createElement("br", null), 
+					React.createElement("div", {className: "ucs-layer-footer"}, 
+						React.createElement(Button, {buttonType: "bidnow", onClick: this._okFn}, "确认"), 
+		                this.state.cancelButShow ? React.createElement(Button, {buttonType: "cancel", onClick: this._cancelFn}, "取消") : ""
+		            )
+				)
+			)
+		)
+	}
+});
+
+module.exports = MessageBox;
+
+/***/ }),
+
+/***/ 60:
 /***/ (function(module, exports, __webpack_require__) {
 
 __webpack_require__(30);
@@ -749,94 +833,7 @@ ReactDOM.render(React.createElement(Root, null), document.getElementById('main')
 
 /***/ }),
 
-/***/ 6:
-/***/ (function(module, exports) {
-
-var Layer = UcsmyUI.Layer;
-var Button = UcsmyUI.Button;
-var MessageBox = React.createClass({displayName: "MessageBox",
-	getInitialState: function(){
-		return {
-			isOpen: false,
-			cancelButShow: true,
-			title: 'title',
-			msg: 'msg',
-			okFn: function() {
-			},
-			cancelFn: function() {
-			}
-		}
-	},
-	alert: function(title, msg, okFn) {
-		if(this.state.isOpen)
-			this._layerClose();// 执行关闭操作，防止多次弹出阴影层
-		okFn = okFn ? okFn : function(){};
-		this.setState({
-			isOpen: true,
-			cancelButShow: false,
-			title: title,
-			msg: msg,
-			okFn: okFn,
-			cancelFn: function(){}
-		});
-		this._layerOpen();
-	},
-	confirm: function(title, msg, okFn, cancelFn){
-		if(this.state.isOpen)
-			this._layerClose();// 执行关闭操作，防止多次弹出阴影层
-		okFn = okFn ? okFn : function(){};
-		cancelFn = cancelFn ? cancelFn : function(){};
-		this.setState({
-			isOpen: true,
-			cancelButShow: true,
-			title: title,
-			msg: msg,
-			okFn: okFn,
-			cancelFn: cancelFn
-		});
-		this._layerOpen();
-	},
-	_layerOpen: function() {
-		this.refs.layerMessageBox.layerOpen();
-		var background = $(".layer-background");
-		$(background[background.length - 1]).addClass("layerMessageBoxBackground");
-	},
-	_layerClose: function() {
-		this.setState({
-			isOpen: false
-		});
-		this.refs.layerMessageBox.layerClose();
-	},
-	_okFn: function() {
-		this._layerClose();
-		this.state.okFn();
-	},
-	_cancelFn: function() {
-		this._layerClose();
-		this.state.cancelFn();
-	},
-	render: function() {
-		return(
-			React.createElement("div", null, 
-				React.createElement(Layer, {ref: "layerMessageBox", className: "layerMessageBox", title: this.state.title, width: "350", showClose: false}, 
-					React.createElement("label", null, this.state.msg), 
-					React.createElement("br", null), 
-					React.createElement("br", null), 
-					React.createElement("div", {className: "ucs-layer-footer"}, 
-						React.createElement(Button, {buttonType: "bidnow", onClick: this._okFn}, "确认"), 
-		                this.state.cancelButShow ? React.createElement(Button, {buttonType: "cancel", onClick: this._cancelFn}, "取消") : ""
-		            )
-				)
-			)
-		)
-	}
-});
-
-module.exports = MessageBox;
-
-/***/ }),
-
-/***/ 60:
+/***/ 61:
 /***/ (function(module, exports, __webpack_require__) {
 
 /*

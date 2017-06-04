@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 52);
+/******/ 	return __webpack_require__(__webpack_require__.s = 53);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -207,6 +207,7 @@ var FormItem = Form.FormItem;
 var configFormData = {
 
 	"emailAccount": [
+		{type : "maxlength", maxlength : 35, msg : "邮箱长度不能超过35"},
 		{type: "required", msg: "邮箱帐号不能为空"},
 		{type: "mail", msg: "邮箱地址不对"}
 	]
@@ -244,7 +245,7 @@ module.exports = React.createClass({displayName: "module.exports",
 			$.post("account/upEmail",
 				$('#saveForm').serialize(),
 				function (result) {
-					if (result && result.retcode && result.retcode == "0") {
+					if (result && result.retcode && result.retcode === "0") {
 						UcsmyIndex.alert("提示", result.retmsg);
 						UcsmyIndex.closeChildrenPage();
 						me.state.callback();
@@ -252,22 +253,22 @@ module.exports = React.createClass({displayName: "module.exports",
 						UcsmyIndex.alert("提示",result.retmsg);
 					}
 					_removeButtonDisabled('save');
-				}).error(function(xhr, errorText, errorType){
+				}).error(function(){
 				UcsmyIndex.alert("失败", "网络异常");
 				_removeButtonDisabled('save');
 			});
 		});
 	},
 	init: function (data,callback) {
-		var me = this;
+
 		this.setState({
 			title: '邮箱账号修改',
 			ucasAccount: data,
 			callback: callback,
 		});
-		// this.refs.saveForm.setValues(data);
+
 	},
-	_return: function (event) {
+	_return: function () {
 		UcsmyIndex.closeChildrenPage();
 	},
 	render: function () {
@@ -275,6 +276,10 @@ module.exports = React.createClass({displayName: "module.exports",
 			React.createElement("div", null, 
 			React.createElement("div", {className: "panel"}, 
 			React.createElement("div", {className: "panel-title fc-red"}, this.state.title), 
+				React.createElement("div", {className: "ucs-form-group"}, 
+					React.createElement("span", {className: "label"}, "网金帐号："), 
+					React.createElement("span", null, this.state.ucasAccount.ucasAccount)
+				), 
 		React.createElement("div", {className: "panel-content"}, 
 			React.createElement(Form, {ref: "saveForm", formData: configFormData, id: "saveForm"}, 
 			React.createElement("input", {type: "hidden", name: "ucasAccount", value: this.state.ucasAccount.ucasAccount}), 
@@ -308,6 +313,12 @@ var configFormData = {
 	"password": [
 		{type: "required", msg: "密码不能为空"},
 		{type: "fn", validator: function(value){
+			var reg = /^[A-Za-z0-9~!@#$%^&*()\\-_=+{}\[\]:\"|;'\<\>?,.]{6,16}$/;
+
+			return reg.test(value)
+		}, msg: '密码长度为6-16个字符,只能是a-Z0-9及常用符号'
+		},
+		{type: "fn", validator: function(value){
 			  p=value;
 			  return true;
 		}, msg: ''
@@ -316,7 +327,13 @@ var configFormData = {
 	"repassword": [
 		{type: "required", msg: "确认密码不能为空"},
 		{type: "fn", validator: function(value){
-			if(p!=value) {
+			var reg = /^[A-Za-z0-9~!@#$%^&*()\\-_=+{}\[\]:\"|;'\<\>?,.]{6,16}$/;
+
+			return reg.test(value)
+		}, msg: '密码长度为6-16个字符,只能是a-Z0-9及常用符号'
+		},
+		{type: "fn", validator: function(value){
+			if(p!==value) {
 
 				return false;
 			}else return true;
@@ -357,7 +374,7 @@ module.exports = React.createClass({displayName: "module.exports",
 			$.post("account/upPassword",
 				$('#saveForm').serialize(),
 				function (result) {
-					if (result && result.retcode && result.retcode == "0") {
+					if (result && result.retcode && result.retcode === "0") {
 						UcsmyIndex.alert("提示", result.retmsg);
 						UcsmyIndex.closeChildrenPage();
 						me.state.callback();
@@ -365,21 +382,20 @@ module.exports = React.createClass({displayName: "module.exports",
 						UcsmyIndex.alert("提示",result.retmsg);
 					}
 					_removeButtonDisabled('save');
-				}).error(function(xhr, errorText, errorType){
+				}).error(function(){
 				UcsmyIndex.alert("失败", "网络异常");
 				_removeButtonDisabled('save');
 			});
 		});
 	},
 	init: function (data) {
-		var me = this;
+
 		this.setState({
 			title: '密码修改',
 			ucasAccount: data
 		});
-		// this.refs.saveForm.setValues(data);
 	},
-	_return: function (event) {
+	_return: function () {
 		UcsmyIndex.closeChildrenPage();
 	},
 	render: function () {
@@ -387,6 +403,10 @@ module.exports = React.createClass({displayName: "module.exports",
 			React.createElement("div", null, 
 			React.createElement("div", {className: "panel"}, 
 			React.createElement("div", {className: "panel-title fc-red"}, this.state.title), 
+				React.createElement("div", {className: "ucs-form-group"}, 
+					React.createElement("span", {className: "label"}, "网金帐号："), 
+					React.createElement("span", null, this.state.ucasAccount.ucasAccount)
+				), 
 		React.createElement("div", {className: "panel-content"}, 
 			React.createElement(Form, {ref: "saveForm", formData: configFormData, id: "saveForm"}, 
 			React.createElement("input", {type: "hidden", name: "ucasAccount", value: this.state.ucasAccount.ucasAccount}), 
@@ -455,7 +475,7 @@ module.exports = React.createClass({displayName: "module.exports",
 			$.post("account/upPhone",
 				$('#saveForm').serialize(),
 				function (result) {
-					if (result && result.retcode && result.retcode == "0") {
+					if (result && result.retcode && result.retcode === "0") {
 						UcsmyIndex.alert("提示", result.retmsg);
 						UcsmyIndex.closeChildrenPage();
 						me.state.callback();
@@ -463,22 +483,20 @@ module.exports = React.createClass({displayName: "module.exports",
 						UcsmyIndex.alert("提示",result.retmsg);
 					}
 					_removeButtonDisabled('save');
-				}).error(function(xhr, errorText, errorType){
+				}).error(function(){
 				UcsmyIndex.alert("失败", "网络异常");
 				   _removeButtonDisabled('save');
 			});
 		});
 	},
 	init: function (data,callback) {
-		var me = this;
 		this.setState({
 			title: '手机帐号修改',
 			ucasAccount: data,
 			callback: callback
 		});
-		// this.refs.saveForm.setValues(data);
 	},
-	_return: function (event) {
+	_return: function () {
 		UcsmyIndex.closeChildrenPage();
 	},
 	render: function () {
@@ -486,6 +504,10 @@ module.exports = React.createClass({displayName: "module.exports",
 			React.createElement("div", null, 
 			React.createElement("div", {className: "panel"}, 
 			React.createElement("div", {className: "panel-title fc-red"}, this.state.title), 
+				React.createElement("div", {className: "ucs-form-group"}, 
+					React.createElement("span", {className: "label"}, "网金帐号："), 
+					React.createElement("span", null, this.state.ucasAccount.ucasAccount)
+				), 
 		React.createElement("div", {className: "panel-content"}, 
 			React.createElement(Form, {ref: "saveForm", formData: configFormData, id: "saveForm"}, 
 			React.createElement("input", {type: "hidden", name: "ucasAccount", value: this.state.ucasAccount.ucasAccount}), 
@@ -526,11 +548,12 @@ var configFormData = {
         {type: "mobile", msg: "手机格式不对"}
     ],
     "email": [
+        {type : "maxlength", maxlength : 35, msg : "邮箱长度不能超过35"},
         {type: "mail", msg: "邮箱格式不对"}
     ],
     "ucasAccount": [
         {type: "fn", validator: function(value){
-            if(""!=value) {
+            if(""!==value) {
                 var m =/^\d{8}$/;
 
                 return m.test(value);
@@ -541,8 +564,7 @@ var configFormData = {
     "accgUuid": [
         {type: "required", msg: "用户组必须选择"},
         {type: "fn", validator: function(value){
-            console.log(value)
-            if("-1"==value) {
+            if("-1"===value) {
                 return false;
             }else return true;
         }, msg: '用户组必须选择'
@@ -550,7 +572,10 @@ var configFormData = {
     ],
     "orgName": [
         {type: "required", msg: "组织名称必须填写"},
-        {type : "maxlength", maxlength : 8, msg : "组织名称长度为100"}
+        {type : "maxlength", maxlength : 100, msg : "组织名称长度为100"}
+    ],
+    "headImgUrl":[
+        {type:"maxlength", maxlength:100, msg : "头像地址长度不能超过100"}
     ]
 };
 
@@ -570,7 +595,7 @@ module.exports = React.createClass({displayName: "module.exports",
     componentDidMount: function() {
         var me = this;
         $.post("accountGroup/getAll", {}, function(data) {
-            if(data.retmsg != 'success') {
+            if(data.retmsg !== 'success') {
                 return;
             }
 
@@ -578,14 +603,16 @@ module.exports = React.createClass({displayName: "module.exports",
                 data: data.data,
                 urgentFlag:data.data
             });
-        }, "json").error(function(xhr, errorText, errorType){
+        }, "json").error(function(){
+            UcsmyIndex.alert("失败", "网络异常");
         });
     },
     _validate: function (callback) {
         var status = false;
         var validateField = [
             "realName",
-            "mobilePhone","email","accgUuid","ucasAccount","orgName"
+            "mobilePhone","email","accgUuid","ucasAccount","orgName",
+            "headImgUrl"
         ];
         var fn = function (result) {
             if(result) {
@@ -605,7 +632,7 @@ module.exports = React.createClass({displayName: "module.exports",
             $.post(me.state.url,
                 $('#saveForm').serialize(),
                 function (result) {
-                    if (result && result.retcode=='0') {
+                    if (result && result.retcode==='0') {
                         UcsmyIndex.alert("提示", result.retmsg);
                         UcsmyIndex.closeChildrenPage();
                         me.state.callback();
@@ -613,7 +640,7 @@ module.exports = React.createClass({displayName: "module.exports",
                         UcsmyIndex.alert("提示", result.retmsg);
                     }
                     _removeButtonDisabled('save');
-                }).error(function(xhr, errorText, errorType){
+                }).error(function(){
                 UcsmyIndex.alert("失败", "网络异常");
                 _removeButtonDisabled('save');
             });
@@ -625,11 +652,11 @@ module.exports = React.createClass({displayName: "module.exports",
         $.post("account/getUser",
             {'ucasAccount':data.ucasAccount},
             function (result) {
-                if (result && result.retcode && result.retcode == "0") {
-                  var sta = "正常"
-                    if(result.data.status==null || result.data.status=='' || result.data.status=='0')
+                if (result && result.retcode && result.retcode === "0") {
+                  var sta;
+                    if(result.data.status===null || result.data.status==='' || result.data.status==='0')
                         sta='正常';
-                    else if(result.data.status='1')
+                    else if(result.data.status==='1')
                         sta='冻结';
                     else
                         sta='删除';
@@ -644,10 +671,9 @@ module.exports = React.createClass({displayName: "module.exports",
                 } else {
                     UcsmyIndex.alert("提示", result.retmsg);
                 }
-            }).error(function(xhr, errorText, errorType){
+            }).error(function(){
             UcsmyIndex.alert("失败", "网络异常");
         });
-        // this.refs.saveForm.setValues(data);
     },
     _return: function (event) {
         UcsmyIndex.closeChildrenPage();
@@ -677,7 +703,7 @@ module.exports = React.createClass({displayName: "module.exports",
         )
         ), 
         React.createElement(FormItem, {label: "用户组"}, 
-            React.createElement(SelectDropDown, {name: "accgUuid", option: that.state.urgentFlag, value: that.state.ucasAccountGroup.userAccg, className: "setwidth", ref: "urgentFlag"})
+            React.createElement(SelectDropDown, {name: "accgUuid", option: that.state.urgentFlag, showNum: "8", value: that.state.ucasAccountGroup.userAccg, className: "setwidth", ref: "urgentFlag"})
          )
         )
         )
@@ -711,6 +737,7 @@ var configFormData = {
         {type : "maxlength", maxlength : 50, msg : "用户名称长度不能超过50"}
     ],
     "emailAccount": [
+        {type : "maxlength", maxlength : 35, msg : "邮箱长度不能超过35"},
         {type: "mail", msg: "邮箱地址不对"}
     ],
     "mobileAccount": [
@@ -718,29 +745,34 @@ var configFormData = {
     ],
     "password": [
         {type: "required", msg: "密码不能为空"},
-        {type : "maxlength", maxlength : 25, msg : "密码长度不能超过50"}
+        {type: "fn", validator: function(value){
+            var reg = /^[A-Za-z0-9~!@#$%^&*()\\-_=+{}\[\]:\"|;'\<\>?,.]{6,16}$/;
+
+            return reg.test(value)
+        }, msg: '密码长度为6-16个字符,只能是a-Z0-9及常用符号'
+        }
     ],
     "mobilePhone": [
         {type: "mobile", msg: "手机格式不对"}
     ],
     "email": [
-        {type: "mail", msg: "手机格式不对"}
+        {type : "maxlength", maxlength : 35, msg : "邮箱长度不能超过35"},
+        {type: "mail", msg: "邮箱地址不对"}
     ],
     "ucasAccount": [
         {type: "fn", validator: function(value){
-            if(""!=value) {
-            var m =/^\d{8}$/;
+            if(""!==value) {
+            var m =/^\d{1,7}$/;
 
                 return m.test(value);
             }else return true;
-        }, msg: '网金帐号为8位数字'
+        }, msg: '输入的网金帐号为1到7位数字'
         }
     ],
     "accgUuid": [
         {type: "required", msg: "用户组必须选择"},
         {type: "fn", validator: function(value){
-            console.log(value)
-            if("-1"==value) {
+            if("-1"===value) {
                 return false;
             }else return true;
         }, msg: '用户组必须选择'
@@ -748,7 +780,10 @@ var configFormData = {
     ],
     "orgName": [
         {type: "required", msg: "组织名称必须填写"},
-        {type : "maxlength", maxlength : 8, msg : "组织名称长度为100"}
+        {type : "maxlength", maxlength : 100, msg : "组织名称长度为100"}
+    ],
+    "headImgUrl":[
+        {type:"maxlength", maxlength:100, msg : "头像地址长度不能超过100"}
     ]
 };
 
@@ -767,7 +802,7 @@ module.exports = React.createClass({displayName: "module.exports",
     componentDidMount: function() {
         var me = this;
         $.post("accountGroup/getAll", {}, function(data) {
-            if(data.retmsg != 'success') {
+            if(data.retmsg !== 'success') {
                 return;
             }
 
@@ -775,14 +810,16 @@ module.exports = React.createClass({displayName: "module.exports",
                 data: data.data,
                 urgentFlag:data.data
             });
-        }, "json").error(function(xhr, errorText, errorType){
+        }, "json").error(function(){
+            UcsmyIndex.alert("失败", "网络异常");
         });
     },
     _validate: function (callback) {
         var status = false;
         var validateField = [
             "realName", "emailAccount","mobileAccount","password",
-            "mobilePhone","email","accgUuid","ucasAccount","orgName"
+            "mobilePhone","email","accgUuid","ucasAccount","orgName",
+            "headImgUrl"
         ];
         var fn = function (result) {
             if(result) {
@@ -802,7 +839,7 @@ module.exports = React.createClass({displayName: "module.exports",
             $.post(me.state.url,
                 $('#saveForm').serialize(),
                 function (result) {
-                    if (result && result.retcode=='0') {
+                    if (result && result.retcode==='0') {
                         UcsmyIndex.alert("提示", result.retmsg);
                         UcsmyIndex.closeChildrenPage();
                         me.state.callback();
@@ -810,23 +847,21 @@ module.exports = React.createClass({displayName: "module.exports",
                         UcsmyIndex.alert("提示", result.retmsg);
                     }
                     _removeButtonDisabled('save');
-                }).error(function(xhr, errorText, errorType){
+                }).error(function(){
                 UcsmyIndex.alert("失败", "网络异常");
                    _removeButtonDisabled('save');
             });
         });
     },
     init: function (url, title, data, callback) {
-        var me = this;
         this.setState({
             title: title,
             url: url,
             ucasAccountGroup: data,
             callback: callback,
         });
-        // this.refs.saveForm.setValues(data);
     },
-    _return: function (event) {
+    _return: function () {
         UcsmyIndex.closeChildrenPage();
     },
     render: function () {
@@ -854,7 +889,7 @@ module.exports = React.createClass({displayName: "module.exports",
         )
         ), 
         React.createElement(FormItem, {label: "用户组"}, 
-            React.createElement(SelectDropDown, {name: "accgUuid", option: that.state.urgentFlag, value: that.state.data, className: "setwidth", ref: "urgentFlag"})
+            React.createElement(SelectDropDown, {name: "accgUuid", option: that.state.urgentFlag, showNum: "8", value: that.state.data, className: "setwidth", ref: "urgentFlag"})
          )
         )
         )
@@ -873,7 +908,6 @@ module.exports = React.createClass({displayName: "module.exports",
 /***/ 2:
 /***/ (function(module, exports) {
 
-//var FormItem = UcsmyUI.FormItem;
 var Form = UcsmyUI.Form;
 var FormItem = Form.FormItem;
 
@@ -906,7 +940,6 @@ var MyForm = React.createClass({displayName: "MyForm",
         return value;
     },
     isValid: function(retFn, validateField) {
-        var me = this;
         var fn = function (b) {
             retFn ? retFn(b) : "";
         };
@@ -975,7 +1008,7 @@ var MyForm = React.createClass({displayName: "MyForm",
         if(data.v_minlength !== undefined)
             rules.push({type: "rule", rule: "/[\\s\\S]{" + data.v_minlength + ",}/", msg: data.itemText + "最小长度是：" + data.v_minlength});
         if(data.rules && data.rules.length > 0)
-            rules.push(...data.rules);
+        $.merge(rules,data.rules);
 
         return rules;
     },
@@ -1047,7 +1080,7 @@ module.exports = PermissionButton;
 
 
 var Button = UcsmyUI.Button;
-
+var Tooltip=UcsmyUI.Tooltip;
 
 module.exports = React.createClass({displayName: "module.exports",
     getInitialState: function () {
@@ -1068,7 +1101,7 @@ module.exports = React.createClass({displayName: "module.exports",
         $.post("account/getUser",
             {'ucasAccount':data.ucasAccount},
             function (result) {
-                if (result && result.retcode && result.retcode == "0") {
+                if (result && result.retcode && result.retcode === "0") {
                     me.setState({
                         title: title,
                         url: url,
@@ -1079,16 +1112,14 @@ module.exports = React.createClass({displayName: "module.exports",
                 } else {
                     UcsmyIndex.alert("提示", result.retmsg);
                 }
-            }).error(function(xhr, errorText, errorType){
+            }).error(function(){
             UcsmyIndex.alert("失败", "网络异常");
         });
-        // this.refs.saveForm.setValues(data);
     },
-    _return: function (event) {
+    _return: function () {
         UcsmyIndex.closeChildrenPage();
     },
     render: function () {
-        var that = this;
         return (
             React.createElement("div", null, 
             React.createElement("div", {className: "panel"}, 
@@ -1119,25 +1150,27 @@ module.exports = React.createClass({displayName: "module.exports",
             React.createElement("span", {className: "label"}, "联系邮箱："), 
         React.createElement("span", null, this.state.ucasAccountGroup.email)
         ), 
-        React.createElement("div", {className: "ucs-form-group"}, 
-            React.createElement("span", {className: "label"}, "头像地址："), 
-        React.createElement("span", null, this.state.ucasAccountGroup.headImgUrl)
-        ), 
-        React.createElement("div", {className: "ucs-form-group"}, 
-            React.createElement("span", {className: "label"}, "组织名称："), 
-        React.createElement("span", null, this.state.ucasAccountGroup.orgName)
-        ), 
+
+             /*        <div className="ucs-form-group">
+            <span className="label">组织名称：</span>
+        <span>{this.state.ucasAccountGroup.orgName}</span>
+        </div>*/
         React.createElement("div", {className: "ucs-form-group"}, 
             React.createElement("span", {className: "label"}, "状态："), 
-        React.createElement("span", null, this.state.ucasAccountGroup.status=='0' ? '正常':'冻结')
+        React.createElement("span", null, this.state.ucasAccountGroup.status==='0' ? '正常':'冻结')
         ), 
         React.createElement("div", {className: "ucs-form-group"}, 
             React.createElement("span", {className: "label"}, "组织名称："), 
-        React.createElement("span", null, this.state.ucasAccountGroup.orgName)
+            /*<span>{this.state.ucasAccountGroup.orgName}</span>*/
+            React.createElement("div", {className: "custom-tooltip"}, 
+                React.createElement(Tooltip, {title: this.state.ucasAccountGroup.orgName}, 
+                    this.state.ucasAccountGroup.orgName
+                )
+            )
         ), 
         React.createElement("div", {className: "ucs-form-group"}, 
             React.createElement("span", {className: "label"}, "性别："), 
-        React.createElement("span", null, this.state.ucasAccountGroup.sex=='1' ? '男' : '女')
+        React.createElement("span", null, this.state.ucasAccountGroup.sex==='1' ? '男' : '女')
         ), 
         React.createElement("div", {className: "ucs-form-group"}, 
             React.createElement("span", {className: "label"}, "用户组："), 
@@ -1145,8 +1178,16 @@ module.exports = React.createClass({displayName: "module.exports",
         ), 
         React.createElement("div", {className: "ucs-form-group"}, 
             React.createElement("span", {className: "label"}, "指纹标识："), 
-        React.createElement("span", null, this.state.ucasAccountGroup.fingerprint=='1' ? '有':'无')
-        )
+        React.createElement("span", null, this.state.ucasAccountGroup.fingerprint==='1' ? '有':'无')
+        ), 
+             React.createElement("div", {className: "ucs-form-group"}, 
+                 React.createElement("span", {className: "label"}, "头像地址："), 
+                 React.createElement("div", {className: "custom-tooltip"}, 
+                     React.createElement(Tooltip, {title: this.state.ucasAccountGroup.headImgUrl}, 
+                         this.state.ucasAccountGroup.headImgUrl
+                     )
+                 )
+             )
         )
         ), 
         React.createElement("div", {className: "btn-panel"}, 
@@ -1160,7 +1201,7 @@ module.exports = React.createClass({displayName: "module.exports",
 
 /***/ }),
 
-/***/ 52:
+/***/ 53:
 /***/ (function(module, exports, __webpack_require__) {
 
 var Input = UcsmyUI.Input;
@@ -1203,11 +1244,11 @@ myPanel = React.createClass({displayName: "myPanel",
 				data: data.data,
 				urgentFlag:data.data
 			});
-		}, "json").error(function(xhr, errorText, errorType){
+		}, "json").error(function(){
+			UcsmyIndex.alert("失败","系统异常");
 		});
 	},
     _query: function() {
-		{/*this.refs.grid.load(this.refs.queryForm.getValues());*/}
 
 		this.refs.grid.load({
 			ucasAccount: this.refs.ucasAccount.getValue(),
@@ -1224,44 +1265,43 @@ myPanel = React.createClass({displayName: "myPanel",
     	UcsmyIndex.openChildrenPage(UserForm, function(refPanel) {
     		refPanel.init('account/addUser','新增帐号',  {gender: "1"}, function(){
     			me.refs.grid.load();
-				//me._reload();
     		});
     	});
 
     },
-	_freeze:function(column,event)
+	_freeze:function(column)
 	{
 		var me = this;
 		UcsmyIndex.confirm("确定", "你真的要冻结该用户吗？", function() {
 			$.post("account/freeze", {ucasAccount: column.ucasAccount}, function(data) {
-				if(data.retcode == 0) {
+				if(data.retcode === '0') {
 					UcsmyIndex.alert("成功", data.retmsg);
 					me.refs.grid.reload();
 				} else {
 					UcsmyIndex.alert("失败", data.retmsg);
 				}
-			}, "json").error(function(xhr, errorText, errorType){
+			}, "json").error(function(){
 				UcsmyIndex.alert("失败", "网络异常");
 			});
 		});
 	},
-	_unfreeze:function(column,event)
+	_unfreeze:function(column)
 	{
 		var me = this;
 		UcsmyIndex.confirm("确定", "你真的要解冻该用户吗？", function() {
 			$.post("account/unfreeze", {ucasAccount: column.ucasAccount}, function(data) {
-				if(data.retcode == 0) {
+				if(data.retcode === '0') {
 					UcsmyIndex.alert("成功", data.retmsg);
 					me.refs.grid.reload();
 				} else {
 					UcsmyIndex.alert("失败", data.retmsg);
 				}
-			}, "json").error(function(xhr, errorText, errorType){
+			}, "json").error(function(){
 				UcsmyIndex.alert("失败", "网络异常");
 			});
 		});
 	},
-	_mod_email:function(column,event)
+	_mod_email:function(column)
 	{
 		var me = this;
 		UcsmyIndex.openChildrenPage(EmailForm, function(refPanel) {
@@ -1270,7 +1310,7 @@ myPanel = React.createClass({displayName: "myPanel",
 			});
 		});
 	},
-	_mod_mobile:function(column,event)
+	_mod_mobile:function(column)
 	{
 		var me = this;
 		UcsmyIndex.openChildrenPage(PhoneForm, function(refPanel) {
@@ -1279,32 +1319,29 @@ myPanel = React.createClass({displayName: "myPanel",
 			});
 		});
 	},
-    _update: function(column, event) {
+    _update: function(column) {
 		var me = this;
 		UcsmyIndex.openChildrenPage(UpdateuserDetailForm, function(refPanel) {
 			refPanel.init('account/upInfo','修改基本信息',  column, function(){
-				//me.refs.grid.load();
 				me.refs.grid.reload();
 			});
 		});
     },
-    _updatePassword: function(column, event) {
-    	var me = this;
+    _updatePassword: function(column) {
     	UcsmyIndex.openChildrenPage(PasswordForm, function(refPanel) {
     		refPanel.init(column);
     	});
     },
-	_detail:function(column, event) //基本信息
+	_detail:function(column) //基本信息
 	{
 		var me = this;
 		UcsmyIndex.openChildrenPage(UserDetailForm, function(refPanel) {
 			refPanel.init('account/upInfo','修改基本信息',  column, function(){
-				//me.refs.grid.load();
 				me.refs.grid.reload();
 			});
 		});
 	},
-    _delete: function(column, event) {
+    _delete: function(column) {
     	var me = this;
 		UcsmyIndex.confirm("确定", "你真的要删除该用户吗？", function() {
 			$.post("account/delete", {ucasAccount: column.ucasAccount}, function(data) {
@@ -1314,7 +1351,7 @@ myPanel = React.createClass({displayName: "myPanel",
 				} else {
 					UcsmyIndex.alert("失败", data.retmsg);
 				}
-			}, "json").error(function(xhr, errorText, errorType){
+			}, "json").error(function(){
 				UcsmyIndex.alert("失败", "网络异常");
 		    });
 		});
@@ -1323,7 +1360,7 @@ myPanel = React.createClass({displayName: "myPanel",
 		var me = this;
 		return (
 			React.createElement("div", null, 
-			     React.createElement("h2", {className: "content-title"}, "用户管理"), 
+			     React.createElement("h2", {className: "content-title"}, "帐号管理"), 
 			    React.createElement("div", {className: "panel"}, 
 			            React.createElement("div", {className: "panel-title"}, "查询条件"), 
 						React.createElement("div", {className: "panel-content"}, 
@@ -1335,7 +1372,7 @@ myPanel = React.createClass({displayName: "myPanel",
 							  React.createElement(SelectDropDown, {ref: "sta", defaultText: "请选择", defaultValue: "", option: option, searchPlaceholder: "请选择"})
 							), 
 							React.createElement(FormItem, {label: "用户组"}, 
-								React.createElement(SelectDropDown, {ref: "accgUuid", defaultText: "请选择", defaultValue: "", option: me.state.urgentFlag})
+								React.createElement(SelectDropDown, {ref: "accgUuid", name: "select", defaultText: "请选择", showNum: "8", defaultValue: "", option: me.state.urgentFlag})
 
 							)
 					    )
@@ -1370,7 +1407,7 @@ myPanel = React.createClass({displayName: "myPanel",
 		                     , {
           						name: 'status', header: '状态',width: 30, content:function(column){
          				    		 return (React.createElement("span", null, 
-        				    		 	column.status == '0' ? '正常' : '冻结'
+        				    		 	column.status === '0' ? '正常' : '冻结'
         				    		 ))
         						}
           					}, {

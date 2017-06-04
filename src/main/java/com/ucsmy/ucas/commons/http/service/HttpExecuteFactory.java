@@ -42,28 +42,25 @@ public abstract class HttpExecuteFactory {
      */
     private   String sendHttpPost(HttpPost httpPost,boolean isHttps) throws IOException {
 
-        CloseableHttpClient httpClient = null;
+        CloseableHttpClient httpClient ;
 
         // 创建默认的httpClient实例.
         if(isHttps)
             httpClient = httpConnectionManager.getHttpsClient();
         else
             httpClient = httpConnectionManager.getHttpClient();
-
-        CloseableHttpResponse response = null;
+        // 执行请求
+        CloseableHttpResponse response = httpClient.execute(httpPost);
         // 响应内容
         String responseContent = null;
-//        try {
-        // 执行请求
-        response = httpClient.execute(httpPost);
+
         // 得到响应实例
         HttpEntity entity = response.getEntity();
         if (HttpStatus.SC_OK == response.getStatusLine().getStatusCode()) {
             responseContent = EntityUtils.toString(entity, CHARSET_UTF_8);
             EntityUtils.consume(entity);
         }
-        if(null!=response)
-            response.close();
+        response.close();
 
         return responseContent;
     }
@@ -78,8 +75,8 @@ public abstract class HttpExecuteFactory {
      */
      private   String sendHttpGet(HttpGet httpGet,boolean isHttps) throws IOException {
 
-        CloseableHttpClient httpClient = null;
-        CloseableHttpResponse response = null;
+        CloseableHttpClient httpClient;
+        CloseableHttpResponse response ;
         // 响应内容
         String responseContent = null;
 
@@ -98,9 +95,7 @@ public abstract class HttpExecuteFactory {
             EntityUtils.consume(entity);
         }
         // 释放资源
-        if (response != null) {
             response.close();
-        }
 
 
         return responseContent;
@@ -148,8 +143,7 @@ public abstract class HttpExecuteFactory {
     {
         if(url.startsWith("https"))
             return true;
-        else
-            return false;
+        return false;
     }
 
 

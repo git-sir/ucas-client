@@ -5,13 +5,13 @@ import com.ucsmy.ucas.manage.entity.ManageRole;
 import com.ucsmy.ucas.manage.entity.ManageUserAccount;
 import com.ucsmy.ucas.manage.entity.ManageUserProfile;
 
-import java.util.HashMap;
+import java.util.Map;
 
 public interface ManageUserAccountService {
 
 	ManageUserAccount findByUserName(String userName);
 
-	ManageUserAccount queryUserAccount(HashMap<String, Object> map);
+	ManageUserAccount queryUserAccount(Map<String, Object> map);
 
 	ManageUserAccount queryUserAccountByUserId(String userId);
 

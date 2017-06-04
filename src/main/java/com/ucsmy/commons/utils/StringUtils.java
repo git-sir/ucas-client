@@ -66,7 +66,7 @@ public class StringUtils extends org.springframework.util.StringUtils {
      */
     public static String getRandom(int length){
         Random random = new Random();
-        StringBuffer str = new StringBuffer("");
+        StringBuilder str = new StringBuilder("");
         for (int i = 0; i < length; i++){
             str.append(charlist.charAt(random.nextInt(charlist.length())));
         }

@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.ucsmy.commons.utils.StringUtils;
 import com.ucsmy.commons.utils.UUIDGenerator;
+import com.ucsmy.ucas.config.shiro.ShiroRealmImpl;
+import com.ucsmy.ucas.config.shiro.ShiroUtils;
 import com.ucsmy.ucas.manage.entity.ManageLogInfo;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
@@ -13,6 +15,7 @@ import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.type.TypeHandlerRegistry;
 import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.ThreadContext;
 import org.aspectj.lang.Signature;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -31,9 +34,30 @@ import java.util.*;
  */
 public class LogCommUtil {
 
+    private final static org.apache.logging.log4j.Logger log = LogManager.getLogger();
+
     // mybatis Executor里对查询和增删改操作的方法名称
     private static final String METHOD_QUERY = "query";
     private static final String METHOD_UPDATE = "update";
+    // Log输出的信息标题
+    public static final String OPERATE_METHOD = "【操作方法】";
+    public static final String OPERATE_NAME = "【操作名称】";
+    public static final String OPERATE_TYPE = "【操作类型】";
+    public static final String IP_INFO = "【IP信息】";
+    public static final String USER_INFO = "【操作员信息】";
+    public static final String LOG_SQL = "【执行SQL】";
+
+    // local variable
+    private static final String UNKNOWN = "unknown";
+    private static final String LOCAL_HOST = "127.0.0.1";
+
+    // database custom column
+    public static final String COL_IP_ADDRESS = "ip_address";
+    public static final String COL_USER_ID = "user_id";
+    public static final String COL_USER_NAME = "user_name";
+    public static final String MSG_IP_ADDRESS = "ipAddress";
+    public static final String MSG_USER_ID = "userId";
+    public static final String MSG_USER_NAME = "userName";
 
     /**
      * 系统换行符
@@ -60,8 +84,49 @@ public class LogCommUtil {
      */
     private static final String PATH_BEGIN = "com.";
 
+    private LogCommUtil()
+    {
+
+    }
+
     /**
-     * 获取当前请求的sessionId <br>
+     * 生成ThreadContext里的 是否输出SQL信息 这条信息对应的KEY值
+     * @param serviceSessionId
+     * @return
+     */
+    public static String getSQLOutputKey(String serviceSessionId) {
+        return serviceSessionId + "SQLOutput";
+    }
+
+    /**
+     * 生成ThreadContext里的 是否输出到数据库 这条信息对应的KEY值
+     * @param serviceSessionId
+     * @return
+     */
+    public static String getDBOutputKey(String serviceSessionId) {
+        return serviceSessionId + "DBOutput";
+    }
+
+    /**
+     * 生成ThreadContext里的 是否输出返回值 这条信息对应的KEY值
+     * @param serviceSessionId
+     * @return
+     */
+    public static String getPrintOutputKey(String serviceSessionId) {
+        return serviceSessionId + "printOutput";
+    }
+
+    /**
+     * 生成ThreadContext里的 LogSQL信息 这条信息对应的KEY值
+     * @param serviceSessionId
+     * @return
+     */
+    public static String getLogSQLKey(String serviceSessionId) {
+        return serviceSessionId + "LogSQL";
+    }
+
+    /**
+     * 获取当前请求的ServiceSessionId <br>
      * 2017/5/18 修改：在一个Service方法里调用多次其他层有日志输出的service，需要记录对列编号
      * @return
      */
@@ -69,15 +134,31 @@ public class LogCommUtil {
         String sessionId = getRequestSessionId();
         String idList = ThreadContext.get(sessionId + "List");
         if (StringUtils.isEmpty(idList)) {
+            return null;
+        } else {
+            String[] ids = idList.split(PARAM_SPILT);
+            Integer maxId = Integer.parseInt(ids[ids.length - 1]);
+            return sessionId + "no" + maxId;
+        }
+    }
+
+    /**
+     * 获取新的ServiceSessionId
+     * @return
+     */
+    public static String getNewServiceSessionId() {
+        String sessionId = getRequestSessionId();
+        String idList = ThreadContext.get(sessionId + "List");
+        if (StringUtils.isEmpty(idList)) {
             idList = "0";
-            ThreadContext.put(sessionId + "List", idList);
+            ThreadContext.put(getSessionIdListKey(sessionId), idList);
             return sessionId + "no" + "0";
         } else {
             String[] ids = idList.split(PARAM_SPILT);
             Integer maxId = Integer.parseInt(ids[ids.length - 1]);
             Integer id = maxId + 1;
             idList = idList + "," + id;
-            ThreadContext.put(sessionId + "List", idList);
+            ThreadContext.put(getSessionIdListKey(sessionId), idList);
             return sessionId + "no" + id;
         }
     }
@@ -100,25 +181,26 @@ public class LogCommUtil {
     }
 
     /**
-     * 清除上下文中sessionId相关信息
-     * @param sessionId
+     * 清除上下文中serviceSessionId相关信息
+     * @param serviceSessionId
      */
-    public static void removeThreadContext(String sessionId) {
-        ThreadContext.remove(sessionId);
-        ThreadContext.remove(sessionId + "SQL");
-        String requestSessionId = getRequestSessionId();
-        String idList = ThreadContext.get(requestSessionId + "List");
+    public static void removeThreadContext(String serviceSessionId) {
+        // TODO
+        ThreadContext.remove(serviceSessionId);
+        ThreadContext.remove(getSQLOutputKey(serviceSessionId));
+        ThreadContext.remove(getDBOutputKey(serviceSessionId));
+        ThreadContext.remove(getPrintOutputKey(serviceSessionId));
+        ThreadContext.remove(getLogSQLKey(serviceSessionId));
+
+        String sessionId = getRequestSessionId();
+        String idList = ThreadContext.get(getSessionIdListKey(sessionId));
         if (StringUtils.isNotEmpty(idList)) {
             String[] ids = idList.split(PARAM_SPILT);
-            int index = 0;
             for (int i = 0; i < ids.length; i++) {
-                if (ids[i].equals(sessionId)) {
-                    index = i;
+                if (ids[i].equals(serviceSessionId)) {
+                    System.arraycopy(ids, i + 1, ids, i, ids.length - i);
                     break;
                 }
-            }
-            for (int i = index; i < ids.length - 1; i++) {
-                ids[i] = ids[i + 1];
             }
             if (ids.length > 0) {
                 StringBuilder modifyIds = new StringBuilder();
@@ -129,9 +211,9 @@ public class LogCommUtil {
                         modifyIds.append(id);
                     }
                 }
-                ThreadContext.put(sessionId + "List", modifyIds.toString());
+                ThreadContext.put(getSessionIdListKey(sessionId), modifyIds.toString());
             } else {
-                ThreadContext.remove(sessionId + "List");
+                ThreadContext.remove(getSessionIdListKey(sessionId));
             }
         }
     }
@@ -201,11 +283,10 @@ public class LogCommUtil {
      */
     public static String getUserInfo() {
         JSONObject userJson = new JSONObject();
-        if (StringUtils.isNotEmpty(ThreadContext.get("userId"))) {
-            userJson.put("userId", ThreadContext.get("userId"));
-        }
-        if (StringUtils.isNotEmpty(ThreadContext.get("userName"))) {
-            userJson.put("userId", ThreadContext.get("userName"));
+        ShiroRealmImpl.LoginUser user = ShiroUtils.getContextUser();
+        if (user != null) {
+            userJson.put(MSG_USER_ID, user.getId());
+            userJson.put(MSG_USER_NAME, user.getUserName());
         }
         return userJson.toJSONString();
     }
@@ -215,23 +296,23 @@ public class LogCommUtil {
      * @return
      */
     public static String getIpAddress() {
-        if (StringUtils.isNotEmpty(ThreadContext.get("ipAddress"))) {
-            return ThreadContext.get("ipAddress");
-        }
+//        if (StringUtils.isNotEmpty(ThreadContext.get("ipAddress"))) {
+//            return ThreadContext.get("ipAddress");
+//        }
         Object requestAttributes = RequestContextHolder.getRequestAttributes();
         if (requestAttributes != null) {
             HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
             String ipAddress = request.getHeader("x-forwarded-for");
-            if(ipAddress == null || ipAddress.length() == 0 || "unknown".equalsIgnoreCase(ipAddress)) {
+            if(ipAddress == null || ipAddress.length() == 0 || UNKNOWN.equalsIgnoreCase(ipAddress)) {
                 ipAddress = request.getHeader("Proxy-Client-IP");
             }
-            if(ipAddress == null || ipAddress.length() == 0 || "unknown".equalsIgnoreCase(ipAddress)) {
+            if(ipAddress == null || ipAddress.length() == 0 || UNKNOWN.equalsIgnoreCase(ipAddress)) {
                 ipAddress = request.getHeader("WL-Proxy-Client-IP");
             }
-            if(ipAddress == null || ipAddress.length() == 0 || "unknown".equalsIgnoreCase(ipAddress)) {
+            if(ipAddress == null || ipAddress.length() == 0 || UNKNOWN.equalsIgnoreCase(ipAddress)) {
                 ipAddress = request.getRemoteAddr();
             }
-            if ("127.0.0.1".equals(ipAddress)) {
+            if (LOCAL_HOST.equals(ipAddress)) {
                 try {
                     ipAddress = InetAddress.getLocalHost().getHostAddress();
                 } catch (UnknownHostException e) {
@@ -250,21 +331,19 @@ public class LogCommUtil {
      */
     public static ManageLogInfo getManageLogInfo(String info) {
         // 过滤info信息
-        int ipInfo = info.indexOf("【IP信息】");
-        int userInfo = info.indexOf("【操作员信息】");
-        info = info.replaceAll("【IP信息】.*[\\t\\n\\r]", "");
-        info = info.replaceAll("【操作员信息】.*[\\t\\n\\r]", "");
+        info = info.replaceAll(IP_INFO + ".*[\\t\\n\\r]", "");
+        info = info.replaceAll(USER_INFO + ".*[\\t\\n\\r]", "");
         info = info.replaceAll("[\t\n\r]", "");
-        if (info.length() > 255) {
-            info = info.substring(0, 255);
-        }
         ManageLogInfo logInfo = new ManageLogInfo();
         // TODO 现在只是随便生成一个ID，之后重写LogEventFactory给每个LogEvent生成一个EVENT_ID
         logInfo.setId(UUIDGenerator.generate());
         logInfo.setCreateTime(new Date());
         logInfo.setIpAddress(getIpAddress());
-        logInfo.setUserId(ThreadContext.get("userId"));
-        logInfo.setUserName(ThreadContext.get("userName"));
+        ShiroRealmImpl.LoginUser user = ShiroUtils.getContextUser();
+        if (user != null) {
+            logInfo.setUserId(user.getId());
+            logInfo.setUserName(user.getUserName());
+        }
         logInfo.setLogLevel(Level.INFO.toString());
         logInfo.setMessage(info);
         return logInfo;
@@ -278,15 +357,11 @@ public class LogCommUtil {
     public static void getSqlLog(Invocation invocation) {
         // 判断ThreadContext里是否有SessionIdSql
         String sessionId = getServiceSessionId();
-        if ("default".equals(sessionId)) {
-            return;
-        }
-        String value = ThreadContext.get(sessionId + "SQL");
         // 提取方法
         String methodName = invocation.getMethod().getName();
         MappedStatement mappedStatement = null;
         BoundSql boundSql = null;
-        if (value != null && Boolean.valueOf(value) && StringUtils.isNotEmpty(ThreadContext.get(sessionId))) {
+        if (Boolean.valueOf(ThreadContext.get(getSQLOutputKey(sessionId))) && StringUtils.isNotEmpty(ThreadContext.get(sessionId))) {
             Object[] args = invocation.getArgs();
             mappedStatement = (MappedStatement) args[0];
             if (METHOD_UPDATE.equals(methodName)) {
@@ -305,10 +380,8 @@ public class LogCommUtil {
             }
         }
         if (mappedStatement != null) {
-            // 添加到日志记录中
-            StringBuilder logInfo = new StringBuilder(ThreadContext.get(sessionId));
-            logInfo.append(LINE_SEPERATOR).append("【执行SQL】").append(printSql(mappedStatement.getConfiguration(), boundSql));
-            ThreadContext.put(sessionId, logInfo.toString());
+            // 添加ThreadContext中，因为如果执行SQL发生了主键冲突，Interceptor会拦截错误，使用乱序流水号生成主键再执行一次
+            ThreadContext.put(getLogSQLKey(sessionId), printSql(mappedStatement.getConfiguration(), boundSql));
         }
     }
 
@@ -318,8 +391,12 @@ public class LogCommUtil {
      * @return
      */
     private static String getParameterValue(Object parameter) {
-        String value = null;
+        String value;
         if (parameter instanceof String) {
+            // 对$符号做特殊处理，如果$符号后面没有跟整数，会抛出Illegal group reference
+            if ("$".equals(String.valueOf(parameter))) {
+                parameter = "\\" + parameter;
+            }
             value = "'" + parameter.toString() + "'";
         } else if (parameter instanceof Date) {
             DateFormat formatter = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.CHINA);
@@ -344,7 +421,7 @@ public class LogCommUtil {
         Object parameterObject = boundSql.getParameterObject();
         List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
         String sql = boundSql.getSql().replaceAll("[\\s]+", " ");
-        if (parameterMappings.size() > 0 && parameterObject != null) {
+        if (!parameterMappings.isEmpty() && parameterObject != null) {
             TypeHandlerRegistry typeHandlerRegistry = configuration.getTypeHandlerRegistry();
             if (typeHandlerRegistry.hasTypeHandler(parameterObject.getClass())) {
                 sql = sql.replaceFirst("\\?", getParameterValue(parameterObject));
@@ -363,5 +440,13 @@ public class LogCommUtil {
             }
         }
         return sql;
+    }
+
+    /**
+     * 生成ThreadContext中 sessionIdList 的Key值
+     * @param sessionId
+     */
+    private static String getSessionIdListKey(String sessionId) {
+        return sessionId + "List";
     }
 }

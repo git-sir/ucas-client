@@ -13,9 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -40,7 +38,7 @@ public class ManageUserAccountServiceImpl implements ManageUserAccountService {
 
     @Override
     @Logger(printSQL = true)
-    public ManageUserAccount queryUserAccount(HashMap<String, Object> map) {
+    public ManageUserAccount queryUserAccount(Map<String, Object> map) {
         // TODO Auto-generated method stub
         return manageUserAccountMapper.queryUserAccount(map);
     }
@@ -109,7 +107,6 @@ public class ManageUserAccountServiceImpl implements ManageUserAccountService {
         manageUserProfileService.updateUserProfile(profile);
 
         // 删除用户对应角色
-        List list = new ArrayList();
         manageUserRoleService.deleteUserRoleByIds(profile.getUserId());
         //用户新角色绑定
         ManageUserRole userRole = new ManageUserRole();

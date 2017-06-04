@@ -1,4 +1,3 @@
-//var FormItem = UcsmyUI.FormItem;
 var Form = UcsmyUI.Form;
 var FormItem = Form.FormItem;
 
@@ -31,7 +30,6 @@ var MyForm = React.createClass({
         return value;
     },
     isValid: function(retFn, validateField) {
-        var me = this;
         var fn = function (b) {
             retFn ? retFn(b) : "";
         };

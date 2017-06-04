@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 65);
+/******/ 	return __webpack_require__(__webpack_require__.s = 66);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -71,7 +71,7 @@
 /***/ 10:
 /***/ (function(module, exports, __webpack_require__) {
 
-var Navigation = __webpack_require__(50);
+var Navigation = __webpack_require__(51);
 
 var LeftMenu = React.createClass({displayName: "LeftMenu",
     getDefaultProps: function(){
@@ -131,7 +131,8 @@ var configFormData = {
 
 	    "name": [
 	        {type: "required", msg: "权限名称不能为空"},
-	        {type : "maxlength", maxlength : 32, msg : "权限长度不能大于32"}
+	        {type : "maxlength", maxlength : 32, msg : "权限长度不能大于32"},
+            {type: "rule", rule: "/^(?!_)(?!.*?_$)[a-zA-Z0-9_\u4e00-\u9fa5]+$/", msg: "不能包含特殊字符或以下划线开始和结尾"}
 	    ],
 	    "urlAction": [
 	        {type: "required", msg: "URL不能为空"},
@@ -141,8 +142,9 @@ var configFormData = {
 	        {type : "maxlength", maxlength : 36, msg : "判断标识长度不能大于36"}
 	    ],
 	    "description": [
-		        {type : "maxlength", maxlength : 36, msg : "描述长度不能大于256"}
-		    ]
+			{type : "maxlength", maxlength : 256, msg : "描述长度不能大于256"},
+			{type: "rule", rule: "/^(?!_)(?!.*?_$)[a-zA-Z0-9_\u4e00-\u9fa5]+$/", msg: "不能包含特殊字符或以下划线开始和结尾"}
+		]
 
 	};
 
@@ -196,17 +198,16 @@ module.exports = React.createClass({displayName: "module.exports",
 				} else {
 					UcsmyIndex.alert("失败", data.retmsg);
 				}
-			}, "json").error(function(xhr, errorText, errorType){
+			}, "json").error(function(){
                 _removeButtonDisabled('save');
 				UcsmyIndex.alert("失败", "网络异常");
 			});
 		});
 	},
-	_return: function(event) {
+	_return: function() {
 		UcsmyIndex.closeChildrenPage();
 	},
     render:function(){
-    	var me = this;
     	return(
 			React.createElement("div", null, 
 				React.createElement("div", {className: "panel"}, 
@@ -237,7 +238,7 @@ module.exports = React.createClass({displayName: "module.exports",
 
 /***/ }),
 
-/***/ 50:
+/***/ 51:
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -406,7 +407,7 @@ module.exports = Navigation;
 
 /***/ }),
 
-/***/ 65:
+/***/ 66:
 /***/ (function(module, exports, __webpack_require__) {
 
 var Header = __webpack_require__(9);

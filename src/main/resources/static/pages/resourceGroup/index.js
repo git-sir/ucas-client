@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 66);
+/******/ 	return __webpack_require__(__webpack_require__.s = 67);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -202,7 +202,7 @@ module.exports = PermissionLink;
  * Created by chenqilin on 2017/5/4.
  */
 var Button = UcsmyUI.Button;
-
+var Tooltip=UcsmyUI.Tooltip;
 module.exports = React.createClass({displayName: "module.exports",
 
     getInitialState: function () {
@@ -226,28 +226,46 @@ module.exports = React.createClass({displayName: "module.exports",
             React.createElement("div", null, 
                 React.createElement("div", {className: "panel"}, 
                     React.createElement("div", {className: "panel-title fc-red"}, "资源组信息"), 
-                    React.createElement("div", {className: "ucs-form-group"}, 
-                        React.createElement("span", {className: "label"}, "应用简称："), 
-                        React.createElement("span", null, this.state.group.clientName)
-                    ), 
-                    React.createElement("div", {className: "ucs-form-group"}, 
-                        React.createElement("span", {className: "label"}, "所属应用id："), 
-                        React.createElement("span", null, this.state.group.clientId)
-                    ), 
-                    React.createElement("br", null), 
-                    React.createElement("div", {className: "ucs-form-group"}, 
-                        React.createElement("span", {className: "label"}, "资源组名称："), 
-                        React.createElement("span", null, this.state.group.groupName)
-                    ), 
-                    React.createElement("div", {className: "ucs-form-group"}, 
-                        React.createElement("span", {className: "label"}, "资源组UUID："), 
-                        React.createElement("span", null, this.state.group.resGroupUuid)
-                    ), 
-                    React.createElement("br", null), 
-                    React.createElement("div", {className: "ucs-form-group"}, 
-                        React.createElement("span", {className: "label"}, "资源组描述："), 
-                        React.createElement("span", null, this.state.group.descRibe)
-                    )
+                    React.createElement("div", {className: "panel-content"}, 
+                        React.createElement("div", {className: "ucs-form-group"}, 
+                            React.createElement("span", {className: "label"}, "应用简称："), 
+                            React.createElement("div", {className: "custom-tooltip"}, 
+                                React.createElement(Tooltip, {title: this.state.group.clientName}, 
+                                    this.state.group.clientName
+                                )
+                            )
+                        ), 
+                        React.createElement("div", {className: "ucs-form-group"}, 
+                            React.createElement("span", {className: "label"}, "所属应用id："), 
+                            React.createElement("span", null, this.state.group.clientId)
+                        ), 
+
+                        React.createElement("div", {className: "ucs-form-group"}, 
+                            React.createElement("span", {className: "label"}, "资源组名称："), 
+
+                            React.createElement("div", {className: "custom-tooltip"}, 
+                                React.createElement(Tooltip, {title: this.state.group.groupName}, 
+                                    this.state.group.groupName
+                                )
+                            )
+
+                        ), 
+                        React.createElement("div", {className: "ucs-form-group"}, 
+                            React.createElement("span", {className: "label"}, "资源组UUID："), 
+                            React.createElement("span", null, this.state.group.resGroupUuid)
+                        ), 
+
+                        React.createElement("div", {className: "ucs-form-group"}, 
+                            React.createElement("span", {className: "label"}, "资源组描述："), 
+
+                            React.createElement("div", {className: "custom-tooltip"}, 
+                                React.createElement(Tooltip, {title: this.state.group.descRibe}, 
+                                    this.state.group.descRibe
+                                )
+                            )
+
+                        )
+                 )
                 ), 
                 React.createElement("div", {className: "btn-panel"}, 
                     React.createElement(Button, {buttonType: "bidnow", onClick: this._return}, "返回")
@@ -469,7 +487,7 @@ module.exports = React.createClass({displayName: "module.exports",
 
 /***/ }),
 
-/***/ 66:
+/***/ 67:
 /***/ (function(module, exports, __webpack_require__) {
 
 /**

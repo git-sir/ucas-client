@@ -26,10 +26,10 @@
                 i.MOBILE_PHONE,i.EMAIL,
                 g.GROUP_NAME,
         DATE_FORMAT(a.MODIFY_DATE,'%Y-%m-%d %H:%i:%s') MODIFY_DATE
-        FROM ucas_user_info i,ucas_user_account a,ucas_account_group g
-        WHERE
-          i.ACC_UUID=a.ACC_UUID
-          AND a.ACCG_UUID=g.ACCG_UUID
+        FROM ucas_user_account a
+        LEFT JOIN ucas_account_group g ON a.ACCG_UUID=g.ACCG_UUID
+        LEFT JOIN ucas_user_info i ON i.ACC_UUID=a.ACC_UUID
+        WHERE  a.STATUS != #{status}
             <if test="!(userAccountInfo.realName == null || userAccountInfo.realName == '')">
              AND   i.REAL_NAME LIKE concat('%', #{userAccountInfo.realName}, '%')
             </if>
@@ -48,7 +48,7 @@
             <if test="!(userAccountInfo.accgUuid == null || userAccountInfo.accgUuid == '')">
                 AND   a.ACCG_UUID  =#{userAccountInfo.accgUuid}
             </if>
-            AND a.STATUS != #{status}
-        GROUP BY a.MODIFY_DATE DESC
+
+        ORDER BY a.MODIFY_DATE DESC
     </select>
 </mapper>

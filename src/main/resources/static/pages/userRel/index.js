@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 72);
+/******/ 	return __webpack_require__(__webpack_require__.s = 74);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -195,7 +195,7 @@ module.exports = PermissionLink;
 
 /***/ }),
 
-/***/ 47:
+/***/ 48:
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -206,7 +206,7 @@ var Button = UcsmyUI.Button;
 var Grid = __webpack_require__(0);
 var FormItem = UcsmyUI.Form.FormItem;
 var PermissionLink = __webpack_require__(1);
-var ResourceLayer = __webpack_require__(73);
+var ResourceLayer = __webpack_require__(75);
 
 module.exports = React.createClass({displayName: "module.exports",
 
@@ -330,7 +330,7 @@ module.exports = React.createClass({displayName: "module.exports",
 
 
 var Button = UcsmyUI.Button;
-
+var Tooltip=UcsmyUI.Tooltip;
 
 module.exports = React.createClass({displayName: "module.exports",
     getInitialState: function () {
@@ -351,7 +351,7 @@ module.exports = React.createClass({displayName: "module.exports",
         $.post("account/getUser",
             {'ucasAccount':data.ucasAccount},
             function (result) {
-                if (result && result.retcode && result.retcode == "0") {
+                if (result && result.retcode && result.retcode === "0") {
                     me.setState({
                         title: title,
                         url: url,
@@ -362,16 +362,14 @@ module.exports = React.createClass({displayName: "module.exports",
                 } else {
                     UcsmyIndex.alert("提示", result.retmsg);
                 }
-            }).error(function(xhr, errorText, errorType){
+            }).error(function(){
             UcsmyIndex.alert("失败", "网络异常");
         });
-        // this.refs.saveForm.setValues(data);
     },
-    _return: function (event) {
+    _return: function () {
         UcsmyIndex.closeChildrenPage();
     },
     render: function () {
-        var that = this;
         return (
             React.createElement("div", null, 
             React.createElement("div", {className: "panel"}, 
@@ -402,25 +400,27 @@ module.exports = React.createClass({displayName: "module.exports",
             React.createElement("span", {className: "label"}, "联系邮箱："), 
         React.createElement("span", null, this.state.ucasAccountGroup.email)
         ), 
-        React.createElement("div", {className: "ucs-form-group"}, 
-            React.createElement("span", {className: "label"}, "头像地址："), 
-        React.createElement("span", null, this.state.ucasAccountGroup.headImgUrl)
-        ), 
-        React.createElement("div", {className: "ucs-form-group"}, 
-            React.createElement("span", {className: "label"}, "组织名称："), 
-        React.createElement("span", null, this.state.ucasAccountGroup.orgName)
-        ), 
+
+             /*        <div className="ucs-form-group">
+            <span className="label">组织名称：</span>
+        <span>{this.state.ucasAccountGroup.orgName}</span>
+        </div>*/
         React.createElement("div", {className: "ucs-form-group"}, 
             React.createElement("span", {className: "label"}, "状态："), 
-        React.createElement("span", null, this.state.ucasAccountGroup.status=='0' ? '正常':'冻结')
+        React.createElement("span", null, this.state.ucasAccountGroup.status==='0' ? '正常':'冻结')
         ), 
         React.createElement("div", {className: "ucs-form-group"}, 
             React.createElement("span", {className: "label"}, "组织名称："), 
-        React.createElement("span", null, this.state.ucasAccountGroup.orgName)
+            /*<span>{this.state.ucasAccountGroup.orgName}</span>*/
+            React.createElement("div", {className: "custom-tooltip"}, 
+                React.createElement(Tooltip, {title: this.state.ucasAccountGroup.orgName}, 
+                    this.state.ucasAccountGroup.orgName
+                )
+            )
         ), 
         React.createElement("div", {className: "ucs-form-group"}, 
             React.createElement("span", {className: "label"}, "性别："), 
-        React.createElement("span", null, this.state.ucasAccountGroup.sex=='1' ? '男' : '女')
+        React.createElement("span", null, this.state.ucasAccountGroup.sex==='1' ? '男' : '女')
         ), 
         React.createElement("div", {className: "ucs-form-group"}, 
             React.createElement("span", {className: "label"}, "用户组："), 
@@ -428,8 +428,16 @@ module.exports = React.createClass({displayName: "module.exports",
         ), 
         React.createElement("div", {className: "ucs-form-group"}, 
             React.createElement("span", {className: "label"}, "指纹标识："), 
-        React.createElement("span", null, this.state.ucasAccountGroup.fingerprint=='1' ? '有':'无')
-        )
+        React.createElement("span", null, this.state.ucasAccountGroup.fingerprint==='1' ? '有':'无')
+        ), 
+             React.createElement("div", {className: "ucs-form-group"}, 
+                 React.createElement("span", {className: "label"}, "头像地址："), 
+                 React.createElement("div", {className: "custom-tooltip"}, 
+                     React.createElement(Tooltip, {title: this.state.ucasAccountGroup.headImgUrl}, 
+                         this.state.ucasAccountGroup.headImgUrl
+                     )
+                 )
+             )
         )
         ), 
         React.createElement("div", {className: "btn-panel"}, 
@@ -443,7 +451,7 @@ module.exports = React.createClass({displayName: "module.exports",
 
 /***/ }),
 
-/***/ 72:
+/***/ 74:
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -453,7 +461,7 @@ var Input = UcsmyUI.Input;
 var Button = UcsmyUI.Button;
 var Grid = __webpack_require__(0);
 var FormItem = UcsmyUI.Form.FormItem;
-var UserClient = __webpack_require__(47);
+var UserClient = __webpack_require__(48);
 var PermissionLink = __webpack_require__(1);
 var SelectDropDown = UcsmyUI.SelectDropDown;
 var UserDetailForm = __webpack_require__(5);
@@ -599,7 +607,7 @@ myPanel = React.createClass({displayName: "myPanel",
 
 /***/ }),
 
-/***/ 73:
+/***/ 75:
 /***/ (function(module, exports, __webpack_require__) {
 
 /**

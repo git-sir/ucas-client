@@ -18,7 +18,7 @@ user.user: oauth/resource/user/get_user
 user.updateInfo: oauth/resource/user/update_info
 user.updateInfo: oauth/resource/user/update_info
 #获取token
-user.token: oauth/accessToken?client_id=00000000000000000000000000000001&client_secret=000000000000000001&grant_type=client_credentials&scope=client_usermanage,client_usermanage_status
+user.token: oauth/accessToken?grant_type=client_credentials&scope=client_usermanage,client_usermanage_status
 #登录方式选择
 loginType.localType: true
 #第三方登录url
@@ -29,8 +29,6 @@ loginType.clientId: 00000000000000000000000000000001
 loginType.clientSecret: 000000000000000001
 loginType.getTokenUrl: oauth/accessToken
 loginType.logout: oauth/logout?response_type=code&scope=client_userinfo&state=123&client_id=
-# log信息是否输出到数据库
-log.database: false
 #最大空闲数
 redis.maxIdle: 100
 #最大连接数
@@ -43,3 +41,22 @@ redis.maxTotal: 1000
 redis.minIdle: 8
 #明是否在从池中取出连接前进行检验,如果检验失败,则从池中去除连接并尝试取出另一个
 redis.testOnBorrow: true
+
+# log信息是否输出到数据库
+log.outputJdbc: true
+
+# 序列号生成器配置，格式：4位前缀 + 8位日期 + 6位流水号，限制长度必须为18位，目前长度不支持配置
+# 是否开启:true;false
+serialNumber.open: true
+# 生成模式：db；redis; default(乱序模式)
+serialNumber.mode: redis
+# 序列号默认前缀
+serialNumber.prefix: 1000
+# 序列号备用前缀，当出现重复主键时使用备用序列号生成器生成
+serialNumber.backupPrefix: 9900
+# 序列号编号格式
+serialNumber.numberPattern: 000000
+# 序列号日期格式
+serialNumber.datePattern: yyMMddHH
+# db模式线程最大等待时间，毫秒
+serialNumber.waitTime: 10000

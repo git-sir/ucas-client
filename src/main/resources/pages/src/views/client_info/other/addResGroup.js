@@ -11,7 +11,16 @@ var Grid = require('../../widget/other/grid');
 var formData = {
     "groupName": [
         {type: "required", msg: "资源组名称不能为空"},
-        {type: "maxlength", maxlength: 50, msg: "资源组名称长度不能超过50"}
+        {type: "maxlength", maxlength: 50, msg: "资源组名称长度不能超过50"},
+        {type: "fn", validator: function(value){
+            if(""!=value) {
+
+                var m =/^(?!_)(?!.*?_$)[a-zA-Z0-9_]+$/;
+
+                return m.test(value);
+            }else return true;
+        }, msg: '只能为大小写字母、数字、下划线'
+        }
     ],
     "descRibe": [
         {type: "required", msg: "资源组描述不能为空"},
@@ -120,8 +129,8 @@ module.exports = React.createClass({
                     <Grid url={rootThis.state.gridUrl} ref="grid"
                           isTextOverflowHidden={true}
                           columns={[
-                              {name: 'groupName', header: '资源组名称', width: '20%'},
-                              {name: 'descRibe', header: '资源组描述', width: '40%'}
+                              {name: 'groupName', header: '资源组名称', width: 300},
+                              {name: 'descRibe', header: '资源组描述', width: 400}
                           ]}>
                     </Grid>
                     <div className="clearfix"></div>

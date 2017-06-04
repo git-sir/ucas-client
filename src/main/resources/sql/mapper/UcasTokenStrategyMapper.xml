@@ -20,6 +20,7 @@
         <result column="REFRESH_EXPIRY_DATE" property="refreshExpiryDate" jdbcType="INTEGER"/>
         <result column="STATUS" property="status" jdbcType="VARCHAR"/>
         <result column="CREATE_DATE" property="createDate" jdbcType="VARCHAR"/>
+        <result column="CLIENT_NAME" property="clientName" jdbcType="VARCHAR"/>
         <result column="GROUP_NAME" property="ucasClientInfo.ucasClientGroup.groupName" jdbcType="VARCHAR"/>
         <result column="CLIENT_NAME" property="ucasClientInfo.clientName" jdbcType="VARCHAR"/>
         <result column="bClientId" property="ucasClientInfo.clientId" jdbcType="VARCHAR"/>
@@ -78,6 +79,9 @@
             </if>
             <if test="!(status == null || status == '')">
                 AND STATUS=#{status}
+            </if>
+            <if test="!(uuid == null || uuid == '')">
+                AND UUID!=#{uuid}
             </if>
         </where>
         GROUP BY CREATE_DATE DESC

@@ -54,7 +54,7 @@ module.exports = React.createClass({
                     rootThis.load();
                 },
                 {
-                    parentId: id
+                    organization: {parentId: id}
                 }
             );
         });
@@ -107,7 +107,6 @@ module.exports = React.createClass({
     },
 
     _bind: function (item) {
-        var rootThis = this;
         var id = item.id;
         var name = item.name;
         UcsmyIndex.openChildrenPage(Bind, function (ref) {
@@ -124,7 +123,6 @@ module.exports = React.createClass({
     },
 
     _unbind: function (item) {
-        var rootThis = this;
         var id = item.id;
         var name = item.name;
         UcsmyIndex.openChildrenPage(Bind, function (ref) {

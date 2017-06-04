@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 67);
+/******/ 	return __webpack_require__(__webpack_require__.s = 68);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -242,7 +242,7 @@ var BindPermissionPanel = React.createClass({displayName: "BindPermissionPanel",
 	load:function(id,name){
 		var that = this;
 		
-		$.post("rolePermission/queryRolePermission", {"role_id":id}, function(data) {
+		$.post("rolePermission/queryRolePermission", {"roleId":id}, function(data) {
 			if(!data.success){
 				UcsmyIndex.alert("失败", data.msg);
 			}else{
@@ -262,15 +262,19 @@ var BindPermissionPanel = React.createClass({displayName: "BindPermissionPanel",
 	},
 	_addPermission:function(){
 		var that = this;
-		var ids = new Array();
+		var ids = [];
 		var obj = document.getElementsByName("rolePermissionID");
-	    for(k in obj){
+	    for(var k = 0; k < obj.length; k++){
 	        if(obj[k].checked)
 	        	ids.push(obj[k].value);
 	    }
+        if (ids.length == 0){
+            UcsmyIndex.alert("异常消息", "请选择要绑定的权限");
+            return;
+        }
 	    UcsmyIndex.confirm("确定", "你真的要为角色分配权限吗？", function() {
             _addButtonDisabled('save');
-	    	$.post("rolePermission/addRolePermission", {"role_id": that.state.roleId,"permissions_id": ids.join(","),"name": that.state.name}, function(data) {
+	    	$.post("rolePermission/addRolePermission", {"roleId": that.state.roleId,"permissionsId": ids.join(","),"name": that.state.name}, function(data) {
                 _removeButtonDisabled('save');
 	    		if(data.success){
 					UcsmyIndex.alert("消息", data.msg);
@@ -278,7 +282,7 @@ var BindPermissionPanel = React.createClass({displayName: "BindPermissionPanel",
 				}else{
 					UcsmyIndex.alert("异常消息", data.msg);
 				}
-	 		}, "json").error(function(xhr, errorText, errorType){
+	 		}, "json").error(function(){
                 _removeButtonDisabled('save');
 	 			UcsmyIndex.alert("失败", "网络异常");
 	 	    });
@@ -489,10 +493,28 @@ module.exports = React.createClass({displayName: "module.exports",
 		    });
 		});
 	},
+    _query: function() {
+        this.refs.grid.load({
+        	'account': this.refs.account.getValue(),
+        	'name': this.refs.name.getValue()
+        });
+    },
 	render: function() {
 		return (					
 			React.createElement("div", null, 
+				React.createElement("div", {className: "panel"}, 
+					React.createElement("div", {className: "panel-title"}, "查询条件"), 
+					React.createElement("div", {className: "panel-content"}, 
+						React.createElement(FormItem, {label: "用户账号"}, 
+							React.createElement(Input, {ref: "account"})
+						), 
+						React.createElement(FormItem, {label: "用户姓名"}, 
+							React.createElement(Input, {ref: "name"})
+						)
+					)
+				), 
 	            React.createElement("div", {className: "btn-panel"}, 
+					React.createElement(Button, {buttonType: "bidnow", onClick: this._query}, "查询"), 
 	                React.createElement(Button, {id: "save", buttonType: "bidnow", onClick: this._onClick}, this.state.title), 
 	                React.createElement(Button, {buttonType: "cancel", onClick: this._return}, "返回")
 	            ), 
@@ -522,7 +544,7 @@ module.exports = React.createClass({displayName: "module.exports",
 
 /***/ }),
 
-/***/ 67:
+/***/ 68:
 /***/ (function(module, exports, __webpack_require__) {
 
 var Input = UcsmyUI.Input;
@@ -566,29 +588,25 @@ myPanel = React.createClass({displayName: "myPanel",
 				} else {
 					UcsmyIndex.alert("失败", data.retmsg);
 				}
-			}, "json").error(function(xhr, errorText, errorType){
+			}, "json").error(function(){
 				UcsmyIndex.alert("失败", "网络异常");
 		    });
 		});
 	},
 	_unbindClick:function(column){		
-		var me = this;
     	UcsmyIndex.openChildrenPage(RoleUser, function(refPanel) {
     		refPanel.init("unbind", column);
     	});	
 	},
 	_bindClick: function(column) {
-		var me = this;
     	UcsmyIndex.openChildrenPage(RoleUser, function(refPanel) {
     		refPanel.init("bind", column);
     	});		
 	},
 	_bindPermClick: function(column){
-		var me = this;
     	UcsmyIndex.openChildrenPage(BindPermissionPanel, function(refPanel) {
     		refPanel.load(column.roleId,column.name);
     	});
-		//this.props._bindPermission(column.roleId,column.name);
 	},
 	render:function() {
 		var me = this;

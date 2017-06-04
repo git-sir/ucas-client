@@ -63,12 +63,12 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 53);
+/******/ 	return __webpack_require__(__webpack_require__.s = 54);
 /******/ })
 /************************************************************************/
 /******/ ({
 
-/***/ 53:
+/***/ 54:
 /***/ (function(module, exports) {
 
 
@@ -94,20 +94,16 @@ $("#bindAccount").click(function(){
 				success:function(data)
 				{
 					var rsaKey = new RSAKey();
-					//var userTypeValue;
 					rsaKey.setPublic(b64tohex(data.data.modulus), b64tohex(data.data.exponent));
 					var enPassword = hex2b64(rsaKey.encrypt(password));
-					var loginType = data.data.loginType;
-
-
-					var data = {username: username, password: enPassword,"token_type":"LOCAL"};
-					$.post("login", data, function(data) {
+					var ndata = {username: username, password: enPassword,"token_type":"LOCAL"};
+					$.post("login", ndata, function(data) {
 						if(data.success == true) {
 							window.location.href = ctx + "index";
 						} else {
 							alert(data.msg);
 						}
-					}, "json").error(function(xhr, errorText, errorType) {
+					}, "json").error(function() {
 
 						alert("异常", "网络异常");
 
@@ -115,11 +111,7 @@ $("#bindAccount").click(function(){
 				},
 				error:function(XMLHttpRequest, textStatus, errorThrown)
 				{
-
 					alert("异常", "网络异常");
-					console.log(XMLHttpRequest);
-					console.log(textStatus);
-					console.log(errorThrown);
 				}
 			});
 

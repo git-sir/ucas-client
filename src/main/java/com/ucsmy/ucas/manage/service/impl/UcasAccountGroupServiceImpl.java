@@ -7,7 +7,7 @@ import com.ucsmy.commons.utils.StringUtils;
 import com.ucsmy.commons.utils.UUIDGenerator;
 import com.ucsmy.ucas.commons.aop.annotation.Logger;
 import com.ucsmy.ucas.commons.aop.exception.result.AosResult;
-import com.ucsmy.ucas.commons.aop.exception.result.ResultConst;
+import com.ucsmy.ucas.config.log4j2.LogOuputTarget;
 import com.ucsmy.ucas.manage.dao.ManageConfigMapper;
 import com.ucsmy.ucas.manage.dao.UcasAccountGroupMapper;
 import com.ucsmy.ucas.manage.dao.UcasClientGroupMapper;
@@ -21,7 +21,6 @@ import com.ucsmy.ucas.manage.service.UcasAccountGroupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -30,11 +29,10 @@ import java.util.Map;
  */
 @Service
 public class UcasAccountGroupServiceImpl implements UcasAccountGroupService {
-    private final String MANAGER_CLIENT_GROUP_BIND = "bind";
-    private final String MANAGER_CLIENT_GROUP_UNBIND = "unbind";
+    private static final String MANAGER_CLIENT_GROUP_BIND = "bind";
+    private static final String MANAGER_CLIENT_GROUP_UNBIND = "unbind";
 
-    private final String  DEFAULT_ACCOUNT_GROUP_CONFIG = "DEFAULT_ACCOUNT_GROUP";
-    private static final int UUID_MAXLENGTH = 32;
+    private static final String  DEFAULT_ACCOUNT_GROUP_CONFIG = "DEFAULT_ACCOUNT_GROUP";
 
     private static final String DEFAULT_CLIENT_GROUP_CONFIG = "DEFAULT_CLIENT_GROUP";
 
@@ -44,7 +42,7 @@ public class UcasAccountGroupServiceImpl implements UcasAccountGroupService {
 
 
     @Autowired
-    UcasAccountGroupMapper ucasAccountGroupMapper;
+    private UcasAccountGroupMapper ucasAccountGroupMapper;
     @Autowired
     private ManageConfigMapper manageConfigMapper;
     @Autowired
@@ -75,7 +73,6 @@ public class UcasAccountGroupServiceImpl implements UcasAccountGroupService {
 
     }
 
-
     @Override
     @Logger(printSQL = true)
     public List<String> getUnBindID(String accgUuid) {
@@ -95,7 +92,7 @@ public class UcasAccountGroupServiceImpl implements UcasAccountGroupService {
     @Override
     @Logger(printSQL = true)
     public PageInfo<UcasClientGroup> getbindStatusClientGroup(String status, String accgUuid, String groupName, int pageNum, int pageSize ) {
-        List<String> listId  =new ArrayList<>();
+        List<String> listId;
 
         if (StringUtils.isEmpty(status)) {
             listId = this.getBindID(accgUuid);
@@ -107,7 +104,7 @@ public class UcasAccountGroupServiceImpl implements UcasAccountGroupService {
     }
 
     @Override
-    @Logger(printSQL = true)
+    @Logger(printSQL = true, outputTarget = LogOuputTarget.DATABASE)
     public AosResult manageClientGroup(String accgUuid, String clientGroupIds,String type) {
         String[] clientClentIdList = clientGroupIds.split(",");
         if (type.equals(MANAGER_CLIENT_GROUP_UNBIND)) {
@@ -118,7 +115,7 @@ public class UcasAccountGroupServiceImpl implements UcasAccountGroupService {
                 for (String clientId : clientClentIdList) {
                     UcasAcccliGroupRel ucasAcccliGroupRel = new UcasAcccliGroupRel();
                     ucasAcccliGroupRel.setAccgUuid(accgUuid);
-                    ucasAcccliGroupRel.setUuid(UUIDGenerator.generate(UUID_MAXLENGTH));
+                    ucasAcccliGroupRel.setUuid(UUIDGenerator.generate());
                     ucasAcccliGroupRel.setCligUuid(clientId);
                     ucasAccountGroupMapper.addClientGroupRel(ucasAcccliGroupRel);
                 }
@@ -140,8 +137,8 @@ public class UcasAccountGroupServiceImpl implements UcasAccountGroupService {
     }
 
     @Override
-    @Logger(printSQL = true)
-    public int  updateAccountInfoAccgUuid(String accgUuid, String accountIds1) {
+    @Logger(printSQL = true, outputTarget = LogOuputTarget.DATABASE)
+    public int updateAccountInfoAccgUuid(String accgUuid, String accountIds1) {
         String[] accountIdList = accountIds1.split(",");
         for (String accountId : accountIdList) {
             ucasAccountGroupMapper.updateAccountInfoByaccountId(accgUuid,accountId);
@@ -158,8 +155,8 @@ public class UcasAccountGroupServiceImpl implements UcasAccountGroupService {
             String defAccountGroupId = defaultAccountGroupConfig.getParamValue();
             defAccountGroup = this.getAccountGroup(defAccountGroupId);
         } else {
-
             // 添加配置
+            defaultAccountGroupConfig = new ManageConfig();
             defaultAccountGroupConfig.setParamDesc("默认用户组的主键");
             defaultAccountGroupConfig.setParamKey(DEFAULT_ACCOUNT_GROUP_CONFIG);
         }
@@ -171,7 +168,7 @@ public class UcasAccountGroupServiceImpl implements UcasAccountGroupService {
             defAccountGroup.setAccgUuid(DEFAULT_ACCOUNT_GROUP_ID);
             this.addAccountGroup(defAccountGroup);
             defaultAccountGroupConfig.setParamValue(defAccountGroup.getAccgUuid());
-            if (defaultAccountGroupConfig == null) {
+            if (defaultAccountGroupConfig.getId() == null) {
                 defaultAccountGroupConfig.setId(UUIDGenerator.generate());
                 manageConfigMapper.addConfig(defaultAccountGroupConfig);
             } else {
@@ -201,19 +198,19 @@ public class UcasAccountGroupServiceImpl implements UcasAccountGroupService {
 
 
     @Override
-    @Logger(printSQL = true)
+    @Logger(operationName = "添加账号组", printSQL = true, outputTarget = LogOuputTarget.DATABASE)
     public int addAccountGroup(UcasAccountGroup ucasAccountGroup) {
         return ucasAccountGroupMapper.addAccountGroup(ucasAccountGroup);
     }
 
     @Override
-    @Logger(printSQL = true)
+    @Logger(operationName = "更新账号组", printSQL = true, outputTarget = LogOuputTarget.DATABASE)
     public int editAccountGroup(UcasAccountGroup ucasAccountGroup) {
         return ucasAccountGroupMapper.editAccountGroup(ucasAccountGroup);
     }
 
     @Override
-    @Logger(printSQL = true)
+    @Logger(operationName = "删除账号组", printSQL = true, outputTarget = LogOuputTarget.DATABASE)
     public int deleteAccountGroup(String id) {
         return ucasAccountGroupMapper.deleteAccountGroup(id);
     }

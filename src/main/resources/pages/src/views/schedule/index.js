@@ -15,9 +15,8 @@ myPanel = React.createClass({
         }
     },
 
-    _add: function (item) {
+    _add: function () {
         var rootThis = this;
-        var id = item.id
         UcsmyIndex.openChildrenPage(Form, function (ref) {
             ref.init(
                 'schedule/add',

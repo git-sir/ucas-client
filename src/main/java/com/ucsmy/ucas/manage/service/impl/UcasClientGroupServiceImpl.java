@@ -7,7 +7,7 @@ import com.ucsmy.commons.utils.StringUtils;
 import com.ucsmy.commons.utils.UUIDGenerator;
 import com.ucsmy.ucas.commons.aop.annotation.Logger;
 import com.ucsmy.ucas.commons.aop.exception.result.AosResult;
-import com.ucsmy.ucas.commons.aop.exception.result.ResultConst;
+import com.ucsmy.ucas.commons.constant.CommMessage;
 import com.ucsmy.ucas.commons.page.UcasPageInfo;
 import com.ucsmy.ucas.config.log4j2.LogOuputTarget;
 import com.ucsmy.ucas.manage.dao.ManageConfigMapper;
@@ -30,28 +30,15 @@ import java.util.Map;
 @Service
 public class UcasClientGroupServiceImpl implements UcasClientGroupService {
 
-    private final String GROUP_NAME_EMPTY = "应用组名称不能为空";
-    private final String DESCRIBE_EMPTY = "应用组描述不能为空";
-    private final String ISSSO_EMPTY = "单点登录类型不能为空";
-    private final String GROUP_NAME_LENGTH_ILLEGAL = "应用组名称长度不能超过50";
-    private final String DESCRIBE_LENGTH_ILLEGAL = "应用组描述长度不能超过200";
-    private final String GROUP_NAME_DUPLICATE = "应用组名称已存在";
+    private static final String GROUP_NAME_EMPTY = "应用组名称不能为空";
+    private static final String DESCRIBE_EMPTY = "应用组描述不能为空";
+    private static final String ISSSO_EMPTY = "单点登录类型不能为空";
+    private static final String GROUP_NAME_LENGTH_ILLEGAL = "应用组名称长度不能超过50";
+    private static final String DESCRIBE_LENGTH_ILLEGAL = "应用组描述长度不能超过200";
+    private static final String GROUP_NAME_DUPLICATE = "应用组名称已存在";
 
-    private final String ADD_FAILURE = "添加失败，请检查网络";
-    private final String ADD_SUCCESS = "添加成功";
+    private static final String HAS_CLIENTS = "有关联的应用存在，不能删除应用组";
 
-    private final String DATA_NOT_EXIST = "数据不存在";
-    private final String UPDATE_FAILURE = "更新失败，请检查网络";
-    private final String UPDATE_SUCCESS = "更新成功";
-
-    private final String HAS_CLIENTS = "有关联的应用存在，不能删除应用组";
-    private final String DELETE_FAILURE = "删除失败，请检查网络";
-    private final String DELETE_SUCCESS = "删除成功";
-
-    /**
-     * 主键长度
-     */
-    private static final int UUID_MAXLENGTH = 32;
     /**
      * 默认应用组配置名称
      */
@@ -98,40 +85,40 @@ public class UcasClientGroupServiceImpl implements UcasClientGroupService {
     }
 
     @Override
-    @Logger(operationName = "应用组添加", printSQL = true)
+    @Logger(operationName = "应用组添加", printSQL = true, outputTarget = LogOuputTarget.DATABASE)
     @Transactional(rollbackFor = Exception.class)
     public AosResult addClientGroup(UcasClientGroup ucasClientGroup) {
-        ucasClientGroup.setCligUuid(UUIDGenerator.generate(UUID_MAXLENGTH));
+        ucasClientGroup.setCligUuid(UUIDGenerator.generate());
         int result = ucasClientGroupMapper.addClientGroup(ucasClientGroup);
         if (result <= 0) {
-            return AosResult.retFailureMsg(ADD_FAILURE);
+            return AosResult.retFailureMsg(CommMessage.ADD_FAILURE);
         }
-        return AosResult.retSuccessMsg(ADD_SUCCESS);
+        return AosResult.retSuccessMsg(CommMessage.ADD_SUCCESS);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    @Logger(operationName = "应用组更新", printSQL = true)
+    @Logger(operationName = "应用组更新", printSQL = true, outputTarget = LogOuputTarget.DATABASE)
     public AosResult updateClientGroup(UcasClientGroup ucasClientGroup) {
         UcasClientGroup oldClientGroup = this.getClientGroupById(ucasClientGroup.getCligUuid());
         if (oldClientGroup == null) {
-            return AosResult.retFailureMsg(DATA_NOT_EXIST);
+            return AosResult.retFailureMsg(CommMessage.DATA_NOT_EXIST);
         }
         BeanUtil.copyPropertiesIgnoreNull(ucasClientGroup, oldClientGroup);
         int result = ucasClientGroupMapper.updateClientGroup(oldClientGroup);
         if (result <= 0) {
-            return AosResult.retFailureMsg(UPDATE_FAILURE);
+            return AosResult.retFailureMsg(CommMessage.UPDATE_FAILURE);
         }
-        return AosResult.retSuccessMsg(UPDATE_SUCCESS);
+        return AosResult.retSuccessMsg(CommMessage.UPDATE_SUCCESS);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    @Logger(operationName = "应用组删除", printSQL = true)
+    @Logger(operationName = "应用组删除", printSQL = true, outputTarget = LogOuputTarget.DATABASE)
     public AosResult deleteClientGroup(String cligUuid) {
         UcasClientGroup oldClientGroup = this.getClientGroupById(cligUuid);
         if (oldClientGroup == null) {
-            return AosResult.retFailureMsg(DATA_NOT_EXIST);
+            return AosResult.retFailureMsg(CommMessage.DATA_NOT_EXIST);
         }
         // 检查关联的应用
         int clientCount = ucasClientInfoMapper.countClientInfoByCligUuid(cligUuid, CommStatusEnum.SYS_INUSE.getValue());
@@ -140,9 +127,9 @@ public class UcasClientGroupServiceImpl implements UcasClientGroupService {
         }
         int resultCode = ucasClientGroupMapper.deleteClientGroup(cligUuid);
         if (resultCode <= 0) {
-            return AosResult.retFailureMsg(DELETE_FAILURE);
+            return AosResult.retFailureMsg(CommMessage.DELETE_FAILURE);
         }
-        return AosResult.retSuccessMsg(DELETE_SUCCESS, null);
+        return AosResult.retSuccessMsg(CommMessage.DELETE_SUCCESS, null);
     }
 
     @Override
@@ -165,7 +152,7 @@ public class UcasClientGroupServiceImpl implements UcasClientGroupService {
         }
         // 应用组名称是否已经存在
         List<UcasClientGroup> existList = ucasClientGroupMapper.getClientGroupByCondition(ucasClientGroup.getGroupName(), ucasClientGroup.getCligUuid());
-        if (existList != null && existList.size() > 0) {
+        if (existList != null && !existList.isEmpty()) {
             return AosResult.retFailureMsg(GROUP_NAME_DUPLICATE);
         }
         return AosResult.retSuccessMsg("success");
@@ -181,6 +168,7 @@ public class UcasClientGroupServiceImpl implements UcasClientGroupService {
             defClientGroup = this.getClientGroupById(defClientGroupId);
         } else {
             // 添加配置
+            defaultClientGroupConfig = new ManageConfig();
             defaultClientGroupConfig.setParamDesc(DEFAULT_CLIENT_GROUP_NAME);
             defaultClientGroupConfig.setParamKey(DEFAULT_CLIENT_GROUP_CONFIG);
         }
@@ -192,7 +180,7 @@ public class UcasClientGroupServiceImpl implements UcasClientGroupService {
             defClientGroup.setIsSso(DEFAULT_CLIENT_GROUP_ISSSO);
             this.addClientGroup(defClientGroup);
             defaultClientGroupConfig.setParamValue(defClientGroup.getCligUuid());
-            if (defaultClientGroupConfig == null) {
+            if (defaultClientGroupConfig.getId() == null) {
                 defaultClientGroupConfig.setId(UUIDGenerator.generate());
                 manageConfigMapper.addConfig(defaultClientGroupConfig);
             } else {

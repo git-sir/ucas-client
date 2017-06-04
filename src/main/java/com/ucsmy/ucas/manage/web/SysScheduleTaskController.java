@@ -4,6 +4,7 @@ import com.ucsmy.commons.interceptor.domain.PageInfo;
 import com.ucsmy.commons.utils.StringUtils;
 import com.ucsmy.ucas.commons.aop.exception.result.AosResult;
 import com.ucsmy.ucas.commons.aop.exception.result.ResultConst;
+import com.ucsmy.ucas.commons.constant.CommMessage;
 import com.ucsmy.ucas.manage.entity.ManageIpScheduleTask;
 import com.ucsmy.ucas.manage.service.SysScheduleTaskService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,19 +21,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("schedule")
 public class SysScheduleTaskController {
 
-    private final String TASK_CODE_DUPLICATE = "任务码不能重复";
-    private final String ADD_FAIL = "添加失败，请检查网络";
-    private final String ADD_SUCCESS = "添加成功";
+    private final static String TASK_CODE_DUPLICATE = "任务码不能重复";
 
-    private final String UPDATE_SUCCESS = "更新成功";
+    private final static String TASK_ID_EMPTY = "任务id不能为空";
+    private final static String TASK_DEL_EMPTY = "定时任务不存在，删除失败";
 
-    private final String TASK_ID_EMPTY = "任务id不能为空";
-    private final String TASK_DEL_EMPTY = "定时任务不存在，删除失败";
-    private final String TASK_DEL_FAIL = "删除失败，请检查网络";
-    private final String TASK_DEL_SUCCESS = "删除成功";
-
-    private final String TASK_STAR_SUCCESS = "启动定时任务成功";
-    private final String TASK_STOP_SUCCESS = "关闭定时任务成功";
+    private final static String TASK_STAR_SUCCESS = "启动定时任务成功";
+    private final static String TASK_STOP_SUCCESS = "关闭定时任务成功";
 
     @Autowired
     private SysScheduleTaskService sysScheduleTaskService;
@@ -65,9 +60,9 @@ public class SysScheduleTaskController {
         }
         int resultCode = sysScheduleTaskService.addSchedulTask(scheduleTask);
         if (resultCode <= 0) {
-            return AosResult.retFailureMsg(ADD_FAIL);
+            return AosResult.retFailureMsg(CommMessage.ADD_FAILURE);
         }
-        return AosResult.retSuccessMsg(ADD_SUCCESS, null);
+        return AosResult.retSuccessMsg(CommMessage.ADD_SUCCESS, null);
     }
 
     /**
@@ -85,7 +80,7 @@ public class SysScheduleTaskController {
         if (!String.valueOf(ResultConst.SUCCESS).equals(result.getRetcode())) {
             return result;
         }
-        return AosResult.retSuccessMsg(UPDATE_SUCCESS, null);
+        return AosResult.retSuccessMsg(CommMessage.UPDATE_SUCCESS, null);
     }
 
     /**
@@ -104,9 +99,9 @@ public class SysScheduleTaskController {
         }
         int resultCode = sysScheduleTaskService.deleteSchedulTask(id);
         if (resultCode <= 0) {
-            return AosResult.retFailureMsg(TASK_DEL_FAIL);
+            return AosResult.retFailureMsg(CommMessage.DELETE_FAILURE);
         }
-        return AosResult.retSuccessMsg(TASK_DEL_SUCCESS, null);
+        return AosResult.retSuccessMsg(CommMessage.DELETE_SUCCESS, null);
     }
 
     /**

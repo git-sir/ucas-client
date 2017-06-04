@@ -3,6 +3,7 @@ package com.ucsmy.ucas.manage.service.impl;
 import java.util.List;
 
 import com.ucsmy.ucas.commons.aop.annotation.Logger;
+import com.ucsmy.ucas.config.log4j2.LogOuputTarget;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -37,7 +38,7 @@ public class UcasClientResgrRelServiceImpl implements UcasClientResgrRelService 
 	}
 
 	@Override
-	@Logger(printSQL = true)
+	@Logger(operationName = "更新ticket", printSQL = true, outputTarget = LogOuputTarget.DATABASE)
 	public int updateTicket(String uuid, String maxTimes, String expiryTime) {
 		return ucasClientResgrRelMapper.updateTicket(uuid,maxTimes,expiryTime);
 	}
@@ -74,20 +75,20 @@ public class UcasClientResgrRelServiceImpl implements UcasClientResgrRelService 
 	}
 
 	@Override
-	@Logger(printSQL = true)
+	@Logger(operationName = "添加应用资源组授权", printSQL = true, outputTarget = LogOuputTarget.DATABASE)
 	public int addResgrRel(UcasClientResgrRel ucasClientResgrRel) {
-		ucasClientResgrRel.setUuid(UUIDGenerator.generate(32));
+		ucasClientResgrRel.setUuid(UUIDGenerator.generate());
 		return ucasClientResgrRelMapper.addResgrRel(ucasClientResgrRel);
 	}
 
 	@Override
-	@Logger(printSQL = true)
+	@Logger(operationName = "更新应用资源组授权", printSQL = true, outputTarget = LogOuputTarget.DATABASE)
 	public int editResgrRel(UcasClientResgrRel ucasClientResgrRel) {
 		return ucasClientResgrRelMapper.editResgrRel(ucasClientResgrRel);
 	}
 
 	@Override
-	@Logger(printSQL = true)
+	@Logger(operationName = "删除应用资源组授权", printSQL = true, outputTarget = LogOuputTarget.DATABASE)
 	public int deleteResgrRel(String uuid) {
 		return ucasClientResgrRelMapper.deleteResgrRel(uuid);
 	}

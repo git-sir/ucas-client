@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 55);
+/******/ 	return __webpack_require__(__webpack_require__.s = 56);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -198,7 +198,6 @@ module.exports = PermissionLink;
 /***/ 2:
 /***/ (function(module, exports) {
 
-//var FormItem = UcsmyUI.FormItem;
 var Form = UcsmyUI.Form;
 var FormItem = Form.FormItem;
 
@@ -231,7 +230,6 @@ var MyForm = React.createClass({displayName: "MyForm",
         return value;
     },
     isValid: function(retFn, validateField) {
-        var me = this;
         var fn = function (b) {
             retFn ? retFn(b) : "";
         };
@@ -300,7 +298,7 @@ var MyForm = React.createClass({displayName: "MyForm",
         if(data.v_minlength !== undefined)
             rules.push({type: "rule", rule: "/[\\s\\S]{" + data.v_minlength + ",}/", msg: data.itemText + "最小长度是：" + data.v_minlength});
         if(data.rules && data.rules.length > 0)
-            rules.push(...data.rules);
+        $.merge(rules,data.rules);
 
         return rules;
     },
@@ -361,7 +359,16 @@ var Grid = __webpack_require__(0);
 var formData = {
     "groupName": [
         {type: "required", msg: "资源组名称不能为空"},
-        {type: "maxlength", maxlength: 50, msg: "资源组名称长度不能超过50"}
+        {type: "maxlength", maxlength: 50, msg: "资源组名称长度不能超过50"},
+        {type: "fn", validator: function(value){
+            if(""!=value) {
+
+                var m =/^(?!_)(?!.*?_$)[a-zA-Z0-9_]+$/;
+
+                return m.test(value);
+            }else return true;
+        }, msg: '只能为大小写字母、数字、下划线'
+        }
     ],
     "descRibe": [
         {type: "required", msg: "资源组描述不能为空"},
@@ -470,8 +477,8 @@ module.exports = React.createClass({displayName: "module.exports",
                     React.createElement(Grid, {url: rootThis.state.gridUrl, ref: "grid", 
                           isTextOverflowHidden: true, 
                           columns: [
-                              {name: 'groupName', header: '资源组名称', width: '20%'},
-                              {name: 'descRibe', header: '资源组描述', width: '40%'}
+                              {name: 'groupName', header: '资源组名称', width: 300},
+                              {name: 'descRibe', header: '资源组描述', width: 400}
                           ]}
                     ), 
                     React.createElement("div", {className: "clearfix"})
@@ -499,7 +506,16 @@ var clientFormData = {
 
     "clientName": [
         {type: "required", msg: "应用简称不能为空"},
-        {type : "maxlength", maxlength : 100, msg : "参数名称长度不能超过100"}
+        {type : "maxlength", maxlength : 100, msg : "参数名称长度不能超过100"},
+        {type: "fn", validator: function(value){
+            if(""!=value) {
+
+                var m =/^(?!_)(?!.*?_$)[a-zA-Z0-9_]+$/;
+
+                return m.test(value);
+            }else return true;
+        }, msg: '只能为大小写字母、数字、下划线'
+        }
     ],
     "descRibe": [
         {type: "required", msg: "应用描述不能为空"},
@@ -510,17 +526,17 @@ var clientFormData = {
     ],
     "maxTimes": [
         {type: "digits", msg: "最大使用次数只能为数字"},
-        {type : "maxlength", maxlength : 11, msg : "参数值长度不能超过11"}
+        {type : "maxlength", maxlength : 9, msg : "参数值长度不能超过9"}
     ],
     "expiryDate": [
         {type: "digits", msg: "Token时效只能为数字"},
         {type: "required", msg: "Token时效不能为空"},
-        {type : "maxlength", maxlength : 11, msg : "参数值长度不能超过11"}
+        {type : "maxlength", maxlength : 9, msg : "参数值长度不能超过9"}
     ],
     "refreshExpiryDate": [
         {type: "digits", msg: "刷新Token时效只能为数字"},
         {type: "required", msg: "刷新Token时效不能为空"},
-        {type : "maxlength", maxlength : 11, msg : "参数值长度不能超过11"}
+        {type : "maxlength", maxlength : 9, msg : "参数值长度不能超过9"}
     ]
 
 };
@@ -546,16 +562,13 @@ module.exports = React.createClass({displayName: "module.exports",
         }
     },
     componentDidMount: function() {
-        // console.log("cilentInfoForm-componentDidMount");
         var me = this;
         $.post("client_info/queryAllClientGroup", {}, function(data) {
             if(data.retcode != 0) {
                 return;
             }
-            //console.log("加载到所有应用组");
             var array = [];
             data.data.map(function(data) {
-                //console.log("应用组"+data.groupName);
                 array.push({
                     option: data.groupName,
                     value: data.cligUuid
@@ -609,17 +622,6 @@ module.exports = React.createClass({displayName: "module.exports",
         return status;
     },
     init: function(title, url, data, successFn) {
-        // console.log("cilentInfoForm-init");
-        // console.log("grantType="+data.grantType);
-        //var me = this;
-        ////更新CheckBox组件,必须通过调用组件setChecked方法才有效
-        //if(data.grantType !== undefined && data.grantType !== null){
-        //    data.grantType.split(",").map(function (grantTypeName) {
-        //        if(me.refs[grantTypeName] !== undefined){
-        //            me.refs[grantTypeName].setChecked(true);
-        //        }
-        //    })
-        //}
         this.setState({
             title: title,
             url: url,
@@ -634,7 +636,6 @@ module.exports = React.createClass({displayName: "module.exports",
         UcsmyIndex.closeChildrenPage();
     },
     _save: function(event) {
-        // console.log("点击保存按钮");
         var me = this;
         this._validate(function(){
             _addButtonDisabled('save');
@@ -644,7 +645,6 @@ module.exports = React.createClass({displayName: "module.exports",
             var authorization_code_selected = false;
             //me.props.GRANT_TYPE.map(function(data,index){
             me.state.GRANT_TYPE.map(function(data,index){
-                //console.log("GRANT_TYPE = "+data);
                 if(me.refs[data].getChecked()){
                     array.push(data);
                     if(data == 'authorization_code'){   //判断授权类型是否有选择'authorization_code'
@@ -654,13 +654,14 @@ module.exports = React.createClass({displayName: "module.exports",
             });
             if(array.length == 0){
                 UcsmyIndex.alert("提示", "请选择授权类型");
+                _removeButtonDisabled('save');
                 return;
             }
             if(authorization_code_selected){
                 var clientUrlValue = me.refs.clientUrl.getValue();
-                // console.log("重定向URL = "+clientUrlValue);
                 if(clientUrlValue == undefined || clientUrlValue == ''){
                     UcsmyIndex.alert("提示", "选择authorization_code授权类型必须填写重定向URL");
+                    _removeButtonDisabled('save');
                     return;
                 }
             }
@@ -724,7 +725,6 @@ module.exports = React.createClass({displayName: "module.exports",
         });
     },
     render: function() {
-        // console.log("cilentInfoForm-render");
         return (
             React.createElement("div", null, 
                 React.createElement("div", {className: "panel"}, 
@@ -812,6 +812,7 @@ var Form = UcsmyUI.Form;
 var configFormData = {
 
 	"maxTimes": [
+		{type:"maxlength", maxlength:9, msg : "使用次数长度不能超过9"},
 		{type: "fn", validator: function(value){
 			if(""!=value) {
 
@@ -823,6 +824,7 @@ var configFormData = {
 		}
 	],
 	"expiryTime": [
+		{type:"maxlength", maxlength:9, msg : "有效时间长度不能超过9"},
 		{type: "fn", validator: function(value){
 			if(""!=value) {
 				var m =/^[1-9]*[1-9][0-9]*$/;
@@ -1040,28 +1042,30 @@ module.exports = React.createClass({displayName: "module.exports",
 	render: function() {
 		return (					
 			React.createElement("div", null, 
+				React.createElement("div", {className: "panel-content"}, 
 			React.createElement(Form, {ref: "saveForm", formData: configFormData, id: "saveForm"}, 
                React.createElement(Layer, {ref: "layer4", title: "设置属性", width: "450"}, 
                   React.createElement("div", {className: "ucs-form-group"}, 
-			        React.createElement(FormItem, {label: "最大调用次数"}, React.createElement(Input, {name: "maxTimes", ref: "maxTimes", placeholder: "默认为空"}), "次")
+			        React.createElement(FormItem, {label: "最大调用次数"}, React.createElement(Input, {name: "maxTimes", ref: "maxTimes", placeholder: "默认为空"}), React.createElement("i", {className: "unit"}, "次"))
 			     ), 
 			    React.createElement("div", {className: "ucs-form-group"}, 
-			       React.createElement(FormItem, {label: "有效时间"}, React.createElement(Input, {name: "expiryTime", ref: "expiryTime", placeholder: "默认36000"}), "秒")
+			       React.createElement(FormItem, {label: "有效时间"}, React.createElement(Input, {name: "expiryTime", ref: "expiryTime", placeholder: "默认36000"}), React.createElement("i", {className: "unit"}, "秒"))
 			    ), 
 				React.createElement("div", {className: "ucs-layer-footer"}, 
 			         React.createElement(Button, {id: "bindResour", buttonType: "bidnow", onClick: this._bindResour.bind(this,'bindResour')}, "确定"), 
 		             React.createElement(Button, {buttonType: "bidnow", onClick: this._close}, "取消")
 			    )
 			   )
-             ), 
+             )
+					), 
 	            React.createElement("div", {className: "panel"}, 
 	                React.createElement("div", {className: "panel-title"}, "查询条件"), 
 	                React.createElement("div", {className: "panel-content"}, 
 		                React.createElement(FormItem, {label: "应用简称"}, 
-		                	React.createElement(SelectDropDown, {ref: "clientId", defaultText: "全部", defaultValue: "", option: this.state.clientArray, onChange: this._changeClient})
+		                	React.createElement(SelectDropDown, {ref: "clientId", defaultText: "全部", defaultValue: "", option: this.state.clientArray, onChange: this._changeClient, showNum: "10"})
 		                ), 
 	                    React.createElement(FormItem, {label: "资源组"}, 
-	                    	React.createElement(SelectDropDown, {ref: "resGroupUuid", defaultText: "全部", defaultValue: "", option: this.state.resGroupArray, disabled: this.state.resGroupDisabled})
+	                    	React.createElement(SelectDropDown, {ref: "resGroupUuid", defaultText: "全部", defaultValue: "", option: this.state.resGroupArray, disabled: this.state.resGroupDisabled, showNum: "10"})
 	                    )
 	                )
 	            ), 
@@ -1087,6 +1091,7 @@ module.exports = React.createClass({displayName: "module.exports",
 				React.createElement("div", {className: "table-panel"}, 
 		            React.createElement(Grid, {
 		            	url: this.state.gridUrl, ref: "grid", 
+						isTextOverflowHidden: true, 
 		                columns: [ {
 							 name:'clientId',
 							 header: "",
@@ -1096,11 +1101,11 @@ module.exports = React.createClass({displayName: "module.exports",
 								 );
 							 }.bind(this)
 						}, {
-      						name: 'clientName', header: '应用简称'
+      						name: 'clientName', header: '应用简称',width: 300
       					},{
-      						name: 'groupName', header: '资源组'
+      						name: 'groupName', header: '资源组',width: 300
       					}, {
-      						name: 'descRibe', header: '资源组描述'
+      						name: 'descRibe', header: '资源组描述',width: 300
       					}
 		               ]}
 		            ), 
@@ -1143,6 +1148,7 @@ var Form = __webpack_require__(2);
 var Input = UcsmyUI.Input;
 var Button = UcsmyUI.Button;
 var FormItem = UcsmyUI.Form.FormItem;
+var Tooltip=UcsmyUI.Tooltip;
 module.exports = React.createClass({displayName: "module.exports",
 	getInitialState: function(){
 		return {
@@ -1154,14 +1160,6 @@ module.exports = React.createClass({displayName: "module.exports",
 		}
 	},
 	init: function(data, showReturn, showTokenStrategy) {
-		// console.log("clientName="+data.clientName);
-		//var me = this;
-		////更新CheckBox组件,必须通过调用组件setChecked方法才有效
-		//if(data.grantType !== undefined && data.grantType !== null){
-		//	data.grantType.split(",").map(function (grantTypeName) {
-		//		me.refs[grantTypeName].setChecked(true);
-		//	})
-		//}
 		/* 是否展示返回按钮 */
 		var showRet = true;
 		if (showReturn != null) {
@@ -1241,33 +1239,57 @@ module.exports = React.createClass({displayName: "module.exports",
 		}
 		return (
 			React.createElement("div", null, 
-				React.createElement("div", {className: "panel"}, 
+				React.createElement("div", {className: "panel panel-custom"}, 
 					React.createElement("div", {className: "panel-title fc-red"}, "应用信息"), 
 					React.createElement("div", {className: "ucs-form-group"}, 
 						React.createElement("span", {className: "label"}, "应用简称："), 
-						React.createElement("span", null, this.state.client.clientName)
+						React.createElement("div", {className: "custom-tooltip"}, 
+							React.createElement(Tooltip, {title: this.state.client.clientName}, 
+								this.state.client.clientName
+							)
+						)
 					), 
 					React.createElement("div", {className: "ucs-form-group"}, 
 						React.createElement("span", {className: "label"}, "应用ID："), 
-						React.createElement("span", null, this.state.client.clientId)
+						React.createElement("div", {className: "custom-tooltip"}, 
+							React.createElement(Tooltip, {title: this.state.client.clientId}, 
+								this.state.client.clientId
+							)
+						)
 					), 
 					React.createElement("br", null), 
 					React.createElement("div", {className: "ucs-form-group"}, 
 						React.createElement("span", {className: "label"}, "应用密钥："), 
-						React.createElement("span", null, this.state.client.clientSecret)
+						React.createElement("div", {className: "custom-tooltip"}, 
+							React.createElement(Tooltip, {title: this.state.client.clientSecret}, 
+								this.state.client.clientSecret
+							)
+						)
 					), 
 					React.createElement("div", {className: "ucs-form-group"}, 
 						React.createElement("span", {className: "label"}, "授权类型："), 
-						React.createElement("span", null, this.state.client.grantType)
+						React.createElement("div", {className: "custom-tooltip"}, 
+							React.createElement(Tooltip, {title: this.state.client.grantType}, 
+								this.state.client.grantType
+							)
+					  )
 					), 
 					React.createElement("br", null), 
 					React.createElement("div", {className: "ucs-form-group"}, 
 						React.createElement("span", {className: "label"}, "应用组："), 
-						React.createElement("span", null, this.state.client.ucasClientGroup?this.state.client.ucasClientGroup.groupName:'')
+						React.createElement("div", {className: "custom-tooltip"}, 
+							React.createElement(Tooltip, {title: this.state.client.ucasClientGroup?this.state.client.ucasClientGroup.groupName:''}, 
+								this.state.client.ucasClientGroup?this.state.client.ucasClientGroup.groupName:''
+							)
+						)
 					), 
 					React.createElement("div", {className: "ucs-form-group"}, 
 						React.createElement("span", {className: "label"}, "重定向URL："), 
-						React.createElement("span", null, this.state.client.clientUrl)
+						React.createElement("div", {className: "custom-tooltip"}, 
+							React.createElement(Tooltip, {title: this.state.client.clientUrl}, 
+								this.state.client.clientUrl
+							)
+						)
 					), 
 					React.createElement("br", null), 
 					React.createElement("div", {className: "ucs-form-group"}, 
@@ -1276,7 +1298,11 @@ module.exports = React.createClass({displayName: "module.exports",
 					), 
 					React.createElement("div", {className: "ucs-form-group"}, 
 						React.createElement("span", {className: "label"}, "应用描述："), 
-						React.createElement("span", null, this.state.client.descRibe)
+						React.createElement("div", {className: "custom-tooltip"}, 
+							React.createElement(Tooltip, {title: this.state.client.descRibe}, 
+								this.state.client.descRibe
+							)
+						)
 					)
 				), 
 				tokenStrategy, 
@@ -1288,7 +1314,7 @@ module.exports = React.createClass({displayName: "module.exports",
 
 /***/ }),
 
-/***/ 55:
+/***/ 56:
 /***/ (function(module, exports, __webpack_require__) {
 
 var Input = UcsmyUI.Input;
@@ -1308,19 +1334,34 @@ myPanel = React.createClass({displayName: "myPanel",
 			STATUS_OPTION: [
 				{option: '可用', value: '0'},
 				{option: '停用', value: '1'}
-			],
-			GRANT_TYPE_OPTION: [
-				{option : 'authorization_code', value: 'authorization_code'},
-				{option : 'password', value: 'password'},
-				{option : 'client_credentials', value: 'client_credentials'},
-				{option : 'proxy_authorization_code', value: 'proxy_authorization_code'}
 			]
 		}
 	},
 	getInitialState:function () {
         return{
+			GRANT_TYPE_OPTION: []
         }
     },
+	componentDidMount: function() {
+		var me = this;
+		//加载到所有授权类型
+		$.post("client_info/queryAllGrantType", {}, function(data) {
+			if(data.retcode != 0) {
+				return;
+			}
+			//console.log("加载到所有授权类型");
+			//console.log(data.data);
+			var jsonArr = [];
+			data.data.map(function(data,index){
+				jsonArr.push({option : data, value: data});
+			});
+			//页面加载授权类型对应的CheckBox组件
+			me.setState({
+				GRANT_TYPE_OPTION: jsonArr
+			});
+		}, "json").error(function(xhr, errorText, errorType){
+		});
+	},
     _query: function() {
 		this.refs.grid.load({
 			clientName: this.refs.clientName.getValue(),
@@ -1338,7 +1379,7 @@ myPanel = React.createClass({displayName: "myPanel",
     		});
     	});
     },
-    _update: function(column, event) {
+    _update: function(column) {
     	var me = this;
     	UcsmyIndex.openChildrenPage(ClientInfoForm, function(refPanel) {
     		refPanel.init('修改应用', 'client_info/update', column, function(){
@@ -1346,19 +1387,17 @@ myPanel = React.createClass({displayName: "myPanel",
     		}, true);
     	});
     },
-    _bindResgr: function(column, event) {
-    	var me = this;
+    _bindResgr: function(column) {
     	UcsmyIndex.openChildrenPage(ClientResgrRelForm, function(refPanel) {
     		refPanel.init("bind", column);
     	});
     },
-    _unbindResgr: function(column, event) {
-    	var me = this;
+    _unbindResgr: function(column) {
     	UcsmyIndex.openChildrenPage(ClientResgrRelForm, function(refPanel) {
     		refPanel.init("unbind", column);
     	});
     },
-    _delete: function(column, event) {
+    _delete: function(column) {
     	var me = this;
 		UcsmyIndex.confirm("确定", "你真的要删除该应用数据吗？", function() {
 			$.post("client_info/delete", {clientId: column.clientId}, function(data) {
@@ -1368,13 +1407,12 @@ myPanel = React.createClass({displayName: "myPanel",
 				} else {
 					UcsmyIndex.alert("失败", data.retmsg);
 				}
-			}, "json").error(function(xhr, errorText, errorType){
+			}, "json").error(function(){
 				UcsmyIndex.alert("失败", "网络异常");
 		    });
 		});
     },
-	_view: function(column, event) {
-		var me = this;
+	_view: function(column) {
 		UcsmyIndex.openChildrenPage(ViewClientInfo, function(refPanel) {
 			refPanel.init(column);
 		});
@@ -1421,7 +1459,7 @@ myPanel = React.createClass({displayName: "myPanel",
 							React.createElement(SelectDropDown, {
 								ref: "grantType", 
 								defaultText: "请选择", defaultValue: "", 
-								option: me.props.GRANT_TYPE_OPTION, searchPlaceholder: "请选择"}
+								option: me.state.GRANT_TYPE_OPTION, searchPlaceholder: "请选择"}
 							)
 						)
 					)
@@ -1476,7 +1514,6 @@ myPanel = React.createClass({displayName: "myPanel",
           						header: '操作',
           						permissionName: 'client_info_view,client_info_update,client_info_delete,client_info_bindResgr,client_info_unbindResgr',
           						content:function(column){
-          							//console.log(this);
           							if(column.status == 0){
 										return (React.createElement("span", null, 
 											React.createElement(PermissionLink, {permissionName: "client_info_view", href: "Javascript:void(0);", onClick: me._view.bind(this, column)}, "查看   "), 

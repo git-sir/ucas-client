@@ -23,4 +23,7 @@ public interface CsrfTokenRepository {
 
 	/***绑定网金帐号跟本地帐号***/
 	void addUserOauthRel(Subject subject);
+
+	/****删除token**/
+	void removeToken( HttpServletRequest request);
 }

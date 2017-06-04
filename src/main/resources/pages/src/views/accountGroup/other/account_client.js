@@ -113,10 +113,11 @@ module.exports = React.createClass({
                 <div className="table-panel">
                     <Grid
                         url={this.state.gridUrl} ref="grid"
+                        isTextOverflowHidden={true}
                         columns={[{
                             name: 'cligUuid',
                             header: "",
-                             width: 50,
+                             width: 100,
                             content: function (item) {
                                 if (this.state.sign == 'bind' || this.state.sign == 'unbind') {
                                     return (
@@ -127,7 +128,7 @@ module.exports = React.createClass({
                         }, {
                             name: 'groupName', header: '应用组名称', width: 200
                         },{
-                            name: 'descRibe', header: '应用组描述'
+                            name: 'descRibe', header: '应用组描述',width:200
                         }]}
                     />
                     <div className="clearfix"></div>

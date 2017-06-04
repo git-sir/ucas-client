@@ -72,10 +72,10 @@ public class ManageRoleController {
 
 	@RequestMapping("queryUnbindUserList")
 	@ResponseBody
-	public PageInfo<ManageUserRole> queryUnbindUserList(@RequestParam(required = false) String roleId,
+	public PageInfo<ManageUserRole> queryUnbindUserList(@RequestParam(required = false) String roleId, String name,
 														@RequestParam(required = false) String account, @RequestParam(required = true) int pageNum,
 														@RequestParam(required = true) int pageSize) {
-		return manageUserRoleService.queryUnbindUserList(roleId, account, pageNum, pageSize);
+		return manageUserRoleService.queryUnbindUserList(roleId, account, name, pageNum, pageSize);
 	}
 
 	@RequestMapping("bindUser")
@@ -87,10 +87,10 @@ public class ManageRoleController {
 	
 	@RequestMapping("queryBindUserList")
 	@ResponseBody
-	public PageInfo<ManageUserRole> queryBindUserList(@RequestParam(required = false) String roleId,
+	public PageInfo<ManageUserRole> queryBindUserList(@RequestParam(required = false) String roleId, String name,
 													  @RequestParam(required = false) String account, @RequestParam(required = true) int pageNum,
 													  @RequestParam(required = true) int pageSize) {
-		return manageUserRoleService.queryUserRoleList(roleId, account, pageNum, pageSize);
+		return manageUserRoleService.queryUserRoleList(roleId, account, name, pageNum, pageSize);
 	}
 	
 	@RequestMapping("unbindUser")

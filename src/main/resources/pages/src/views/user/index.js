@@ -24,7 +24,7 @@ myPanel = React.createClass({
     		});
     	});
     },
-    _update: function(column, event) {
+    _update: function(column) {
     	var me = this;
     	UcsmyIndex.openChildrenPage(UserForm, function(refPanel) {
     		refPanel.init('修改用户', 'user/update', column, function(){
@@ -32,13 +32,12 @@ myPanel = React.createClass({
     		}, true);
     	});
     },
-    _updatePassword: function(column, event) {
-    	var me = this;
+    _updatePassword: function(column) {
     	UcsmyIndex.openChildrenPage(PasswordForm, function(refPanel) {
     		refPanel.init(column);
     	});
     },
-    _delete: function(column, event) {
+    _delete: function(column) {
     	var me = this;
 		UcsmyIndex.confirm("确定", "你真的要删除该用户数据吗？", function() {
 			$.post("user/delete", {userId: column.userId}, function(data) {
@@ -48,7 +47,7 @@ myPanel = React.createClass({
 				} else {
 					UcsmyIndex.alert("失败", data.retmsg);
 				}
-			}, "json").error(function(xhr, errorText, errorType){
+			}, "json").error(function(){
 				UcsmyIndex.alert("失败", "网络异常");
 		    });
 		});
@@ -92,9 +91,9 @@ myPanel = React.createClass({
           					}, {
           						name: 'email', header: '邮箱'
           					}, {
-          						name: 'sex', header: '性别', content:function(column){
+          						name: 'gender', header: '性别', content:function(column){
           				    		 return (<span>
-          				    		 	{column.sex == '1' ? '男' : '女'}
+          				    		 	{column.gender == '1' ? '男' : '女'}
           				    		 </span>)
           						}
           					}, {

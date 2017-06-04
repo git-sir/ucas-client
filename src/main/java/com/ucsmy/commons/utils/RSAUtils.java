@@ -2,6 +2,8 @@ package com.ucsmy.commons.utils;
 
 import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
 import javax.crypto.Cipher;
@@ -19,7 +21,7 @@ public final class RSAUtils {
 	private static final Provider PROVIDER = new BouncyCastleProvider();
 
 	public static final String PRIVATE_KEY_ATTRIBUTE_NAME = "privateKey";
-	
+	private static Logger log = LoggerFactory.getLogger(RSAUtils.class);
 	
 	/** 密钥大小. */
 	private static final int KEY_SIZE = 1024;
@@ -42,7 +44,7 @@ public final class RSAUtils {
 			keyPairGenerator.initialize(KEY_SIZE, new SecureRandom());
 			return keyPairGenerator.generateKeyPair();
 		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
+			log.error("RSAUtils",e);
 			return null;
 		}
 	}
@@ -64,8 +66,8 @@ public final class RSAUtils {
 			cipher.init(Cipher.ENCRYPT_MODE, publicKey);
 			return cipher.doFinal(data);
 		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
+			log.error("RSAUtils",e);
+			return new byte[]{};
 		}
 	}
 
@@ -104,7 +106,8 @@ public final class RSAUtils {
 			cipher.init(Cipher.DECRYPT_MODE, privateKey);
 			return cipher.doFinal(data);
 		} catch (Exception e) {
-			return null;
+			log.error("RSAUtils",e);
+			return new byte[]{};
 		}
 	}
 

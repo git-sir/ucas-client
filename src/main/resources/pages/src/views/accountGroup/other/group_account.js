@@ -104,10 +104,10 @@ module.exports = React.createClass({
                 <div className="table-panel">
                     <Grid
                         url={this.state.gridUrl} ref="grid"
+                        isTextOverflowHidden={true}
                         columns={[{
                             name: 'accUuid',
                             header: "",
-                             width: 50,
                             content: function (item) {
                                 return (
                                     <Checkbox value={item.accUuid} name="selectedId"/>

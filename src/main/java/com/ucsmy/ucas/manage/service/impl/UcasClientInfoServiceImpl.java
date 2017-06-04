@@ -8,6 +8,7 @@ import com.ucsmy.commons.utils.UUIDGenerator;
 import com.ucsmy.ucas.commons.aop.annotation.Logger;
 import com.ucsmy.ucas.commons.aop.exception.result.AosResult;
 import com.ucsmy.ucas.commons.aop.exception.result.ResultConst;
+import com.ucsmy.ucas.config.log4j2.LogOuputTarget;
 import com.ucsmy.ucas.manage.dao.ManageConfigMapper;
 import com.ucsmy.ucas.manage.dao.UcasClientInfoMapper;
 import com.ucsmy.ucas.manage.entity.ManageConfig;
@@ -38,7 +39,20 @@ public class UcasClientInfoServiceImpl implements UcasClientInfoService {
     /**
      * 应用clientid的长度
      */
-    private static final int CLIENT_ID_LENGTH = 32;
+    private static final int CLIENT_ID_LENGTH = 8;
+    /**
+     * 应用clientId最大长度
+     */
+    private static final int CLIENT_ID_MAX_LENGTH = 18;
+    /**
+     * clientId自增序列主键
+     */
+    private static final String CLIENT_ID_KEY = "ucas:client:clientId";
+    /**
+     * clientId自增量
+     */
+    private static final long CLIENT_ID_DELTA = 1L;
+
     /**
      * 应用口令的长度
      */
@@ -70,7 +84,7 @@ public class UcasClientInfoServiceImpl implements UcasClientInfoService {
     }
 
     @Override
-    @Logger(printSQL = true)
+    @Logger(printSQL = true, outputTarget = LogOuputTarget.DATABASE)
     @Transactional(rollbackFor = Exception.class)
     public int updateClientInfoCligUuid(String cligUuid, String clientIds) {
         String[] clientIdList = clientIds.split(",");
@@ -106,15 +120,12 @@ public class UcasClientInfoServiceImpl implements UcasClientInfoService {
 
     private boolean isClientNameExist(String clientName){
         Integer count = ucasClientInfoMapper.checkClientNameExist(clientName,CommStatusEnum.SYS_INUSE.getValue());
-        if(count == null){  //数据库中不存在
-            return false;
-        }
-        return true;
+        return count != null;
     }
     @Override
-    @Logger(printSQL = true)
+    @Logger(operationName = "应用添加", printSQL = true, outputTarget = LogOuputTarget.DATABASE)
     public int addClientInfo(UcasClientInfo ucasClientInfo) {
-        ucasClientInfo.setClientId(UUIDGenerator.generate(CLIENT_ID_LENGTH));
+        ucasClientInfo.setClientId(UUIDGenerator.generate(CLIENT_ID_KEY, CLIENT_ID_LENGTH, CLIENT_ID_MAX_LENGTH, CLIENT_ID_DELTA));
         ucasClientInfo.setClientSecret(UUIDGenerator.generateFromEnd(CLIENT_SECRET_LENGTH));
         ucasClientInfo.setStatus(CommStatusEnum.SYS_INUSE.getValue());
         ucasClientInfo.setCreateDate(new Timestamp(System.currentTimeMillis()));
@@ -123,14 +134,14 @@ public class UcasClientInfoServiceImpl implements UcasClientInfoService {
     }
 
     @Override
-    @Logger(printSQL = true)
+    @Logger(operationName = "应用更新", printSQL = true, outputTarget = LogOuputTarget.DATABASE)
     public int updateClientInfo(UcasClientInfo ucasClientInfo) {
         ucasClientInfo.setModifyDate(new Timestamp(System.currentTimeMillis()));
         return ucasClientInfoMapper.updateClientInfo(ucasClientInfo);
     }
 
     @Override
-    @Logger(printSQL = true)
+    @Logger(operationName = "应用删除", printSQL = true, outputTarget = LogOuputTarget.DATABASE)
     public int deleteClientInfo(String clientId) {
         UcasClientInfo ucasClientInfo = ucasClientInfoMapper.queryByClientId(clientId);
         ucasClientInfo.setStatus(CommStatusEnum.SYS_UNUSE.getValue());
@@ -138,7 +149,7 @@ public class UcasClientInfoServiceImpl implements UcasClientInfoService {
     }
 
     @Override
-    @Logger(printSQL = true)
+    @Logger(operationName = "应用添加", printSQL = true, outputTarget = LogOuputTarget.DATABASE)
     @Transactional(rollbackFor = Exception.class)
     public AosResult addClientInfoWithTokenStrategy(UcasClientInfo ucasClientInfo, UcasTokenStrategy ucasTokenStrategy, Boolean hasTokenStrategy) {
         int result = addClientInfo(ucasClientInfo);
@@ -157,7 +168,7 @@ public class UcasClientInfoServiceImpl implements UcasClientInfoService {
     }
 
     @Override
-    @Logger(printSQL = true)
+    @Logger(operationName = "应用更新", printSQL = true, outputTarget = LogOuputTarget.DATABASE)
     public AosResult updateClientInfoWithTokenStrategy(UcasClientInfo ucasClientInfo, UcasTokenStrategy ucasTokenStrategy, Boolean hasTokenStrategy) {
         int result = updateClientInfo(ucasClientInfo);
         if (result > 0) {
@@ -193,7 +204,7 @@ public class UcasClientInfoServiceImpl implements UcasClientInfoService {
         String defaultValue = "authorization_code,password,client_credentials,proxy_authorization_code";
         if(grantTypeConfig == null){
             grantTypeConfig = new ManageConfig();
-            grantTypeConfig.setId(UUIDGenerator.generate(CLIENT_ID_LENGTH));
+            grantTypeConfig.setId(UUIDGenerator.generate());
             grantTypeConfig.setParamKey(GRANT_TYPE_CONFIG);
             grantTypeConfig.setParamValue(defaultValue);
             grantTypeConfig.setParamDesc("统一认证的所有授权类型,若有多个则用\",\"分开");

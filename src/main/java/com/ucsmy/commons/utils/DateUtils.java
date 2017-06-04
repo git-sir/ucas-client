@@ -1,5 +1,7 @@
 package com.ucsmy.commons.utils;
 
+import org.apache.logging.log4j.LogManager;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -21,6 +23,8 @@ public class DateUtils{
 	public final static short DATE_MINUTE = 4;
 	public final static short DATE_SECOND = 5;
 
+	private final static org.apache.logging.log4j.Logger log = LogManager.getLogger();
+
 	/**
 	 * 将date转为calendar
 	 * @param date 指定日期
@@ -36,6 +40,7 @@ public class DateUtils{
 			cal.setTime(date);
 			return cal;
 		} catch (Exception e) {
+			log.error(e);
 			throw e;
 		}
 	}
@@ -54,6 +59,7 @@ public class DateUtils{
 			cal.set(year, month, date);
 			return cal.getTime();
 		} catch (Exception e) {
+			log.error(e);
 			throw e;
 		}
 	}
@@ -74,6 +80,7 @@ public class DateUtils{
 			cal.set(year, month, date, hourOfDay, minute);
 			return cal.getTime();
 		} catch (Exception e) {
+			log.error(e);
 			throw e;
 		}
 	}
@@ -95,6 +102,7 @@ public class DateUtils{
 			cal.set(year, month, date, hourOfDay, minute, second);
 			return cal.getTime();
 		} catch (Exception e) {
+			log.error(e);
 			throw e;
 		}
 	}
@@ -113,6 +121,7 @@ public class DateUtils{
 			SimpleDateFormat sdf = new SimpleDateFormat(format);
 			return sdf.format(date);
 		} catch (Exception e) {
+			log.error(e);
 			throw e;
 		}
 	}
@@ -132,6 +141,7 @@ public class DateUtils{
 			SimpleDateFormat sdf = new SimpleDateFormat(format);
 			return sdf.format(d);
 		} catch (Exception e) {
+			log.error(e);
 			throw e;
 		}
 	}
@@ -144,12 +154,13 @@ public class DateUtils{
 	 */
 	public static Date strToDate(String value, String format) throws ParseException{
 		try {
-			if(value == null || value.trim().equals("")){
+			if(value == null || StringUtils.isEmpty(value.trim())){
 				return null;
 			}
 			SimpleDateFormat sdf = new SimpleDateFormat(format);
 			return sdf.parse(value);
 		} catch (Exception e) {
+			log.error(e);
 			throw e;
 		}
 	}
@@ -164,13 +175,10 @@ public class DateUtils{
 			if(date == null){
 				return null;
 			}
-			GregorianCalendar gc = new GregorianCalendar();
-			gc.setTime(date);
-			gc.set(GregorianCalendar.HOUR_OF_DAY, 0);
-			gc.set(GregorianCalendar.MINUTE, 0);
-			gc.set(GregorianCalendar.SECOND, 0);
+			GregorianCalendar gc = getGregorianCalendar(date, 0, 0, 0);
 			return gc.getTime();
 		} catch (Exception e) {
+			log.error(e);
 			throw e;
 		}
 	}
@@ -185,15 +193,29 @@ public class DateUtils{
 			if(date == null){
 				return null;
 			}
-			GregorianCalendar gc = new GregorianCalendar();
-			gc.setTime(date);
-			gc.set(GregorianCalendar.HOUR_OF_DAY, 23);
-			gc.set(GregorianCalendar.MINUTE, 59);
-			gc.set(GregorianCalendar.SECOND, 59);
+			GregorianCalendar gc = getGregorianCalendar(date, 23, 59, 59);
 			return gc.getTime();
 		} catch (Exception e) {
+			log.error(e);
 			throw e;
 		}
+	}
+
+	/**
+	 * 根据小时，分，秒，获取GregorianCalendar
+	 * @param date
+	 * @param hourOfDay
+	 * @param minute
+	 * @param second
+	 * @return
+	 */
+	private static GregorianCalendar getGregorianCalendar(Date date, int hourOfDay, int minute, int second) {
+		GregorianCalendar gc = new GregorianCalendar();
+		gc.setTime(date);
+		gc.set(GregorianCalendar.HOUR_OF_DAY, hourOfDay);
+		gc.set(GregorianCalendar.MINUTE, minute);
+		gc.set(GregorianCalendar.SECOND, second);
+		return gc;
 	}
 
 	/**
@@ -243,6 +265,7 @@ public class DateUtils{
 			}
 			return cal.getTime();
 		} catch (Exception e) {
+			log.error(e);
 			throw e;
 		}
 	}
@@ -269,6 +292,7 @@ public class DateUtils{
 			int second = cal.get(Calendar.SECOND);
 			return new int[] { year, month, day, hour, minute, second};
 		} catch (Exception e) {
+			log.error(e);
 			throw e;
 		}
 	}
@@ -293,6 +317,7 @@ public class DateUtils{
 			cal2.setTime(date2);
 			return cal.compareTo(cal2);
 		}catch (Exception e) {
+			log.error(e);
 			throw e;
 		}
 	}
@@ -317,6 +342,7 @@ public class DateUtils{
 			int[] date2Val = {cal.get(Calendar.YEAR),cal.get(Calendar.MONTH),cal.get(Calendar.DAY_OF_MONTH)};
 			return date1Val[0] == date2Val[0] && date1Val[1] == date2Val[1] && date1Val[2] == date2Val[2];
 		} catch (Exception e) {
+			log.error(e);
 			throw e;
 		}
 
@@ -341,6 +367,7 @@ public class DateUtils{
 			cal.set(Calendar.MILLISECOND,0);
 			return cal.getTime();
 		} catch (Exception e) {
+			log.error(e);
 			throw e;
 		}
 	}
@@ -368,12 +395,6 @@ public class DateUtils{
 			cal.setTimeInMillis(cal.getTimeInMillis() + (7 * 3600 * 24 * 1000));
 		}
 		return cal.getTime();
-	}  
-	
-	public static void main(String args[]){
-		Date date = new Date();
-		System.out.println(dateToString(getTodayMin(date),"yyyy-MM-dd HH:mm:ss"));
-		System.out.println(dateToString(DateUtils.getTodayMax(DateUtils.getDate(2018,2,0)),"yyyy-MM-dd HH:mm:ss"));
 	}
 
 }

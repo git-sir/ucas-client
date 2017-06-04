@@ -15,23 +15,24 @@ public class TreeTool {
      * @param list
      * @return
      */
-    public static List<?> getTreeList(List<? extends BaseTreeNode> list) {
+    public static List<? extends BaseTreeNode> getTreeList(List<? extends BaseTreeNode> list) {
         List<BaseTreeNode> nodeList = new ArrayList<>();
         for (BaseTreeNode node1 : list) {
             boolean mark = false;
             for (BaseTreeNode node2 : list) {
+                if (node2.getChildren() == null) {
+                    node2.setChildren(new ArrayList<BaseTreeNode>());
+                }
                 if (node1.getParentId() != null && node1.getParentId().equals(node2.getId())) {
                     mark = true;
-                    if (node2.getChildren() == null)
-                        node2.setChildren(new ArrayList<BaseTreeNode>());
                     node2.getChildren().add(node1);
                     break;
                 }
             }
-            if (!mark) {
-                if (node1.getParentId() == null || "".equals(node1.getParentId().trim()) || "0".equals(node1.getParentId().trim())) {
-                    nodeList.add(node1);
-                }
+            if (!mark && (node1.getParentId() == null
+                    || "".equals(node1.getParentId().trim())
+                    || "0".equals(node1.getParentId().trim())) ) {
+                nodeList.add(node1);
             }
         }
         return nodeList;

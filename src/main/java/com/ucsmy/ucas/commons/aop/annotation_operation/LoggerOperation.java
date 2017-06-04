@@ -11,15 +11,9 @@ import org.apache.logging.log4j.ThreadContext;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
-import org.aspectj.lang.annotation.AfterThrowing;
-import org.aspectj.lang.annotation.Around;
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Pointcut;
-import org.aspectj.lang.reflect.MethodSignature;
+import org.aspectj.lang.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.lang.reflect.Method;
 
 @Aspect
 @Component
@@ -39,35 +33,46 @@ public class LoggerOperation {
 	 */
 	@Around("execution (* com.ucsmy.ucas.manage.service..*.*(..)) && @annotation(logger)")
 	public Object aroundService(ProceedingJoinPoint pjp, Logger logger) throws Throwable {
-		String sessionId = LogCommUtil.getServiceSessionId();
+		String sessionId = LogCommUtil.getNewServiceSessionId();
 		Signature signature = pjp.getSignature();
 		// 日志信息
 		StringBuilder logInfo = new StringBuilder();
-		logInfo.append(LogCommUtil.LINE_SEPERATOR).append("【操作方法】").append(LogCommUtil.getMethodName(signature));
-		logInfo.append(LogCommUtil.LINE_SEPERATOR).append("【操作名称】").append(logger.operationName());
-		logInfo.append(LogCommUtil.LINE_SEPERATOR).append("【操作类型】").append(logger.operationType());
-		logInfo.append(LogCommUtil.LINE_SEPERATOR).append("【IP信息】").append(LogCommUtil.getIpAddress());
-		logInfo.append(LogCommUtil.LINE_SEPERATOR).append("【操作员信息】").append(LogCommUtil.getUserInfo());
+		logInfo.append(LogCommUtil.LINE_SEPERATOR).append(LogCommUtil.OPERATE_METHOD).append(LogCommUtil.getMethodName(signature));
+		if (StringUtils.isNotEmpty(logger.operationName())) {
+			logInfo.append(LogCommUtil.LINE_SEPERATOR).append(LogCommUtil.OPERATE_NAME).append(logger.operationName());
+		}
+		if (StringUtils.isNotEmpty(logger.operationType())) {
+			logInfo.append(LogCommUtil.LINE_SEPERATOR).append(LogCommUtil.OPERATE_TYPE).append(logger.operationType());
+		}
+		logInfo.append(LogCommUtil.LINE_SEPERATOR).append(LogCommUtil.IP_INFO).append(ThreadContext.get(LogCommUtil.MSG_IP_ADDRESS));
+		logInfo.append(LogCommUtil.LINE_SEPERATOR).append(LogCommUtil.USER_INFO).append(LogCommUtil.getUserInfo());
 		// 入参信息
 		if (logger.printInput()) {
 			logInfo.append(LogCommUtil.getInputParamList(signature, pjp.getArgs()));
 		}
 		ThreadContext.put(sessionId, logInfo.toString());
 		// 是否输出SQL
-		ThreadContext.put(sessionId + "SQL", String.valueOf(logger.printSQL()));
-		Object retObj = pjp.proceed();
-		// 输出数据
-		StringBuilder info = new StringBuilder(ThreadContext.get(sessionId));
+		ThreadContext.put(LogCommUtil.getSQLOutputKey(sessionId), String.valueOf(logger.printSQL()));
+		// 是否输出到DB
+		if (LogOuputTarget.DATABASE.equals(logger.outputTarget())) {
+			ThreadContext.put(LogCommUtil.getDBOutputKey(sessionId), Boolean.toString(true));
+		}
+		// 是否输出出参信息
 		if (logger.printOutput()) {
+			ThreadContext.put(LogCommUtil.getPrintOutputKey(sessionId), Boolean.toString(true));
+		}
+		Object retObj = pjp.proceed();
+		// 输出到日志文件
+		StringBuilder info = new StringBuilder(ThreadContext.get(sessionId));
+		// 如果有输出的SQL，添加到日志记录里
+		info.append(LogCommUtil.LINE_SEPERATOR).append(LogCommUtil.LOG_SQL).append(ThreadContext.get(LogCommUtil.getLogSQLKey(sessionId)));
+		if (Boolean.parseBoolean(ThreadContext.get(LogCommUtil.getPrintOutputKey(sessionId)))) {
 			info.append(LogCommUtil.getOutputParam(signature, retObj));
 		}
 		log.info(info.toString());
+		// 输出到数据库
+		logDBOutput(Boolean.parseBoolean(ThreadContext.get(LogCommUtil.getDBOutputKey(sessionId))), info.toString());
 		LogCommUtil.removeThreadContext(sessionId);
-		// 是否输出到数据库
-		if (LogOuputTarget.DATABASE.equals(logger.outputTarget())) {
-			ManageLogInfo manageLogInfo = LogCommUtil.getManageLogInfo(info.toString());
-			manageLogInfoService.addManageLogInfo(manageLogInfo);
-		}
         return retObj;
 	}
 
@@ -75,24 +80,36 @@ public class LoggerOperation {
 	 * 拦截service层使用了@Logger的抛异常的方法，打印抛异常前的日志信息
 	 */
 	@Pointcut("execution (* com.ucsmy.ucas.manage.service..*.*(..)) && @annotation(com.ucsmy.ucas.commons.aop.annotation.Logger)")
-	private void exceptionPointCut(){};
+	private void exceptionPointCut(){
+		// pointCut Signature
+	}
 
-	@AfterThrowing(pointcut = "exceptionPointCut()")
-	public void handlerServiceException(JoinPoint joinPoint) {
+	/**
+	 * 发生异常时要先把ThreadContext里的已有的log信息输出 <br>
+	 * 
+	 * @param joinPoint
+	 */
+	@AfterThrowing(pointcut = "exceptionPointCut()", throwing = "e")
+	public void handlerServiceException(JoinPoint joinPoint, Exception e) {
 		String sessionId = LogCommUtil.getServiceSessionId();
 		if (StringUtils.isNotEmpty(ThreadContext.get(sessionId))) {
-			log.info(ThreadContext.get(sessionId));
-			Signature signature = joinPoint.getSignature();
-			MethodSignature methodSignature = (MethodSignature) signature;
-			Method method = methodSignature.getMethod();
-			if (method.isAnnotationPresent(Logger.class)) {
-				Logger logger = method.getAnnotation(Logger.class);
-				if (LogOuputTarget.DATABASE.equals(logger.outputTarget())) {
-					ManageLogInfo manageLogInfo = LogCommUtil.getManageLogInfo(ThreadContext.get(sessionId));
-					manageLogInfoService.addManageLogInfo(manageLogInfo);
-				}
-			}
+			StringBuilder info = new StringBuilder(ThreadContext.get(sessionId));
+			info.append(LogCommUtil.LINE_SEPERATOR).append(LogCommUtil.LOG_SQL).append(ThreadContext.get(LogCommUtil.getLogSQLKey(sessionId)));
+			log.info(info.toString());
+			// 输出到数据库
+			logDBOutput(Boolean.parseBoolean(ThreadContext.get(LogCommUtil.getDBOutputKey(sessionId))), info.toString());
 			LogCommUtil.removeThreadContext(sessionId);
+		}
+	}
+
+	/**
+	 * 是否输出日志到数据库
+	 * @param dbOutput 是否输出到数据库
+	 */
+	private void logDBOutput(Boolean dbOutput, String logInfo) {
+		if (dbOutput) {
+			ManageLogInfo manageLogInfo = LogCommUtil.getManageLogInfo(logInfo);
+			manageLogInfoService.addManageLogInfo(manageLogInfo);
 		}
 	}
 

@@ -13,6 +13,7 @@ var configFormData = {
         {type : "maxlength", maxlength : 50, msg : "用户名称长度不能超过50"}
     ],
     "emailAccount": [
+        {type : "maxlength", maxlength : 35, msg : "邮箱长度不能超过35"},
         {type: "mail", msg: "邮箱地址不对"}
     ],
     "mobileAccount": [
@@ -20,29 +21,34 @@ var configFormData = {
     ],
     "password": [
         {type: "required", msg: "密码不能为空"},
-        {type : "maxlength", maxlength : 25, msg : "密码长度不能超过50"}
+        {type: "fn", validator: function(value){
+            var reg = /^[A-Za-z0-9~!@#$%^&*()\\-_=+{}\[\]:\"|;'\<\>?,.]{6,16}$/;
+
+            return reg.test(value)
+        }, msg: '密码长度为6-16个字符,只能是a-Z0-9及常用符号'
+        }
     ],
     "mobilePhone": [
         {type: "mobile", msg: "手机格式不对"}
     ],
     "email": [
-        {type: "mail", msg: "手机格式不对"}
+        {type : "maxlength", maxlength : 35, msg : "邮箱长度不能超过35"},
+        {type: "mail", msg: "邮箱地址不对"}
     ],
     "ucasAccount": [
         {type: "fn", validator: function(value){
-            if(""!=value) {
-            var m =/^\d{8}$/;
+            if(""!==value) {
+            var m =/^\d{1,7}$/;
 
                 return m.test(value);
             }else return true;
-        }, msg: '网金帐号为8位数字'
+        }, msg: '输入的网金帐号为1到7位数字'
         }
     ],
     "accgUuid": [
         {type: "required", msg: "用户组必须选择"},
         {type: "fn", validator: function(value){
-            console.log(value)
-            if("-1"==value) {
+            if("-1"===value) {
                 return false;
             }else return true;
         }, msg: '用户组必须选择'
@@ -51,6 +57,9 @@ var configFormData = {
     "orgName": [
         {type: "required", msg: "组织名称必须填写"},
         {type : "maxlength", maxlength : 100, msg : "组织名称长度为100"}
+    ],
+    "headImgUrl":[
+        {type:"maxlength", maxlength:100, msg : "头像地址长度不能超过100"}
     ]
 };
 
@@ -69,7 +78,7 @@ module.exports = React.createClass({
     componentDidMount: function() {
         var me = this;
         $.post("accountGroup/getAll", {}, function(data) {
-            if(data.retmsg != 'success') {
+            if(data.retmsg !== 'success') {
                 return;
             }
 
@@ -77,14 +86,16 @@ module.exports = React.createClass({
                 data: data.data,
                 urgentFlag:data.data
             });
-        }, "json").error(function(xhr, errorText, errorType){
+        }, "json").error(function(){
+            UcsmyIndex.alert("失败", "网络异常");
         });
     },
     _validate: function (callback) {
         var status = false;
         var validateField = [
             "realName", "emailAccount","mobileAccount","password",
-            "mobilePhone","email","accgUuid","ucasAccount","orgName"
+            "mobilePhone","email","accgUuid","ucasAccount","orgName",
+            "headImgUrl"
         ];
         var fn = function (result) {
             if(result) {
@@ -104,7 +115,7 @@ module.exports = React.createClass({
             $.post(me.state.url,
                 $('#saveForm').serialize(),
                 function (result) {
-                    if (result && result.retcode=='0') {
+                    if (result && result.retcode==='0') {
                         UcsmyIndex.alert("提示", result.retmsg);
                         UcsmyIndex.closeChildrenPage();
                         me.state.callback();
@@ -112,23 +123,21 @@ module.exports = React.createClass({
                         UcsmyIndex.alert("提示", result.retmsg);
                     }
                     _removeButtonDisabled('save');
-                }).error(function(xhr, errorText, errorType){
+                }).error(function(){
                 UcsmyIndex.alert("失败", "网络异常");
                    _removeButtonDisabled('save');
             });
         });
     },
     init: function (url, title, data, callback) {
-        var me = this;
         this.setState({
             title: title,
             url: url,
             ucasAccountGroup: data,
             callback: callback,
         });
-        // this.refs.saveForm.setValues(data);
     },
-    _return: function (event) {
+    _return: function () {
         UcsmyIndex.closeChildrenPage();
     },
     render: function () {
@@ -156,7 +165,7 @@ module.exports = React.createClass({
         </RadioGroup>
         </FormItem>
         <FormItem label="用户组" >
-            <SelectDropDown name="accgUuid" option={that.state.urgentFlag} value ={that.state.data}  className="setwidth" ref="urgentFlag" />
+            <SelectDropDown name="accgUuid" option={that.state.urgentFlag}  showNum="8" value ={that.state.data}  className="setwidth" ref="urgentFlag" />
          </FormItem>
         </Form>
         </div>

@@ -58,7 +58,7 @@ module.exports = React.createClass({
                         columns={[{
                             name: 'groupName', header: '账号组名称', width: 300
                         },{
-                            name: 'descRibe', header: '账号组描述'
+                            name: 'descRibe', header: '账号组描述',width: 300
                         }]}
                     />
                     <div className="clearfix"></div>

@@ -17,10 +17,9 @@ import java.util.Map;
 
 @Service
 public class SysTokenManagerServiceImpl implements SysTokenManagerService {
-    public static String TOKEN_MANAGER_PATH = "ucas:manager:";
-    public static String TOKEN_KEY = "tokeninfo";
-    public static String TOKEN_STATUS = "loseToken";
-    public final String SYSTOKEN_KEY = "loginfo";
+    private static final String TOKEN_MANAGER_PATH = "ucas:manager:";
+    private static final String TOKEN_KEY = "tokeninfo";
+    private static final String SYSTOKEN_KEY = "loginfo";
     @Autowired
     private SysCacheService sysCacheService;
 

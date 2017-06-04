@@ -1,5 +1,7 @@
 package com.ucsmy.ucas.manage.service;
 
+import com.ucsmy.commons.interceptor.domain.PageInfo;
+import com.ucsmy.ucas.manage.entity.ManageConfig;
 import com.ucsmy.ucas.manage.entity.ManageLogInfo;
 
 /**
@@ -14,4 +16,12 @@ public interface ManageLogInfoService {
      * @return
      */
     int addManageLogInfo(ManageLogInfo manageLogInfo);
+
+    /**
+     * 查看列表
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
+    PageInfo<ManageLogInfo> query(String startDate,String endDate,int pageNum, int pageSize);
 }

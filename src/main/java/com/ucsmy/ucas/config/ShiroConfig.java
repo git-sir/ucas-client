@@ -5,6 +5,7 @@ import com.ucsmy.ucas.config.log4j2.LogFilter;
 import com.ucsmy.ucas.config.shiro.MyFormAuthenticationFilter;
 import com.ucsmy.ucas.config.shiro.MyRolesAuthorizationFilter;
 import com.ucsmy.ucas.config.shiro.ShiroRealmImpl;
+import com.ucsmy.ucas.config.shiro.SpecCharFilter;
 import com.ucsmy.ucas.config.shiro.csrf.CsrfAuthenticationStrategy;
 import com.ucsmy.ucas.config.shiro.csrf.CsrfFilter;
 import com.ucsmy.ucas.config.shiro.csrf.CsrfTokenRepository;
@@ -93,9 +94,10 @@ public class ShiroConfig {
         shiroFilterFactoryBean.getFilters().put("csrf", new CsrfFilter(getHttpSessionCsrfTokenRepository()));
         // 为日志输出添加ip和用户信息的上下文
         shiroFilterFactoryBean.getFilters().put("log", new LogFilter());
+        shiroFilterFactoryBean.getFilters().put("spec",new SpecCharFilter());
         shiroFilterFactoryBean.setLoginUrl("/login");
         shiroFilterFactoryBean.setSuccessUrl("/main/index");
-         filterChainDefinitionMap.put("/css/**", "anon");
+        filterChainDefinitionMap.put("/css/**", "anon");
         filterChainDefinitionMap.put("/images/**", "anon");
         filterChainDefinitionMap.put("/Javascript/**", "anon");
         filterChainDefinitionMap.put("/libs/**", "anon");
@@ -104,8 +106,8 @@ public class ShiroConfig {
         filterChainDefinitionMap.put("/getRsa/**", "anon");
         filterChainDefinitionMap.put("/bindAccount/**", "anon");
         filterChainDefinitionMap.put("/pages/bind/**", "anon");
-            filterChainDefinitionMap.put("/favicon.ico/**", "anon");
-        filterChainDefinitionMap.put("/**", "log,csrf,authc");
+        filterChainDefinitionMap.put("/favicon.ico/**", "anon");
+        filterChainDefinitionMap.put("/**", "spec,log,csrf,authc");
         shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);
          return shiroFilterFactoryBean;
     }

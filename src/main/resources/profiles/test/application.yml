@@ -6,7 +6,7 @@ server:
 
 spring:
   datasource:
-    url: jdbc:mysql://172.17.21.59:3306/ucas_center_test
+    url: jdbc:mysql://172.17.22.38:8066/ucas_center
     username: root
     password: root
     driverClassName: com.mysql.jdbc.Driver
@@ -17,29 +17,21 @@ spring:
       max-wait: 200
       test-on-borrow: true
   session:
-      store-type: redis
+    store-type: redis
+    redis:
+      namespace: ucas:client
   aop:
     auto: true
   thymeleaf:
     cache: false
     prefix: classpath:/templates/pages/
   redis:
-     cluster:
-          nodes:
-            - 10.0.0.213:7080
-            - 10.0.0.213:7081
-            - 10.0.0.213:7082
-            - 10.0.0.214:7083
-            - 10.0.0.214:7084
-            - 10.0.0.214:7085
+       host: 172.17.22.38
+       port: 7082
+       password: 123456
 
 
-  data:
-    mongodb:
-        host: 172.17.21.59
-        port: 27017
-        dbname: client
-        database: client
+
 
 
 #是否启动quartz任务扫描器

@@ -7,8 +7,8 @@ import com.ucsmy.ucas.commons.constant.HttpResponseCode;
 import com.ucsmy.ucas.commons.http.service.SysHttpRequestService;
 import com.ucsmy.ucas.manage.service.ManageHttpAosResultService;
 import com.ucsmy.ucas.manage.service.SysTokenManagerService;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -21,6 +21,8 @@ import java.util.Map;
 public class ManageHttpAosResultServerImpl implements ManageHttpAosResultService {
 
     private static  final  String INVALID_TOKEN= "invalid_token";
+
+    private static org.slf4j.Logger log = LoggerFactory.getLogger(ManageHttpAosResultServerImpl.class);
 
     @Autowired
     private SysTokenManagerService sysTokenManagerService;
@@ -39,12 +41,13 @@ public class ManageHttpAosResultServerImpl implements ManageHttpAosResultService
             try {
                 token = sysTokenManagerService.getValidToken("refresh");
             } catch (Exception e) {
+                log.error("ManageHttpAosResultServerImpl",e);
                 return AosResult.retFailureMsg("调用外部接口异常");
             }
             Map map = JSONObject.parseObject(strJson,Map.class);
             map.put("access_token",token);
-            strJson =  JSONObject.toJSONString(map);
-            return  this.firsendPostJson(url, strJson);
+           String  newStrJson =  JSONObject.toJSONString(map);
+            return  this.firsendPostJson(url, newStrJson);
         }
         return aosResult;
     }
@@ -57,6 +60,7 @@ public class ManageHttpAosResultServerImpl implements ManageHttpAosResultService
                 entity =  sysHttpRequestService.sendHttpGet(url);
 
         } catch (IOException e) {
+            log.error("ManageHttpAosResultServerImpl",e);
             return AosResult.retFailureMsg("调用外部接口异常");
         }
 
@@ -114,8 +118,8 @@ public class ManageHttpAosResultServerImpl implements ManageHttpAosResultService
         String entiy = null;
         try {
             entiy = sysHttpRequestService.sendHttpPostJson(url,strJson);
-//            entiy = HttpUtil.getInstance().sendHttpPostJson(url, strJson);
         } catch (IOException e) {
+            log.error("ManageHttpAosResultServerImpl",e);
             return AosResult.retFailureMsg("调用外部接口异常");
         }
          return this.handleResponse(entiy);

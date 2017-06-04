@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 69);
+/******/ 	return __webpack_require__(__webpack_require__.s = 70);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -195,7 +195,7 @@ module.exports = PermissionLink;
 
 /***/ }),
 
-/***/ 69:
+/***/ 70:
 /***/ (function(module, exports, __webpack_require__) {
 
 var Input = UcsmyUI.Input;
@@ -224,7 +224,7 @@ var me = this;
     		{
     			me.refs.dataResult.value=JSON.stringify(data);
     		},
-    		error:function(e)
+    		error:function()
     		{
     			UcsmyIndex.alert("失败", "网络异常");
     		}
@@ -250,7 +250,6 @@ var me = this;
     },
 
 	render:function() {
-		var me = this;
 		return (
 			React.createElement("div", null, 
 

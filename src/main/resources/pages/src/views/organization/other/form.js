@@ -19,7 +19,8 @@ var organizationFormData = {
             var m = /^\d+$/;
             return m.test(value);
         }, msg: '优先级必须为大于等于0的整数'
-        }
+        },
+        {type : "maxlength", maxlength : 9, msg : "优先级长度不能大于9"}
     ]
 };
 
@@ -66,7 +67,7 @@ module.exports = React.createClass({
                     } else {
                         UcsmyIndex.alert("提示", result.retmsg);
                     }
-                }, "json").error(function(xhr, errorText, errorType){
+                }, "json").error(function(){
                 _removeButtonDisabled('save');
                 UcsmyIndex.alert("失败", "网络异常");
             });
@@ -75,7 +76,6 @@ module.exports = React.createClass({
     },
 
     init: function (url, title, callback, data) {
-        var rootThis = this;
 
         this.setState({
             url: url,
@@ -87,7 +87,7 @@ module.exports = React.createClass({
 
     },
 
-    _return: function(event) {
+    _return: function() {
         UcsmyIndex.closeChildrenPage();
     },
 
@@ -99,7 +99,7 @@ module.exports = React.createClass({
                     <div className="panel-content">
                         <Form id="form" ref="saveForm" formData={organizationFormData}>
                             <input type="hidden" name="id" value={this.state.organization.id} />
-                            <input type="hidden" name="parentId" value={this.state.parentId} />
+                            <input type="hidden" name="parentId" value={this.state.organization.parentId} />
                             <FormItem label="名称" className="col-xs-5"><Input  value={this.state.organization.name} name="name" /></FormItem>
                             <FormItem label="描述" className="col-xs-5"><Input  value={this.state.organization.description}  name="description" /></FormItem>
                             <FormItem label="优先级" className="col-xs-5"><Input  value={this.state.organization.priority}  name="priority"/></FormItem>

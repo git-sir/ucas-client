@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 51);
+/******/ 	return __webpack_require__(__webpack_require__.s = 52);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -313,10 +313,11 @@ module.exports = React.createClass({displayName: "module.exports",
                 React.createElement("div", {className: "table-panel"}, 
                     React.createElement(Grid, {
                         url: this.state.gridUrl, ref: "grid", 
+                        isTextOverflowHidden: true, 
                         columns: [{
                             name: 'cligUuid',
                             header: "",
-                             width: 50,
+                             width: 100,
                             content: function (item) {
                                 if (this.state.sign == 'bind' || this.state.sign == 'unbind') {
                                     return (
@@ -327,7 +328,7 @@ module.exports = React.createClass({displayName: "module.exports",
                         }, {
                             name: 'groupName', header: '应用组名称', width: 200
                         },{
-                            name: 'descRibe', header: '应用组描述'
+                            name: 'descRibe', header: '应用组描述',width:200
                         }]}
                     ), 
                     React.createElement("div", {className: "clearfix"})
@@ -356,7 +357,7 @@ var configFormData = {
     ],
     "descRibe": [
         {type: "required", msg: "账号组描述不能为空"},
-        {type : "maxlength", maxlength : 2000, msg : "账号组描述长度不能超过2000"}
+        {type : "maxlength", maxlength : 200, msg : "账号组描述长度不能超过200"}
     ]
 
 };
@@ -397,22 +398,20 @@ module.exports = React.createClass({displayName: "module.exports",
                     UcsmyIndex.closeChildrenPage();
                     me.state.callback();
                 } else {
-                    UcsmyIndex.alert("提示","失败");
+                    UcsmyIndex.alert("提示",result.retmsg);
                 }
             });
         });
     },
     init: function (url, title, data, callback) {
-        var me = this;
         this.setState({
             title: title,
             url: url,
             ucasAccountGroup: data,
             callback: callback,
         });
-        // this.refs.saveForm.setValues(data);
     },
-    _return: function (event) {
+    _return: function () {
         UcsmyIndex.closeChildrenPage();
     },
     render: function () {
@@ -548,10 +547,10 @@ module.exports = React.createClass({displayName: "module.exports",
                 React.createElement("div", {className: "table-panel"}, 
                     React.createElement(Grid, {
                         url: this.state.gridUrl, ref: "grid", 
+                        isTextOverflowHidden: true, 
                         columns: [{
                             name: 'accUuid',
                             header: "",
-                             width: 50,
                             content: function (item) {
                                 return (
                                     React.createElement(Checkbox, {value: item.accUuid, name: "selectedId"})
@@ -687,6 +686,7 @@ module.exports = React.createClass({displayName: "module.exports",
                 React.createElement("div", {className: "table-panel"}, 
                     React.createElement(Grid, {
                         url: this.state.gridUrl, ref: "grid", 
+                        isTextOverflowHidden: true, 
                         columns: [ {
                             name: 'ucasAccount', header: '用户网金账号', width: 150
                         },
@@ -731,7 +731,7 @@ module.exports = PermissionButton;
 
 /***/ }),
 
-/***/ 51:
+/***/ 52:
 /***/ (function(module, exports, __webpack_require__) {
 
 var Input = UcsmyUI.Input;

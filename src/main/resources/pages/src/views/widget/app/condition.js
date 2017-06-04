@@ -45,14 +45,6 @@ var AppCondition = React.createClass({
         }
     },
     render:function(){
-    	var that = this;
-        var classNames = {
-            rootDiv: 'custom-rootDiv',
-            itemsPerPage: 'custom-itemsPerPage',
-            table: 'custom-table',
-            pagination: 'custom-pagination',
-            filter: 'custom-filter'
-        };
     	return(
 			<div>
                 <form id="formQueryApp">

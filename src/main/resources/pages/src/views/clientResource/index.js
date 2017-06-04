@@ -29,10 +29,8 @@ myPanel = React.createClass({
             if(data.retcode != 0) {
                 return;
             }            
-//            var map = {};
             var array = [];
             data.data.map(function(returnData) {            	
-//            	map[returnData.resGroupUuid] = returnData.groupName;
             	array.push({
                     option: returnData.groupName,
                     value: returnData.resGroupUuid
@@ -43,7 +41,8 @@ myPanel = React.createClass({
             	resGroupArray: array,
             	resGroupObj: data.data
             });
-        }, "json").error(function(xhr, errorText, errorType){
+        }, "json").error(function(){
+			UcsmyIndex.alert("失败", "网络异常");
         });
         
         $.post("client_info/query", {pageNum:1,pageSize:99999}, function(data) {        	
@@ -62,7 +61,8 @@ myPanel = React.createClass({
             	clientArray: array,
             	clientRepo: array
             });
-        }, "json").error(function(xhr, errorText, errorType){
+        }, "json").error(function(){
+			UcsmyIndex.alert("失败", "网络异常");
         });
     },
 	/*_changeGroup: function(event) {		
@@ -77,7 +77,7 @@ myPanel = React.createClass({
     		resGroupUuid: this.refs.resGroupUuid.getValue()
     	});
     },*/
-    _query: function(event) {		
+    _query: function() {
     	this.refs.grid.load({
 //    		status: this.refs.status.getValue(),
     		resGroupUuid: this.refs.resGroupUuid.getValue(),
@@ -113,8 +113,6 @@ myPanel = React.createClass({
 	    		}	
 	    	});
     	}
-//    	console.log(value);
-    	console.log(array);
     	this.setState({
     		clientArray: array
     	});
@@ -153,29 +151,25 @@ myPanel = React.createClass({
 				} else {
 					UcsmyIndex.alert("失败", data.retmsg);
 				}
-			}, "json").error(function(xhr, errorText, errorType){
+			}, "json").error(function(){
 				UcsmyIndex.alert("失败", "网络异常");
 		    });
 		});
 	},
 	_unbindClick:function(column){		
-		var me = this;
     	UcsmyIndex.openChildrenPage(RoleUser, function(refPanel) {
     		refPanel.init("unbind", column);
     	});	
 	},
 	_bindClick: function(column) {
-		var me = this;
     	UcsmyIndex.openChildrenPage(RoleUser, function(refPanel) {
     		refPanel.init("bind", column);
     	});		
 	},
 	_bindPermClick: function(column){
-		var me = this;
     	UcsmyIndex.openChildrenPage(BindPermissionPanel, function(refPanel) {
     		refPanel.load(column.roleId,column.name);
     	});
-		//this.props._bindPermission(column.roleId,column.name);
 	},
 	render:function() {
 		var me = this;
@@ -186,10 +180,10 @@ myPanel = React.createClass({
 	                <div className="panel-title">查询条件</div>
 	                <div className="panel-content">
 		                <FormItem label="应用简称">
-		                	<SelectDropDown type="search" ref="clientId" defaultText="全部" defaultValue="" option={this.state.clientArray} onChange={this._changeClient} searchChange={this._searchChangeClient} />
+		                	<SelectDropDown type="search" ref="clientId" defaultText="全部" defaultValue="" option={this.state.clientArray} onChange={this._changeClient} searchChange={this._searchChangeClient} showNum="10" />
 		                </FormItem>
 	                    <FormItem label="资源组">
-	                    	<SelectDropDown ref="resGroupUuid" defaultText="全部" defaultValue="" option={this.state.resGroupArray} disabled={this.state.resGroupDisabled} />
+	                    	<SelectDropDown ref="resGroupUuid" defaultText="全部" defaultValue="" option={this.state.resGroupArray} disabled={this.state.resGroupDisabled} showNum="10" />
 	                    </FormItem>
 	                    {/*<FormItem label="资源状态">
 	                    	<SelectDropDown ref="status" defaultText="全部" defaultValue="" option={statusArray} />
@@ -203,11 +197,11 @@ myPanel = React.createClass({
 				<div className="table-panel">
 		            <Grid url="clientResource/queryResource" ref = "grid" isTextOverflowHidden={true}
 		                columns={[ {
-          						name:'groupName', header: '资源组'
+          						name:'groupName', header: '资源组', width: 250
           					}, {
-          						name: 'descRibe', header: '资源描述'
+          						name: 'descRibe', header: '资源描述',width: 250
           					}, {
-          						name: 'resUri', header: '资源URI'
+          						name: 'resUri', header: '资源URI',width: 250
           					}/*, {
           						name: 'isPrivacy', header: '涉及用户隐私', content: function (item) {
                                     var statusText = '否';

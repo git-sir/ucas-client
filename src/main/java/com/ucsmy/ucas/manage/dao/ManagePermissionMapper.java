@@ -13,6 +13,16 @@ import java.util.List;
 @Mapper
 public interface ManagePermissionMapper {
 
+    /**
+     * 根据条件查询
+     * @param moduleId 菜单Id
+     * @param name 权限名称，全等查询，不用like
+     * @param excludeId 排除的权限Id
+     * @return
+     */
+    List<ManagePermission> queryPermissionByCondition(@Param("moduleId") String moduleId
+            , @Param("name") String name, @Param("excludeId") String excludeId);
+
     List<ManagePermission> queryPermissionByModuleID(@Param("id") String id);
 
     ManagePermission getPermissionById(@Param("permissionId") String permissionId);

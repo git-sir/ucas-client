@@ -44,7 +44,7 @@ module.exports = React.createClass({
 			$.post("account/upPhone",
 				$('#saveForm').serialize(),
 				function (result) {
-					if (result && result.retcode && result.retcode == "0") {
+					if (result && result.retcode && result.retcode === "0") {
 						UcsmyIndex.alert("提示", result.retmsg);
 						UcsmyIndex.closeChildrenPage();
 						me.state.callback();
@@ -52,22 +52,20 @@ module.exports = React.createClass({
 						UcsmyIndex.alert("提示",result.retmsg);
 					}
 					_removeButtonDisabled('save');
-				}).error(function(xhr, errorText, errorType){
+				}).error(function(){
 				UcsmyIndex.alert("失败", "网络异常");
 				   _removeButtonDisabled('save');
 			});
 		});
 	},
 	init: function (data,callback) {
-		var me = this;
 		this.setState({
 			title: '手机帐号修改',
 			ucasAccount: data,
 			callback: callback
 		});
-		// this.refs.saveForm.setValues(data);
 	},
-	_return: function (event) {
+	_return: function () {
 		UcsmyIndex.closeChildrenPage();
 	},
 	render: function () {

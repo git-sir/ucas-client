@@ -3,6 +3,7 @@ package com.ucsmy.ucas.manage.dao;
 import com.ucsmy.commons.interceptor.domain.PageRequest;
 import com.ucsmy.ucas.commons.page.UcasPageInfo;
 import com.ucsmy.ucas.manage.entity.UcasTokenStrategy;
+import com.ucsmy.ucas.manage.ext.TokenStrategyPojo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -22,15 +23,16 @@ public interface UcasTokenStrategyMapper {
      * @param pageRequest
      * @return
      */
-    UcasPageInfo<UcasTokenStrategy> queryTokenStrategyList(@Param("clientName") String clientName
+    UcasPageInfo<TokenStrategyPojo> queryTokenStrategyList(@Param("clientName") String clientName
             , @Param("clientId") String clientId, @Param("status") String status, PageRequest pageRequest);
 
     /**
      * 根据clientId查询token策略
      * @param clientId
+     * @param uuid 排除的uuid
      * @return
      */
-    List<UcasTokenStrategy> queryTokenStrategyListByClientId(@Param("clientId") String clientId, @Param("status") String status);
+    List<UcasTokenStrategy> queryTokenStrategyListByClientId(@Param("clientId") String clientId, @Param("uuid") String uuid, @Param("status") String status);
 
     /**
      * 根据主键uuid查询

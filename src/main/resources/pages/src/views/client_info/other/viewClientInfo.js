@@ -3,6 +3,7 @@ var Form = require('../../widget/other/form');
 var Input = UcsmyUI.Input;
 var Button = UcsmyUI.Button;
 var FormItem = UcsmyUI.Form.FormItem;
+var Tooltip=UcsmyUI.Tooltip;
 module.exports = React.createClass({
 	getInitialState: function(){
 		return {
@@ -14,14 +15,6 @@ module.exports = React.createClass({
 		}
 	},
 	init: function(data, showReturn, showTokenStrategy) {
-		// console.log("clientName="+data.clientName);
-		//var me = this;
-		////更新CheckBox组件,必须通过调用组件setChecked方法才有效
-		//if(data.grantType !== undefined && data.grantType !== null){
-		//	data.grantType.split(",").map(function (grantTypeName) {
-		//		me.refs[grantTypeName].setChecked(true);
-		//	})
-		//}
 		/* 是否展示返回按钮 */
 		var showRet = true;
 		if (showReturn != null) {
@@ -101,33 +94,57 @@ module.exports = React.createClass({
 		}
 		return (
 			<div>
-				<div className="panel">
+				<div className="panel panel-custom">
 					<div className="panel-title fc-red">应用信息</div>
 					<div className="ucs-form-group">
 						<span className="label">应用简称：</span>
-						<span>{this.state.client.clientName}</span>
+						<div className="custom-tooltip">
+							<Tooltip title={this.state.client.clientName}>
+								{this.state.client.clientName}
+							</Tooltip>
+						</div>
 					</div>
 					<div className="ucs-form-group">
 						<span className="label">应用ID：</span>
-						<span>{this.state.client.clientId}</span>
+						<div className="custom-tooltip">
+							<Tooltip title={this.state.client.clientId}>
+								{this.state.client.clientId}
+							</Tooltip>
+						</div>
 					</div>
 					<br/>
 					<div className="ucs-form-group">
 						<span className="label">应用密钥：</span>
-						<span>{this.state.client.clientSecret}</span>
+						<div className="custom-tooltip">
+							<Tooltip title={this.state.client.clientSecret}>
+								{this.state.client.clientSecret}
+							</Tooltip>
+						</div>
 					</div>
 					<div className="ucs-form-group">
 						<span className="label">授权类型：</span>
-						<span>{this.state.client.grantType}</span>
+						<div className="custom-tooltip">
+							<Tooltip title={this.state.client.grantType}>
+								{this.state.client.grantType}
+							</Tooltip>
+					  </div>
 					</div>
 					<br/>
 					<div className="ucs-form-group">
 						<span className="label">应用组：</span>
-						<span>{this.state.client.ucasClientGroup?this.state.client.ucasClientGroup.groupName:''}</span>
+						<div className="custom-tooltip">
+							<Tooltip title={this.state.client.ucasClientGroup?this.state.client.ucasClientGroup.groupName:''}>
+								{this.state.client.ucasClientGroup?this.state.client.ucasClientGroup.groupName:''}
+							</Tooltip>
+						</div>
 					</div>
 					<div className="ucs-form-group">
 						<span className="label">重定向URL：</span>
-						<span>{this.state.client.clientUrl}</span>
+						<div className="custom-tooltip">
+							<Tooltip title={this.state.client.clientUrl}>
+								{this.state.client.clientUrl}
+							</Tooltip>
+						</div>
 					</div>
 					<br/>
 					<div className="ucs-form-group">
@@ -136,7 +153,11 @@ module.exports = React.createClass({
 					</div>
 					<div className="ucs-form-group">
 						<span className="label">应用描述：</span>
-						<span>{this.state.client.descRibe}</span>
+						<div className="custom-tooltip">
+							<Tooltip title={this.state.client.descRibe}>
+								{this.state.client.descRibe}
+							</Tooltip>
+						</div>
 					</div>
 				</div>
 				{tokenStrategy}

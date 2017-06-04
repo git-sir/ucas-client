@@ -79,6 +79,7 @@ module.exports = React.createClass({
                 <div className="panel">
                     <div className="panel-title fc-red">{this.state.title}</div>
                     <div className="panel-content">
+
                         <Form config={[{
                             panelType: Input,
                             hidden: true,
@@ -106,7 +107,8 @@ module.exports = React.createClass({
                             itemClassName: "col-xs-5",
                             panelType: Input,
                             name: "telephone",
-                            v_telephone: true
+                            v_telephone: true,
+                            v_maxlength: 20
                         }, {
                             itemText: "手机",
                             itemClassName: "col-xs-5",
@@ -120,7 +122,8 @@ module.exports = React.createClass({
                             panelType: Input,
                             name: "email",
                             v_required: true,
-                            v_mail: true
+                            v_mail: true,
+                            v_maxlength: 32
                         }, {
                             itemText: "性别",
                             itemClassName: "col-xs-5",

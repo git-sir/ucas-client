@@ -45,8 +45,6 @@ public class UcasAccountGroupController {
     private UcasAccountGroupService ucasAccountGroupService;
 
 
-
-
     @RequestMapping("query")
     @ResponseBody
     public PageInfo<UcasAccountGroup> query(@RequestParam(required = false) String groupName, @RequestParam(required = false) String clientGroupName, @RequestParam(required = true) int pageNum, @RequestParam(required = true) int pageSize){
@@ -62,7 +60,7 @@ public class UcasAccountGroupController {
     @RequestMapping("addAccountGroup")
     @ResponseBody
     public AosResult addAccountGroup(UcasAccountGroup ucasAccountGroup){
-        ucasAccountGroup.setAccgUuid(UUIDGenerator.generate(32));
+        ucasAccountGroup.setAccgUuid(UUIDGenerator.generate());
         String errorMsg = HibernateValidateUtils.getErrors(ucasAccountGroup);
         if(!StringAndNumberUtil.isNullAfterTrim(errorMsg)) {
             return AosResult.retFailureMsg(errorMsg);
@@ -154,11 +152,13 @@ public class UcasAccountGroupController {
                                                             String emailAccount,String mobileAccount,
                                                             String realName,
                                                             int pageNum, int pageSize) {
+        String resultId;
         if (StringUtils.isEmpty(accgUuid)) {
-            accgUuid = ucasAccountGroupService.getDefaultAccountGroup().getAccgUuid();
+            resultId = ucasAccountGroupService.getDefaultAccountGroup().getAccgUuid();
+        } else {
+            resultId = accgUuid;
         }
-
-        return ucasAccountGroupService.queryAccountInfoByAccgUuid(accgUuid,ucasAccount,emailAccount,mobileAccount,realName, pageNum, pageSize);
+        return ucasAccountGroupService.queryAccountInfoByAccgUuid(resultId,ucasAccount,emailAccount,mobileAccount,realName, pageNum, pageSize);
     }
 
     /**
@@ -171,12 +171,15 @@ public class UcasAccountGroupController {
         if (StringUtils.isEmpty(accountIds)) {
             return AosResult.retFailureMsg("请选择用户");
         }
+        String resultId;
         if (StringUtils.isEmpty(accgUuid)) {
             // 解绑，先查默认用户组
             UcasAccountGroup defAccountGroup = ucasAccountGroupService.getDefaultAccountGroup();
-            accgUuid = defAccountGroup.getAccgUuid();
+            resultId = defAccountGroup.getAccgUuid();
+        } else {
+            resultId = accgUuid;
         }
-        ucasAccountGroupService.updateAccountInfoAccgUuid(accgUuid, accountIds);
+        ucasAccountGroupService.updateAccountInfoAccgUuid(resultId, accountIds);
         return AosResult.retSuccessMsg("操作成功");
     }
 

@@ -1,6 +1,7 @@
 package com.ucsmy.ucas.manage.ext;
 
 import com.alibaba.fastjson.JSONObject;
+import com.ucsmy.commons.tree.BaseNode;
 
 import java.io.Serializable;
 import java.util.List;
@@ -9,24 +10,13 @@ import java.util.List;
  * 首页左侧菜单
  * Created by chenqilin on 2017/4/17.
  */
-public class MainModulePojo implements Serializable {
+public class MainModulePojo extends BaseNode {
 
     /**
      *
      */
     private static final long serialVersionUID = 1L;
-    /*
-     * 节点编号
-     */
-    private String id;
-    /*
-     * 父节点编号
-     */
-    private String parentId;
-    /*
-     * 节点名称
-     */
-    private String name;
+
     /*
      * 节点样式
      */
@@ -47,30 +37,6 @@ public class MainModulePojo implements Serializable {
     private JSONObject icon;
 
     private String image;
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getParentId() {
-        return parentId;
-    }
-
-    public void setParentId(String parentId) {
-        this.parentId = parentId;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
 
     public String getClassName() {
         return className;

@@ -9,10 +9,12 @@ var resourceFormData = {
         {type: "required", msg: "资源组不能为空"}
     ],
     "descRibe": [
-        {type: "required", msg: "资源描述不能为空"}
+        {type: "required", msg: "资源描述不能为空"},
+        {type : "maxlength", maxlength : 200, msg : "资源描述长度不能超过200"}
     ],
     "resUri": [
-        {type: "required", msg: "资源URI不能为空"}
+        {type: "required", msg: "资源URI不能为空"},
+        {type : "maxlength", maxlength : 200, msg : "资源URI长度不能超过200"}
     ]
 };
 
@@ -45,7 +47,7 @@ module.exports = React.createClass({
         $.post("resourceGroup/queryAllResourceGroup", {}, function(data) {        	
             if(data.retcode != 0) {
                 return;
-            }            
+            }
             var array = [];
             data.data.map(function(returnData) {
                 array.push({
@@ -60,18 +62,18 @@ module.exports = React.createClass({
         }, "json").error(function(xhr, errorText, errorType){
         });
         
-        $.post("client_info/query", {pageNum:1,pageSize:99999}, function(data) {        	
+        $.post("client_info/query", {pageNum:1,pageSize:99999}, function(data) {
             if(data.retcode != 0) {
                 return;
-            }            
-            
+            }
+
             var array = [];
             data.data.resultList.map(function(returnData) {
             	array.push({
                     option: returnData.clientName,
                     value: returnData.clientId
                 });
-            });            
+            });
             me.setState({
             	clientArray: array
             });
@@ -104,16 +106,16 @@ module.exports = React.createClass({
 		});
 		//this.refs.saveForm.setValues(data);
 	},
-	_changeClient: function(event) {    	
+	_changeClient: function(event) {
     	var array = [];
-    	
-    	$.each(this.state.resGroupObj,function(){    		
+
+    	$.each(this.state.resGroupObj,function(){
     		if(event == "" || this.clientId == event){
     			array.push({
     				option: this.groupName,
                     value: this.resGroupUuid
     			});
-    		}	
+    		}
     	});
     	this.setState({
     		resGroupArray: array,
@@ -155,10 +157,10 @@ module.exports = React.createClass({
                             <input type="hidden" name="resUuid" value={this.state.clientResource.resUuid} />
                             <input type="hidden" name="status" value={this.state.clientResource.status} />
                             <FormItem label="应用简称">
-			                	<SelectDropDown ref="clientId" defaultText="全部" defaultValue="" value={this.state.clientResource.clientId} option={this.state.clientArray} onChange={this._changeClient} />
+			                	<SelectDropDown ref="clientId" defaultText="全部" defaultValue="" value={this.state.clientResource.clientId} option={this.state.clientArray} onChange={this._changeClient} showNum="10" />
 			                </FormItem>
                             <FormItem label="资源组">
-                            	<SelectDropDown name="resGroupUuid" defaultText="全部" defaultValue="" value={this.state.clientResource.resGroupUuid} option={this.state.resGroupArray} disabled={this.state.resGroupDisabled} />
+                            	<SelectDropDown name="resGroupUuid" defaultText="全部" defaultValue="" value={this.state.clientResource.resGroupUuid} option={this.state.resGroupArray} disabled={this.state.resGroupDisabled} showNum="10" />
                             </FormItem>
                             <FormItem label="资源描述"><Input name="descRibe" value={this.state.clientResource.descRibe}/></FormItem>
                             <FormItem label="资源URI"><Input name="resUri" value={this.state.clientResource.resUri} /></FormItem>
@@ -169,7 +171,7 @@ module.exports = React.createClass({
                             	<SelectDropDown name="isDefault" value={this.state.clientResource.isDefault} option={commonDropDown} />
                             </FormItem>
                             {/*<FormItem label="资源状态">
-                            	<SelectDropDown name="status" value={this.state.clientResource.status} option={statusDropDown} />                            
+                            	<SelectDropDown name="status" value={this.state.clientResource.status} option={statusDropDown} />
                             </FormItem>*/}
                         </Form>
 	                </div>

@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 71);
+/******/ 	return __webpack_require__(__webpack_require__.s = 73);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -198,7 +198,6 @@ module.exports = PermissionLink;
 /***/ 2:
 /***/ (function(module, exports) {
 
-//var FormItem = UcsmyUI.FormItem;
 var Form = UcsmyUI.Form;
 var FormItem = Form.FormItem;
 
@@ -231,7 +230,6 @@ var MyForm = React.createClass({displayName: "MyForm",
         return value;
     },
     isValid: function(retFn, validateField) {
-        var me = this;
         var fn = function (b) {
             retFn ? retFn(b) : "";
         };
@@ -300,7 +298,7 @@ var MyForm = React.createClass({displayName: "MyForm",
         if(data.v_minlength !== undefined)
             rules.push({type: "rule", rule: "/[\\s\\S]{" + data.v_minlength + ",}/", msg: data.itemText + "最小长度是：" + data.v_minlength});
         if(data.rules && data.rules.length > 0)
-            rules.push(...data.rules);
+        $.merge(rules,data.rules);
 
         return rules;
     },
@@ -353,6 +351,7 @@ var Form = __webpack_require__(2);
 var Input = UcsmyUI.Input;
 var Button = UcsmyUI.Button;
 var FormItem = UcsmyUI.Form.FormItem;
+var Tooltip=UcsmyUI.Tooltip;
 module.exports = React.createClass({displayName: "module.exports",
 	getInitialState: function(){
 		return {
@@ -364,14 +363,6 @@ module.exports = React.createClass({displayName: "module.exports",
 		}
 	},
 	init: function(data, showReturn, showTokenStrategy) {
-		// console.log("clientName="+data.clientName);
-		//var me = this;
-		////更新CheckBox组件,必须通过调用组件setChecked方法才有效
-		//if(data.grantType !== undefined && data.grantType !== null){
-		//	data.grantType.split(",").map(function (grantTypeName) {
-		//		me.refs[grantTypeName].setChecked(true);
-		//	})
-		//}
 		/* 是否展示返回按钮 */
 		var showRet = true;
 		if (showReturn != null) {
@@ -451,33 +442,57 @@ module.exports = React.createClass({displayName: "module.exports",
 		}
 		return (
 			React.createElement("div", null, 
-				React.createElement("div", {className: "panel"}, 
+				React.createElement("div", {className: "panel panel-custom"}, 
 					React.createElement("div", {className: "panel-title fc-red"}, "应用信息"), 
 					React.createElement("div", {className: "ucs-form-group"}, 
 						React.createElement("span", {className: "label"}, "应用简称："), 
-						React.createElement("span", null, this.state.client.clientName)
+						React.createElement("div", {className: "custom-tooltip"}, 
+							React.createElement(Tooltip, {title: this.state.client.clientName}, 
+								this.state.client.clientName
+							)
+						)
 					), 
 					React.createElement("div", {className: "ucs-form-group"}, 
 						React.createElement("span", {className: "label"}, "应用ID："), 
-						React.createElement("span", null, this.state.client.clientId)
+						React.createElement("div", {className: "custom-tooltip"}, 
+							React.createElement(Tooltip, {title: this.state.client.clientId}, 
+								this.state.client.clientId
+							)
+						)
 					), 
 					React.createElement("br", null), 
 					React.createElement("div", {className: "ucs-form-group"}, 
 						React.createElement("span", {className: "label"}, "应用密钥："), 
-						React.createElement("span", null, this.state.client.clientSecret)
+						React.createElement("div", {className: "custom-tooltip"}, 
+							React.createElement(Tooltip, {title: this.state.client.clientSecret}, 
+								this.state.client.clientSecret
+							)
+						)
 					), 
 					React.createElement("div", {className: "ucs-form-group"}, 
 						React.createElement("span", {className: "label"}, "授权类型："), 
-						React.createElement("span", null, this.state.client.grantType)
+						React.createElement("div", {className: "custom-tooltip"}, 
+							React.createElement(Tooltip, {title: this.state.client.grantType}, 
+								this.state.client.grantType
+							)
+					  )
 					), 
 					React.createElement("br", null), 
 					React.createElement("div", {className: "ucs-form-group"}, 
 						React.createElement("span", {className: "label"}, "应用组："), 
-						React.createElement("span", null, this.state.client.ucasClientGroup?this.state.client.ucasClientGroup.groupName:'')
+						React.createElement("div", {className: "custom-tooltip"}, 
+							React.createElement(Tooltip, {title: this.state.client.ucasClientGroup?this.state.client.ucasClientGroup.groupName:''}, 
+								this.state.client.ucasClientGroup?this.state.client.ucasClientGroup.groupName:''
+							)
+						)
 					), 
 					React.createElement("div", {className: "ucs-form-group"}, 
 						React.createElement("span", {className: "label"}, "重定向URL："), 
-						React.createElement("span", null, this.state.client.clientUrl)
+						React.createElement("div", {className: "custom-tooltip"}, 
+							React.createElement(Tooltip, {title: this.state.client.clientUrl}, 
+								this.state.client.clientUrl
+							)
+						)
 					), 
 					React.createElement("br", null), 
 					React.createElement("div", {className: "ucs-form-group"}, 
@@ -486,7 +501,11 @@ module.exports = React.createClass({displayName: "module.exports",
 					), 
 					React.createElement("div", {className: "ucs-form-group"}, 
 						React.createElement("span", {className: "label"}, "应用描述："), 
-						React.createElement("span", null, this.state.client.descRibe)
+						React.createElement("div", {className: "custom-tooltip"}, 
+							React.createElement(Tooltip, {title: this.state.client.descRibe}, 
+								this.state.client.descRibe
+							)
+						)
 					)
 				), 
 				tokenStrategy, 
@@ -498,7 +517,7 @@ module.exports = React.createClass({displayName: "module.exports",
 
 /***/ }),
 
-/***/ 46:
+/***/ 47:
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -515,17 +534,17 @@ var formData = {
     "maxTimes": [
         {type: "required", msg: "最大使用次数不能为空"},
         {type: "digits", msg: "最大使用次数只能为数字"},
-        {type : "maxlength", maxlength : 11, msg : "参数值长度不能超过11"}
+        {type : "maxlength", maxlength : 9, msg : "参数值长度不能超过9"}
     ],
     "expiryDate": [
         {type: "digits", msg: "Token时效只能为数字"},
         {type: "required", msg: "Token时效不能为空"},
-        {type : "maxlength", maxlength : 11, msg : "参数值长度不能超过11"}
+        {type : "maxlength", maxlength : 9, msg : "参数值长度不能超过9"}
     ],
     "refreshExpiryDate": [
         {type: "digits", msg: "刷新Token时效只能为数字"},
         {type: "required", msg: "刷新Token时效不能为空"},
-        {type : "maxlength", maxlength : 11, msg : "参数值长度不能超过11"}
+        {type : "maxlength", maxlength : 9, msg : "参数值长度不能超过9"}
     ]
 
 };
@@ -625,7 +644,7 @@ module.exports = React.createClass({displayName: "module.exports",
 
 /***/ }),
 
-/***/ 71:
+/***/ 73:
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -637,7 +656,7 @@ var Button = UcsmyUI.Button;
 var Grid = __webpack_require__(0);
 var PermissionLink = __webpack_require__(1);
 var ClientInfo = __webpack_require__(4);
-var Form = __webpack_require__(46);
+var Form = __webpack_require__(47);
 
 myPanel = React.createClass({displayName: "myPanel",
 
@@ -702,13 +721,7 @@ myPanel = React.createClass({displayName: "myPanel",
                           isTextOverflowHidden: true, 
                           columns: [
                               {name: 'clientId', header: '所属应用id', width: 270},
-                              {name: 'clientName', header: '应用简称', width: 150, content: function (item) {
-                                  return(
-                                      React.createElement("span", null, 
-                                          item.ucasClientInfo == null ? '' : item.ucasClientInfo.clientName
-                                      )
-                                  )
-                              }},
+                              {name: 'clientName', header: '应用简称', width: 150},
                               {name: 'maxTimes', header: '最大使用次数', width: 100},
                               {name: 'expiryDate', header: 'TOKEN有效期', width: 100},
                               {name: 'refreshExpiryDate', header: 'RefreshToken有效期', width: 200},

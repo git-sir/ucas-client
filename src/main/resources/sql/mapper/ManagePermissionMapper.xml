@@ -42,6 +42,23 @@
         where permission_id=#{permissionId}
     </select>
 
+    <select id="queryPermissionByCondition" resultMap="permissionResult" parameterType="Map">
+        SELECT *
+        FROM manage_permission
+        <where>
+            1=1
+            <if test="!(moduleId == null || moduleId == '')">
+                AND module_id=#{moduleId}
+            </if>
+            <if test="!(name == null || name == '')">
+                AND `name`=#{name}
+            </if>
+            <if test="!(excludeId == null || excludeId == '')">
+                AND permission_id!=#{excludeId}
+            </if>
+        </where>
+    </select>
+
     <update id="updatePermission" parameterType="com.ucsmy.ucas.manage.entity.ManagePermission">
         update manage_permission
         set

@@ -1,5 +1,4 @@
 package com.ucsmy.ucas.manage.service.impl;
-
 import com.alibaba.fastjson.JSONObject;
 import com.ucsmy.commons.interceptor.domain.PageRequest;
 import com.ucsmy.commons.utils.CommStatusEnum;
@@ -7,10 +6,12 @@ import com.ucsmy.ucas.commons.aop.annotation.Logger;
 import com.ucsmy.ucas.commons.aop.exception.result.AosResult;
 import com.ucsmy.ucas.commons.page.UcasPageInfo;
 import com.ucsmy.ucas.config.UserApiConfig;
+import com.ucsmy.ucas.config.log4j2.LogOuputTarget;
 import com.ucsmy.ucas.manage.dao.UcasUserInfoMapper;
 import com.ucsmy.ucas.manage.entity.UcasAccountGroup;
 import com.ucsmy.ucas.manage.ext.UserAccountInfo;
 import com.ucsmy.ucas.manage.service.*;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -41,6 +42,8 @@ public class UcasUserAccountServiceImpl implements UcasUserAccountService {
     @Autowired
     private UcasAccountGroupService ucasAccountGroupService;
 
+    private static org.slf4j.Logger log = LoggerFactory.getLogger(UcasUserAccountServiceImpl.class);
+
     @Logger(printSQL = true)
     private Map getTokenInfo(String ucasAccount) throws Exception {
 
@@ -59,7 +62,7 @@ public class UcasUserAccountServiceImpl implements UcasUserAccountService {
     }
 
     @Override
-    @Logger(printSQL = true)
+    @Logger(operationName = "添加账号", printSQL = true, outputTarget = LogOuputTarget.DATABASE)
     public AosResult addUserAccount(String ucasAccount, String accgUuid, String emailAccount,
                                     String mobileAccount, String password, String realName,
                                     String mobilePhone, String email, String sex,
@@ -67,15 +70,11 @@ public class UcasUserAccountServiceImpl implements UcasUserAccountService {
 
         String url = manageCommonService.concantRootUrl(userApiConfig.getAdd());
 
-//        Map map = new HashMap();
-//        map.put("access_token", sysTokenManagerService.getValidToken());
-//        Map userAccountMap = new HashMap();
-//
-//        userAccountMap.put("ucasAccount", ucasAccount);
         Map map = null;
         try {
             map = this.getTokenInfo(ucasAccount);
         } catch (Exception e) {
+            log.error("UcasUserAccountServiceImpl",e);
            return AosResult.retFailureMsg("调用外部接口异常");
         }
         Map userAccountMap = (Map) map.get("userAccount");
@@ -104,31 +103,32 @@ public class UcasUserAccountServiceImpl implements UcasUserAccountService {
     @Logger(printSQL = true)
     private String mapToJsonStr(String ucasAccount) throws Exception {
         Map map = this.getTokenInfo(ucasAccount);
-        String strJson = JSONObject.toJSONString(map);
-        return strJson;
+        return JSONObject.toJSONString(map);
     }
 
     @Override
-    @Logger(printSQL = true)
+    @Logger(operationName = "冻结账号", printSQL = true, outputTarget = LogOuputTarget.DATABASE)
     public AosResult freeze(String ucasAccount) {
 
         AosResult aosResult = null;
         try {
             aosResult = manageHttpAosResultService.sendPostJson( manageCommonService.concantRootUrl(userApiConfig.getFree()), this.mapToJsonStr(ucasAccount));
         } catch (Exception e) {
+            log.error("UcasUserAccountServiceImpl",e);
             return AosResult.retFailureMsg("调用外部接口异常");
         }
         return aosResult;
     }
 
     @Override
-    @Logger(printSQL = true)
+    @Logger(operationName = "解冻账号", printSQL = true, outputTarget = LogOuputTarget.DATABASE)
     public AosResult unfreeze(String ucasAccount) {
 
         AosResult aosResult = null;
         try {
             aosResult = manageHttpAosResultService.sendPostJson(manageCommonService.concantRootUrl(userApiConfig.getUnfree()),this.mapToJsonStr(ucasAccount));
         } catch (Exception e) {
+            log.error("UcasUserAccountServiceImpl",e);
             return AosResult.retFailureMsg("调用外部接口异常");
         }
 
@@ -136,7 +136,7 @@ public class UcasUserAccountServiceImpl implements UcasUserAccountService {
     }
 
     @Override
-    @Logger(printSQL = true)
+    @Logger(operationName = "修改email", printSQL = true, outputTarget = LogOuputTarget.DATABASE)
     public AosResult upEmail(String ucasAccount, String emailAccount) {
 
         Map map = null;
@@ -154,13 +154,14 @@ public class UcasUserAccountServiceImpl implements UcasUserAccountService {
     }
 
     @Override
-    @Logger(printSQL = true)
+    @Logger(operationName = "修改手机", printSQL = true, outputTarget = LogOuputTarget.DATABASE)
     public AosResult upPhone(String ucasAccount, String mobileAccount) {
 
         Map map = null;
         try {
             map = this.getTokenInfo(ucasAccount);
         } catch (Exception e) {
+            log.error("UcasUserAccountServiceImpl",e);
             return AosResult.retFailureMsg("调用外部接口异常");
         }
         Map userAccountMap = (Map) map.get("userAccount");
@@ -172,14 +173,13 @@ public class UcasUserAccountServiceImpl implements UcasUserAccountService {
     }
 
     @Override
-    @Logger(printSQL = true)
+    @Logger(operationName = "修改密码", printSQL = true, outputTarget = LogOuputTarget.DATABASE)
     public AosResult upPassword(String ucasAccount, String password) {
-
-
         Map map = null;
         try {
             map = this.getTokenInfo(ucasAccount);
         } catch (Exception e) {
+            log.error("UcasUserAccountServiceImpl",e);
             return AosResult.retFailureMsg("调用外部接口异常");
         }
         Map userAccountMap = (Map) map.get("userAccount");
@@ -191,13 +191,13 @@ public class UcasUserAccountServiceImpl implements UcasUserAccountService {
     }
 
     @Override
-    @Logger(printSQL = true)
+    @Logger(operationName = "删除账号", printSQL = true, outputTarget = LogOuputTarget.DATABASE)
     public AosResult delete(String ucasAccount) {
-
         AosResult aosResult = null;
         try {
             aosResult = manageHttpAosResultService.sendPostJson(manageCommonService.concantRootUrl(userApiConfig.getDel()),this.mapToJsonStr(ucasAccount));
         } catch (Exception e) {
+            log.error("UcasUserAccountServiceImpl",e);
             return AosResult.retFailureMsg("调用外部接口异常");
         }
         return aosResult;
@@ -206,11 +206,11 @@ public class UcasUserAccountServiceImpl implements UcasUserAccountService {
     @Override
     @Logger(printSQL = true)
     public AosResult getUser(String ucasAccount) {
-
         AosResult aosResult = null;
         try {
             aosResult = manageHttpAosResultService.sendPostJson(manageCommonService.concantRootUrl(userApiConfig.getUser()),this.mapToJsonStr(ucasAccount));
         } catch (Exception e) {
+            log.error("UcasUserAccountServiceImpl",e);
             return AosResult.retFailureMsg("调用外部接口异常");
         }
         if ("0".equals(aosResult.getRetcode()))
@@ -228,13 +228,14 @@ public class UcasUserAccountServiceImpl implements UcasUserAccountService {
     }
 
     @Override
-    @Logger(printSQL = true)
+    @Logger(operationName = "修改用户", printSQL = true, outputTarget = LogOuputTarget.DATABASE)
     public AosResult upInfo(String ucasAccount, String accgUuid, String realName, String mobilePhone, String email, String sex, String headImgUrl, String orgName) {
 
         Map map = null;
         try {
             map = this.getTokenInfo(ucasAccount);
         } catch (Exception e) {
+            log.error("UcasUserAccountServiceImpl",e);
             return AosResult.retFailureMsg("调用外部接口异常");
         }
         Map userAccountMap = (Map) map.get("userAccount");

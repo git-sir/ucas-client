@@ -1,5 +1,6 @@
 package com.ucsmy.ucas.manage.web;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,9 +18,9 @@ public class ManageRolePermissionController {
 	
 	@RequestMapping("queryRolePermission")
 	@ResponseBody
-	public String queryRolePermission(String role_id) throws Exception {
+	public String queryRolePermission(String roleId) throws JsonProcessingException {
 		JSONObject jsonObject = new JSONObject();
-		jsonObject.put("rolePermissions", JSONObject.parse(manageRolePermissionService.queryAllModulePermission(role_id)));
+		jsonObject.put("rolePermissions", JSONObject.parse(manageRolePermissionService.queryAllModulePermission(roleId)));
 		jsonObject.put("success", true);
 		jsonObject.put("msg", "");
 		return jsonObject.toString();
@@ -27,8 +28,8 @@ public class ManageRolePermissionController {
 	
 	@RequestMapping("addRolePermission")
 	@ResponseBody
-	public String addRolePermission(String role_id,String permissions_id,String name) {
-		return manageRolePermissionService.addRolePermission(role_id, permissions_id, name);
+	public String addRolePermission(String roleId,String permissionsId,String name) {
+		return manageRolePermissionService.addRolePermission(roleId, permissionsId, name);
 	}
 
 }

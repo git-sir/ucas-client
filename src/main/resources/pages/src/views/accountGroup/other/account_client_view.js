@@ -81,10 +81,11 @@ module.exports = React.createClass({
                 <div className="table-panel">
                     <Grid
                         url={this.state.gridUrl} ref="grid"
+                        isTextOverflowHidden={true}
                         columns={[{
                             name: 'groupName', header: '应用组名称', width: 200
                         },{
-                            name: 'descRibe', header: '应用组描述'
+                            name: 'descRibe', header: '应用组描述', width: 200
                         }]}
                     />
                     <div className="clearfix"></div>

@@ -7,12 +7,25 @@ import java.util.Date;
  * @author 
  */
 public class ManageSerialNumber implements Serializable {
+
+    /**
+     * 业务主键
+     */
     private String serialNumberId;
 
+    /**
+     * 当前序列号
+     */
     private Long currentSerialNumber;
 
+    /**
+     * 自增量
+     */
     private Long generatedSerialNumber;
 
+    /**
+     * 修改时间
+     */
     private Date serialNumberDate;
 
     private static final long serialVersionUID = 1L;

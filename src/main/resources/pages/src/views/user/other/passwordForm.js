@@ -47,7 +47,8 @@ module.exports = React.createClass({
 	                    	itemClassName: "col-xs-11",
 	                    	panelType: Input,
 	                    	name: "password",
-	                    	type: "password"
+	                    	type: "password",
+                            v_maxlength: 32
 	                    }, {
 	                    	itemText: "确认新密码",
 	                    	itemClassName: "col-xs-11",

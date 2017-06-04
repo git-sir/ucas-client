@@ -30,7 +30,7 @@ module.exports = React.createClass({
         }
     },
 
-    init: function (sign, data, successFn) {
+    init: function (sign, data) {
         var title, saveUrl;
         var gridUrl = "clientGroup/queryClientInfo";
         var queryData = {};
@@ -67,11 +67,11 @@ module.exports = React.createClass({
         });
     },
 
-    _return: function (event) {
+    _return: function () {
         UcsmyIndex.closeChildrenPage();
     },
 
-    _onClick: function (event) {
+    _onClick: function () {
         var me = this;
         var ids = [];
         var obj = document.getElementsByName("selectedId");
@@ -99,15 +99,14 @@ module.exports = React.createClass({
                 } else {
                     UcsmyIndex.alert("失败", data.retmsg);
                 }
-            }, "json").error(function (xhr, errorText, errorType) {
+            }, "json").error(function () {
                 _removeButtonDisabled('save');
                 UcsmyIndex.alert("失败", "网络异常");
             });
         });
     },
 
-    _view: function(column, event) {
-        var me = this;
+    _view: function(column) {
         UcsmyIndex.openChildrenPage(ViewClientInfo, function(refPanel) {
             refPanel.init(column);
         });

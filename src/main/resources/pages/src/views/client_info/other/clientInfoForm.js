@@ -11,7 +11,16 @@ var clientFormData = {
 
     "clientName": [
         {type: "required", msg: "应用简称不能为空"},
-        {type : "maxlength", maxlength : 100, msg : "参数名称长度不能超过100"}
+        {type : "maxlength", maxlength : 100, msg : "参数名称长度不能超过100"},
+        {type: "fn", validator: function(value){
+            if(""!=value) {
+
+                var m =/^(?!_)(?!.*?_$)[a-zA-Z0-9_]+$/;
+
+                return m.test(value);
+            }else return true;
+        }, msg: '只能为大小写字母、数字、下划线'
+        }
     ],
     "descRibe": [
         {type: "required", msg: "应用描述不能为空"},
@@ -22,17 +31,17 @@ var clientFormData = {
     ],
     "maxTimes": [
         {type: "digits", msg: "最大使用次数只能为数字"},
-        {type : "maxlength", maxlength : 11, msg : "参数值长度不能超过11"}
+        {type : "maxlength", maxlength : 9, msg : "参数值长度不能超过9"}
     ],
     "expiryDate": [
         {type: "digits", msg: "Token时效只能为数字"},
         {type: "required", msg: "Token时效不能为空"},
-        {type : "maxlength", maxlength : 11, msg : "参数值长度不能超过11"}
+        {type : "maxlength", maxlength : 9, msg : "参数值长度不能超过9"}
     ],
     "refreshExpiryDate": [
         {type: "digits", msg: "刷新Token时效只能为数字"},
         {type: "required", msg: "刷新Token时效不能为空"},
-        {type : "maxlength", maxlength : 11, msg : "参数值长度不能超过11"}
+        {type : "maxlength", maxlength : 9, msg : "参数值长度不能超过9"}
     ]
 
 };
@@ -58,16 +67,13 @@ module.exports = React.createClass({
         }
     },
     componentDidMount: function() {
-        // console.log("cilentInfoForm-componentDidMount");
         var me = this;
         $.post("client_info/queryAllClientGroup", {}, function(data) {
             if(data.retcode != 0) {
                 return;
             }
-            //console.log("加载到所有应用组");
             var array = [];
             data.data.map(function(data) {
-                //console.log("应用组"+data.groupName);
                 array.push({
                     option: data.groupName,
                     value: data.cligUuid
@@ -121,17 +127,6 @@ module.exports = React.createClass({
         return status;
     },
     init: function(title, url, data, successFn) {
-        // console.log("cilentInfoForm-init");
-        // console.log("grantType="+data.grantType);
-        //var me = this;
-        ////更新CheckBox组件,必须通过调用组件setChecked方法才有效
-        //if(data.grantType !== undefined && data.grantType !== null){
-        //    data.grantType.split(",").map(function (grantTypeName) {
-        //        if(me.refs[grantTypeName] !== undefined){
-        //            me.refs[grantTypeName].setChecked(true);
-        //        }
-        //    })
-        //}
         this.setState({
             title: title,
             url: url,
@@ -146,7 +141,6 @@ module.exports = React.createClass({
         UcsmyIndex.closeChildrenPage();
     },
     _save: function(event) {
-        // console.log("点击保存按钮");
         var me = this;
         this._validate(function(){
             _addButtonDisabled('save');
@@ -156,7 +150,6 @@ module.exports = React.createClass({
             var authorization_code_selected = false;
             //me.props.GRANT_TYPE.map(function(data,index){
             me.state.GRANT_TYPE.map(function(data,index){
-                //console.log("GRANT_TYPE = "+data);
                 if(me.refs[data].getChecked()){
                     array.push(data);
                     if(data == 'authorization_code'){   //判断授权类型是否有选择'authorization_code'
@@ -166,13 +159,14 @@ module.exports = React.createClass({
             });
             if(array.length == 0){
                 UcsmyIndex.alert("提示", "请选择授权类型");
+                _removeButtonDisabled('save');
                 return;
             }
             if(authorization_code_selected){
                 var clientUrlValue = me.refs.clientUrl.getValue();
-                // console.log("重定向URL = "+clientUrlValue);
                 if(clientUrlValue == undefined || clientUrlValue == ''){
                     UcsmyIndex.alert("提示", "选择authorization_code授权类型必须填写重定向URL");
+                    _removeButtonDisabled('save');
                     return;
                 }
             }
@@ -236,7 +230,6 @@ module.exports = React.createClass({
         });
     },
     render: function() {
-        // console.log("cilentInfoForm-render");
         return (
             <div>
                 <div className="panel">

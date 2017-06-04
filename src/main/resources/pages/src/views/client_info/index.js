@@ -15,19 +15,34 @@ myPanel = React.createClass({
 			STATUS_OPTION: [
 				{option: '可用', value: '0'},
 				{option: '停用', value: '1'}
-			],
-			GRANT_TYPE_OPTION: [
-				{option : 'authorization_code', value: 'authorization_code'},
-				{option : 'password', value: 'password'},
-				{option : 'client_credentials', value: 'client_credentials'},
-				{option : 'proxy_authorization_code', value: 'proxy_authorization_code'}
 			]
 		}
 	},
 	getInitialState:function () {
         return{
+			GRANT_TYPE_OPTION: []
         }
     },
+	componentDidMount: function() {
+		var me = this;
+		//加载到所有授权类型
+		$.post("client_info/queryAllGrantType", {}, function(data) {
+			if(data.retcode != 0) {
+				return;
+			}
+			//console.log("加载到所有授权类型");
+			//console.log(data.data);
+			var jsonArr = [];
+			data.data.map(function(data,index){
+				jsonArr.push({option : data, value: data});
+			});
+			//页面加载授权类型对应的CheckBox组件
+			me.setState({
+				GRANT_TYPE_OPTION: jsonArr
+			});
+		}, "json").error(function(xhr, errorText, errorType){
+		});
+	},
     _query: function() {
 		this.refs.grid.load({
 			clientName: this.refs.clientName.getValue(),
@@ -45,7 +60,7 @@ myPanel = React.createClass({
     		});
     	});
     },
-    _update: function(column, event) {
+    _update: function(column) {
     	var me = this;
     	UcsmyIndex.openChildrenPage(ClientInfoForm, function(refPanel) {
     		refPanel.init('修改应用', 'client_info/update', column, function(){
@@ -53,19 +68,17 @@ myPanel = React.createClass({
     		}, true);
     	});
     },
-    _bindResgr: function(column, event) {
-    	var me = this;
+    _bindResgr: function(column) {
     	UcsmyIndex.openChildrenPage(ClientResgrRelForm, function(refPanel) {
     		refPanel.init("bind", column);
     	});
     },
-    _unbindResgr: function(column, event) {
-    	var me = this;
+    _unbindResgr: function(column) {
     	UcsmyIndex.openChildrenPage(ClientResgrRelForm, function(refPanel) {
     		refPanel.init("unbind", column);
     	});
     },
-    _delete: function(column, event) {
+    _delete: function(column) {
     	var me = this;
 		UcsmyIndex.confirm("确定", "你真的要删除该应用数据吗？", function() {
 			$.post("client_info/delete", {clientId: column.clientId}, function(data) {
@@ -75,13 +88,12 @@ myPanel = React.createClass({
 				} else {
 					UcsmyIndex.alert("失败", data.retmsg);
 				}
-			}, "json").error(function(xhr, errorText, errorType){
+			}, "json").error(function(){
 				UcsmyIndex.alert("失败", "网络异常");
 		    });
 		});
     },
-	_view: function(column, event) {
-		var me = this;
+	_view: function(column) {
 		UcsmyIndex.openChildrenPage(ViewClientInfo, function(refPanel) {
 			refPanel.init(column);
 		});
@@ -128,7 +140,7 @@ myPanel = React.createClass({
 							<SelectDropDown
 								ref="grantType"
 								defaultText="请选择" defaultValue=""
-								option={me.props.GRANT_TYPE_OPTION} searchPlaceholder="请选择"
+								option={me.state.GRANT_TYPE_OPTION} searchPlaceholder="请选择"
 							/>
 						</FormItem>
 					</div>
@@ -183,7 +195,6 @@ myPanel = React.createClass({
           						header: '操作',
           						permissionName: 'client_info_view,client_info_update,client_info_delete,client_info_bindResgr,client_info_unbindResgr',
           						content:function(column){
-          							//console.log(this);
           							if(column.status == 0){
 										return (<span>
 											<PermissionLink permissionName="client_info_view" href="Javascript:void(0);" onClick={me._view.bind(this, column)}>查看&nbsp;&nbsp;&nbsp;</PermissionLink>

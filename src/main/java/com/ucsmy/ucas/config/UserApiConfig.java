@@ -30,6 +30,9 @@ public class UserApiConfig
 
     private String token;
 
+    @Autowired
+    private LoginTypeConfig loginTypeConfig;
+
 /*    @Autowired
     private ManageConfigService manageConfigService;
 
@@ -81,7 +84,9 @@ public class UserApiConfig
     }
 
     public String getToken() {
-        return token;
+
+        return token+"&client_id="+loginTypeConfig.getClientId()+"&client_secret="+loginTypeConfig.getClientSecret();
+
     }
 
     public void setAdd(String add) {

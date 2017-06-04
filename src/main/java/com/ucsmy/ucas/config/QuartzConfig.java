@@ -23,7 +23,6 @@ public class QuartzConfig {
     @Bean(name = "scheduler")
     public SchedulerFactoryBean getSchedulerFactoryBean() {
         SchedulerFactoryBean factoryBean = new SchedulerFactoryBean();
-        PropertiesFactoryBean propertiesFactoryBean = new PropertiesFactoryBean();
         // 注入自定义工厂类
         factoryBean.setJobFactory(getScheduleJobFactory());
         factoryBean.setQuartzProperties(quartzProperties());

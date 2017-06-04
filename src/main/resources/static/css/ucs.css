@@ -587,9 +587,11 @@ table {
       display: none; }
       .ucs-form-group .ucs-form-explain.success i {
         color: #4ca40b; }
-  .ucs-layer .ucs-form-explain {
-    left: 115px;
-    top: 27px;
+.ucs-layer .ucs-form-explain {
+    left:auto;
+    top:auto;
+    right: -18px;
+    margin-left: 0;
     position: absolute; }
   .ucs-layer .ucs-form-explain.success {
     position: static; }
@@ -940,7 +942,7 @@ table {
     overflow-x: hidden;
     overflow-y: auto; }
   .ucs-layer .ucs-layer-body {
-    padding: 0 50px 40px; }
+    padding: 0 40px 40px; }
     .ucs-layer .ucs-layer-body.ucs-layer-text {
       text-align: center;
       padding: 20px 15px;

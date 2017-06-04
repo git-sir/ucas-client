@@ -67,11 +67,8 @@ public class ManagePermissionServiceImpl implements ManagePermissionService {
         if (StringUtils.isEmpty(permission.getUrlAction())) {
             return AosResult.retFailureMsg("资源URL不能为空");
         }
-        if (permission.getName().length() > 32) {
-            return AosResult.retFailureMsg("权限名称长度不能大于32");
-        }
-        if (permission.getName().length() > 32) {
-            return AosResult.retFailureMsg("权限名称长度不能大于32");
+        if (permission.getName().length() > 64) {
+            return AosResult.retFailureMsg("权限名称长度不能大于64");
         }
         if (permission.getDescription().length() > 256) {
             return AosResult.retFailureMsg("描述长度不能大于256");
@@ -79,8 +76,14 @@ public class ManagePermissionServiceImpl implements ManagePermissionService {
         if (permission.getUrlAction().length() > 256) {
             return AosResult.retFailureMsg("资源URL长度不能大于256");
         }
-        if (permission.getSn().length() > 32) {
+        if (permission.getSn().length() > 36) {
             return AosResult.retFailureMsg("判断标识长度不能大于36");
+        }
+        // 权限名称不能相同
+        List<ManagePermission> list = managePermissionMapper.queryPermissionByCondition(permission.getModuleId()
+                , permission.getName(), permission.getPermissionId());
+        if (!list.isEmpty()) {
+            return AosResult.retFailureMsg("该菜单下存在同名权限");
         }
         return AosResult.retSuccessMsg("success");
     }

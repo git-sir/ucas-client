@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 74);
+/******/ 	return __webpack_require__(__webpack_require__.s = 76);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -198,7 +198,6 @@ module.exports = PermissionLink;
 /***/ 2:
 /***/ (function(module, exports) {
 
-//var FormItem = UcsmyUI.FormItem;
 var Form = UcsmyUI.Form;
 var FormItem = Form.FormItem;
 
@@ -231,7 +230,6 @@ var MyForm = React.createClass({displayName: "MyForm",
         return value;
     },
     isValid: function(retFn, validateField) {
-        var me = this;
         var fn = function (b) {
             retFn ? retFn(b) : "";
         };
@@ -300,7 +298,7 @@ var MyForm = React.createClass({displayName: "MyForm",
         if(data.v_minlength !== undefined)
             rules.push({type: "rule", rule: "/[\\s\\S]{" + data.v_minlength + ",}/", msg: data.itemText + "最小长度是：" + data.v_minlength});
         if(data.rules && data.rules.length > 0)
-            rules.push(...data.rules);
+        $.merge(rules,data.rules);
 
         return rules;
     },
@@ -367,7 +365,7 @@ module.exports = PermissionButton;
 
 /***/ }),
 
-/***/ 48:
+/***/ 49:
 /***/ (function(module, exports) {
 
 var Input = UcsmyUI.Input;
@@ -384,7 +382,8 @@ var configFormData = {
 			  p=value;
 			  return true;
 		}, msg: ''
-		}
+		},
+        {type : "maxlength", maxlength : 32, msg : "密码长度不能超过32"}
 	],
 	"newPassword": [
 		{type: "required", msg: "确认密码不能为空"},
@@ -438,22 +437,19 @@ module.exports = React.createClass({displayName: "module.exports",
 					} else {
 						UcsmyIndex.alert("提示",result.retmsg);
 					}
-				}).error(function(xhr, errorText, errorType){
+				}).error(function(){
                 _removeButtonDisabled('save');
 				UcsmyIndex.alert("失败", "网络异常");
 			});
 		});
 	},
 	init: function (data) {
-		var me = this;
 		this.setState({
 			title: '密码修改',
 			ucasAccount: data
 		});
-		console.log(data);
-		// this.refs.saveForm.setValues(data);
 	},
-	_return: function (event) {
+	_return: function () {
 		UcsmyIndex.closeChildrenPage();
 	},
 	render: function () {
@@ -481,7 +477,7 @@ module.exports = React.createClass({displayName: "module.exports",
 
 /***/ }),
 
-/***/ 49:
+/***/ 50:
 /***/ (function(module, exports, __webpack_require__) {
 
 var Input = UcsmyUI.Input;
@@ -548,7 +544,7 @@ module.exports = React.createClass({displayName: "module.exports",
                     me.state.successFn();
                     me._return();
                 } else {
-                    UcsmyIndex.alert("失败", data.msg);
+                    UcsmyIndex.alert("失败", data.retmsg);
                 }
             },
             error: function(type, xhr, errorText, errorType) {
@@ -565,6 +561,7 @@ module.exports = React.createClass({displayName: "module.exports",
                 React.createElement("div", {className: "panel"}, 
                     React.createElement("div", {className: "panel-title fc-red"}, this.state.title), 
                     React.createElement("div", {className: "panel-content"}, 
+
                         React.createElement(Form, {config: [{
                             panelType: Input,
                             hidden: true,
@@ -592,7 +589,8 @@ module.exports = React.createClass({displayName: "module.exports",
                             itemClassName: "col-xs-5",
                             panelType: Input,
                             name: "telephone",
-                            v_telephone: true
+                            v_telephone: true,
+                            v_maxlength: 20
                         }, {
                             itemText: "手机",
                             itemClassName: "col-xs-5",
@@ -606,7 +604,8 @@ module.exports = React.createClass({displayName: "module.exports",
                             panelType: Input,
                             name: "email",
                             v_required: true,
-                            v_mail: true
+                            v_mail: true,
+                            v_maxlength: 32
                         }, {
                             itemText: "性别",
                             itemClassName: "col-xs-5",
@@ -639,15 +638,15 @@ module.exports = React.createClass({displayName: "module.exports",
 
 /***/ }),
 
-/***/ 74:
+/***/ 76:
 /***/ (function(module, exports, __webpack_require__) {
 
 var Input = UcsmyUI.Input;
 var Button = UcsmyUI.Button;
 var FormItem = UcsmyUI.Form.FormItem;
 var Grid = __webpack_require__(0);
-var UserForm = __webpack_require__(49);
-var PasswordForm = __webpack_require__(48);
+var UserForm = __webpack_require__(50);
+var PasswordForm = __webpack_require__(49);
 var PermissionLink = __webpack_require__(1);
 var PermissionButton = __webpack_require__(3);
 var Form = __webpack_require__(2);
@@ -668,7 +667,7 @@ myPanel = React.createClass({displayName: "myPanel",
     		});
     	});
     },
-    _update: function(column, event) {
+    _update: function(column) {
     	var me = this;
     	UcsmyIndex.openChildrenPage(UserForm, function(refPanel) {
     		refPanel.init('修改用户', 'user/update', column, function(){
@@ -676,23 +675,22 @@ myPanel = React.createClass({displayName: "myPanel",
     		}, true);
     	});
     },
-    _updatePassword: function(column, event) {
-    	var me = this;
+    _updatePassword: function(column) {
     	UcsmyIndex.openChildrenPage(PasswordForm, function(refPanel) {
     		refPanel.init(column);
     	});
     },
-    _delete: function(column, event) {
+    _delete: function(column) {
     	var me = this;
 		UcsmyIndex.confirm("确定", "你真的要删除该用户数据吗？", function() {
 			$.post("user/delete", {userId: column.userId}, function(data) {
 				if(data.retcode == 0) {
-					UcsmyIndex.alert("成功", data.msg);
+					UcsmyIndex.alert("成功", data.retmsg);
 					me.refs.grid.reload();
 				} else {
-					UcsmyIndex.alert("失败", data.msg);
+					UcsmyIndex.alert("失败", data.retmsg);
 				}
-			}, "json").error(function(xhr, errorText, errorType){
+			}, "json").error(function(){
 				UcsmyIndex.alert("失败", "网络异常");
 		    });
 		});
@@ -736,9 +734,9 @@ myPanel = React.createClass({displayName: "myPanel",
           					}, {
           						name: 'email', header: '邮箱'
           					}, {
-          						name: 'sex', header: '性别', content:function(column){
+          						name: 'gender', header: '性别', content:function(column){
           				    		 return (React.createElement("span", null, 
-          				    		 	column.sex == '1' ? '男' : '女'
+          				    		 	column.gender == '1' ? '男' : '女'
           				    		 ))
           						}
           					}, {

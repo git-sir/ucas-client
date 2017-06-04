@@ -7,6 +7,9 @@ import com.ucsmy.ucas.config.LoginTypeConfig;
 
 import com.ucsmy.ucas.config.shiro.ShiroRealmImpl;
 import com.ucsmy.ucas.config.shiro.ShiroUtils;
+import com.ucsmy.ucas.config.shiro.csrf.CsrfToken;
+import com.ucsmy.ucas.config.shiro.csrf.CsrfTokenRepository;
+import com.ucsmy.ucas.config.shiro.csrf.HttpSessionCsrfTokenRepository;
 import com.ucsmy.ucas.manage.entity.ManagePermission;
 import com.ucsmy.ucas.manage.ext.MainModulePojo;
 import com.ucsmy.ucas.manage.ext.UserProfilePojo;
@@ -46,16 +49,19 @@ public class ManageLoginController {
     private LoginTypeConfig loginTypeConfig;
 
 
+    private CsrfTokenRepository csrfTokenRepository = new HttpSessionCsrfTokenRepository();
+
     @Autowired
     private ManageCommonService manageCommonService;
 
+    @Autowired
+    SysTokenManagerService sysTokenManagerService;
     private final String LOGIN_MATCH = "loginUrl";
 
 
 
     @RequestMapping(value = "login")
     public String login (HttpServletRequest httpRequest, Model model) {
-        System.out.println(getClass()+"拦截到URL："+httpRequest.getRequestURI());
         Map<String,String> map = new HashMap();
 
         String ctx = httpRequest.getScheme()+"://"+httpRequest.getServerName() //服务器地址
@@ -79,7 +85,8 @@ public class ManageLoginController {
 
     @RequestMapping(value = "outSys")
     public String outSys (HttpServletRequest httpRequest, Model model) {
-
+        csrfTokenRepository.removeToken(httpRequest);
+        sysTokenManagerService.cleanTokenCache();
         SecurityUtils.getSubject().logout();
         return "redirect:login";
 //        Map<String,String> map = new HashMap();
@@ -151,6 +158,19 @@ public class ManageLoginController {
 
         if(SecurityUtils.getSubject().isAuthenticated())
             return "redirect:index";
+
+        if(loginTypeConfig.getLocalType())
+        {
+            return "redirect:login";
+        }
+
+        CsrfToken csrfToken = this.csrfTokenRepository.loadToken(httpRequest);
+        boolean missingToken = csrfToken == null;
+        if(missingToken)
+        {
+            return "redirect:login";
+        }
+
         return "bind/index";
     }
 
@@ -159,8 +179,8 @@ public class ManageLoginController {
     @ResponseBody
     public AosResult getRsa(HttpSession httpSession)
     {
-        Map<String,String> map = new HashMap();
-        map= sysSecretKeyManagerService.getRsaPubKey(httpSession);
+        Map<String,String> map;
+        map = sysSecretKeyManagerService.getRsaPubKey(httpSession);
 
         if (loginTypeConfig.getLocalType()){
             map.put("loginType","local");

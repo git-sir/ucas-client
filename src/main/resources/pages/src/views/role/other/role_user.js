@@ -73,10 +73,28 @@ module.exports = React.createClass({
 		    });
 		});
 	},
+    _query: function() {
+        this.refs.grid.load({
+        	'account': this.refs.account.getValue(),
+        	'name': this.refs.name.getValue()
+        });
+    },
 	render: function() {
 		return (					
 			<div>
+				<div className="panel">
+					<div className="panel-title">查询条件</div>
+					<div className="panel-content">
+						<FormItem label="用户账号">
+							<Input ref="account"/>
+						</FormItem>
+						<FormItem label="用户姓名">
+							<Input ref="name"/>
+						</FormItem>
+					</div>
+				</div>
 	            <div className="btn-panel">
+					<Button buttonType="bidnow" onClick={this._query}>查询</Button>
 	                <Button id="save" buttonType="bidnow" onClick={this._onClick}>{this.state.title}</Button>
 	                <Button buttonType="cancel" onClick={this._return}>返回</Button>
 	            </div>

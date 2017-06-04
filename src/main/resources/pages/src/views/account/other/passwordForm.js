@@ -9,6 +9,12 @@ var configFormData = {
 	"password": [
 		{type: "required", msg: "密码不能为空"},
 		{type: "fn", validator: function(value){
+			var reg = /^[A-Za-z0-9~!@#$%^&*()\\-_=+{}\[\]:\"|;'\<\>?,.]{6,16}$/;
+
+			return reg.test(value)
+		}, msg: '密码长度为6-16个字符,只能是a-Z0-9及常用符号'
+		},
+		{type: "fn", validator: function(value){
 			  p=value;
 			  return true;
 		}, msg: ''
@@ -17,7 +23,13 @@ var configFormData = {
 	"repassword": [
 		{type: "required", msg: "确认密码不能为空"},
 		{type: "fn", validator: function(value){
-			if(p!=value) {
+			var reg = /^[A-Za-z0-9~!@#$%^&*()\\-_=+{}\[\]:\"|;'\<\>?,.]{6,16}$/;
+
+			return reg.test(value)
+		}, msg: '密码长度为6-16个字符,只能是a-Z0-9及常用符号'
+		},
+		{type: "fn", validator: function(value){
+			if(p!==value) {
 
 				return false;
 			}else return true;
@@ -58,7 +70,7 @@ module.exports = React.createClass({
 			$.post("account/upPassword",
 				$('#saveForm').serialize(),
 				function (result) {
-					if (result && result.retcode && result.retcode == "0") {
+					if (result && result.retcode && result.retcode === "0") {
 						UcsmyIndex.alert("提示", result.retmsg);
 						UcsmyIndex.closeChildrenPage();
 						me.state.callback();
@@ -66,21 +78,20 @@ module.exports = React.createClass({
 						UcsmyIndex.alert("提示",result.retmsg);
 					}
 					_removeButtonDisabled('save');
-				}).error(function(xhr, errorText, errorType){
+				}).error(function(){
 				UcsmyIndex.alert("失败", "网络异常");
 				_removeButtonDisabled('save');
 			});
 		});
 	},
 	init: function (data) {
-		var me = this;
+
 		this.setState({
 			title: '密码修改',
 			ucasAccount: data
 		});
-		// this.refs.saveForm.setValues(data);
 	},
-	_return: function (event) {
+	_return: function () {
 		UcsmyIndex.closeChildrenPage();
 	},
 	render: function () {

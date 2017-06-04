@@ -15,4 +15,28 @@
         #{userId}
         )
     </insert>
+
+
+    <select id="query"  parameterType="Map" resultType="com.ucsmy.ucas.manage.entity.ManageLogInfo">
+        SELECT
+         i.id as id ,
+         i.create_time  as createTime,
+         i.ip_address as ipAddress,
+         i.log_level as logLevel,
+         i.message as message,
+         i.user_name as userName
+        FROM manage_log_info i
+        <where>
+            <if test="!(startDate == null || startDate == '')">
+                and i.create_time &gt;=#{startDate}
+            </if>
+            <if test="!(endDate == null || endDate == '')">
+                and i.create_time &lt;#{endDate}
+            </if>
+               AND i.message!=''
+        </where>
+        ORDER BY i.create_time DESC
+    </select>
+
+
 </mapper>

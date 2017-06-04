@@ -18,9 +18,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("userRel")
 public class UcasUserRelManageController {
 
-    private final String OPENID_EMPTY = "openId为空";
-    private final String DELETE_SUCCESS = "取消授权成功";
-    private final String DELETE_FAIL = "取消授权失败";
+    private final static String OPENID_EMPTY = "openId为空";
+    private final static String DELETE_SUCCESS = "取消授权成功";
+    private final static String DELETE_FAIL = "取消授权失败";
 
     @Autowired
     private UcasUserClientRelService ucasUserClientRelService;

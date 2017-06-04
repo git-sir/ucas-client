@@ -15,6 +15,19 @@
 	<link rel="stylesheet" th:href="@{/css/ucs.css}" />
 	<link rel="stylesheet" th:href="@{/css/index.css}" />
 	<style type="text/css">
+		.content_component_sign  .panel-custom .ucs-form-group{
+			min-width: 500px;
+		}
+
+        .content_component_sign .panel-log .ucs-form-group{
+            height:auto;
+            vertical-align: top;
+        }
+        .content_component_sign .panel-log .ucs-form-group .ucs-textarea-control textarea{
+            resize: vertical;
+            overflow: auto;
+            height: 65px;
+        }
 		.custom-tooltip div{
 			word-wrap:break-word;
 			word-break:break-all;
@@ -22,6 +35,9 @@
 			overflow:hidden;
 			text-overflow:ellipsis;
 			width: 200px;
+		}
+		.ucs-layer .ucs-form-group .unit{
+			font-style: normal;
 		}
 	</style>
 	<script th:inline="javascript" type="text/javascript">

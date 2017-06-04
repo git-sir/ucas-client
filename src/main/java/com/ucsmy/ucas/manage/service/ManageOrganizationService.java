@@ -1,6 +1,7 @@
 package com.ucsmy.ucas.manage.service;
 
 import com.ucsmy.commons.interceptor.domain.PageInfo;
+import com.ucsmy.ucas.commons.aop.exception.result.AosResult;
 import com.ucsmy.ucas.manage.entity.ManageOrganization;
 import com.ucsmy.ucas.manage.ext.UcasClientOrganizationUser;
 import com.ucsmy.ucas.manage.ext.UcasClientUserProfileWithOrganization;
@@ -31,8 +32,9 @@ public interface ManageOrganizationService {
 
      int insertBatch( List<UcasClientOrganizationUser> list);
 
-     PageInfo<UcasClientUserProfileWithOrganization> queryUserWithOrganization(String id, int page, int size);
+     PageInfo<UcasClientUserProfileWithOrganization> queryUserWithOrganization(String id, String name, String account, int page, int size);
 
-     PageInfo<UcasClientUserProfileWithOrganization> queryUserWithoutOrganization(String id, int page, int size);
+     PageInfo<UcasClientUserProfileWithOrganization> queryUserWithoutOrganization(String id, String name, String account, int page, int size);
 
+     List<ManageOrganization> queryOrganizationByCondition(ManageOrganization manageOrganization);
 }
